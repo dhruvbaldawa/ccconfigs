@@ -1,0 +1,13 @@
+{
+  "name": "ccconfigs",
+  "owner": {
+    "name": "Dhruv Baldawa"
+  },
+  "plugins": [
+    {
+      "name": "essentials",
+      "source": "./essentials",
+      "description": "My absolute essentials to work with Claude Code"
+    }
+  ]
+}
