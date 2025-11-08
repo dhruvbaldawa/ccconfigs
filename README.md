@@ -29,6 +29,17 @@ Custom commands for project management and documentation:
 
 - **`/optimize-doc`**: Optimizes documentation for conciseness and clarity. Strengthens vague instructions, removes redundancy while preserving correctness, and can run idempotently across multiple passes.
 
+### Utility Scripts
+
+**`manage-permissions.ts`**: Interactive tool for managing Claude Code permissions across projects.
+
+Promotes permissions from project-specific settings to global config, with optional cleanup of redundant local entries. Features multi-select interface, dry-run preview mode, and clean functional architecture (domain, filesystem, UI layers).
+
+```bash
+bun scripts/manage-permissions.ts          # Interactive mode
+bun scripts/manage-permissions.ts --dry-run  # Preview changes
+```
+
 ### Skills
 
 Comprehensive development workflow frameworks:
@@ -106,6 +117,8 @@ ccconfigs/
 │   ├── CLAUDE.md                   # Global working rules
 │   └── settings.json               # Global settings
 ├── setup-symlinks.sh               # Idempotent setup script for global config
+├── scripts/                        # Utility scripts
+│   └── manage-permissions.ts       # Interactive permission management
 ├── .claude/                        # Project-specific configuration
 │   └── CLAUDE.md                  # Project instructions
 └── essentials/                     # The essentials plugin
