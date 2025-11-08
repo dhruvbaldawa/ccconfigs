@@ -1,0 +1,15 @@
+{
+  "sessionStart": [
+    {
+      "description": "Move linked Todoist task to 'In Progress'",
+      "matcher": "startup",
+      "command": "${CLAUDE_PLUGIN_ROOT}/scripts/session-start.sh"
+    }
+  ],
+  "sessionEnd": [
+    {
+      "description": "Move linked Todoist task to 'For Review'",
+      "command": "${CLAUDE_PLUGIN_ROOT}/scripts/session-end.sh"
+    }
+  ]
+}
