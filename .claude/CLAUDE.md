@@ -11,17 +11,25 @@ Personal Claude Code plugin marketplace containing the **essentials** plugin - s
 ```
 ccconfigs/
 ├── .claude-plugin/marketplace.json   # Marketplace definition (register new plugins here)
-└── essentials/                       # The essentials plugin
-    ├── .claude-plugin/plugin.json   # Plugin metadata
-    ├── .mcp.json                    # MCP server configurations
-    ├── commands/                    # Slash command definitions (.md files)
-    │   ├── breakdown.md            # Creates agile task breakdowns
-    │   └── do.md                   # Executes tasks from specs
-    └── skills/                      # Development skill frameworks
-        ├── debugging/              # UNDERSTAND methodology (10-step checklist)
+├── config/                          # Global Claude Code configuration (symlinked to ~/.claude/)
+│   ├── CLAUDE.md                   # Global working rules
+│   └── settings.json               # Global settings
+├── setup-symlinks.sh               # Idempotent setup script for global config
+├── .claude/                        # Project-specific configuration
+│   ├── CLAUDE.md                  # This file - repository guidance
+│   └── settings.local.json        # Local overrides (gitignored)
+└── essentials/                     # The essentials plugin
+    ├── .claude-plugin/plugin.json # Plugin metadata
+    ├── .mcp.json                  # MCP server configurations
+    ├── commands/                  # Slash command definitions (.md files)
+    │   ├── breakdown.md          # Creates agile task breakdowns
+    │   ├── do.md                 # Executes tasks from specs
+    │   └── optimize-doc.md       # Optimizes documentation
+    └── skills/                    # Development skill frameworks
+        ├── debugging/            # UNDERSTAND methodology (10-step checklist)
         │   ├── SKILL.md
-        │   └── reference/         # Root cause framework, antipatterns
-        └── technical-planning/     # Risk-first planning (4-phase approach)
+        │   └── reference/       # Root cause framework, antipatterns
+        └── technical-planning/   # Risk-first planning (4-phase approach)
             └── SKILL.md
 ```
 
@@ -33,8 +41,10 @@ Configuration files only (JSON and Markdown). No build, test, or lint commands.
 
 ### Git Workflow
 
-- Commit all changes to plugin configurations
-- `.claude/` directory is gitignored (personal workspace)
+- Commit all changes to plugin configurations and global config
+- `.claude/settings.local.json` is gitignored (local permissions and overrides)
+- Global configuration in `config/` is version controlled and symlinked to `~/.claude/`
+- Run `./setup-symlinks.sh` after cloning to set up global config symlinks
 
 ### Adding to This Repository
 
@@ -53,6 +63,8 @@ Configuration files only (JSON and Markdown). No build, test, or lint commands.
 **`/breakdown [SPEC DOCUMENT]`**: Creates structured, agile task breakdowns from design documents. Outputs iterations with tasks that include status, goals, validation checklists, and detailed LLM prompts. Designed to work iteratively - generates one iteration at a time to avoid token limits.
 
 **`/do [SPEC DOCUMENT] [TASK NUMBER | --resume] [ADDITIONAL CONTEXT] [--auto]`**: Executes tasks from breakdown documents. Updates task status to "In Progress", follows the LLM prompt, validates completion criteria. With `--auto` flag, automatically commits after each task and continues to the next. Supports `--resume` to continue from first incomplete task.
+
+**`/optimize-doc [DOCUMENT]`**: Optimizes documentation for conciseness and clarity. Strengthens vague instructions, removes redundancy while preserving correctness. Can run idempotently - multiple passes won't degrade quality.
 
 **Key pattern**: `/breakdown` and `/do` work with shared state in a spec document. Breakdown creates the plan, do executes tasks one by one while maintaining state in the document.
 
