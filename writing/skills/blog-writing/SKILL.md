@@ -7,26 +7,45 @@ description: Write blog posts in Dhruv Baldawa's distinctive voice - conversatio
 
 ## Quickstart
 
-1. Start with a rough outline or topic from the user
+1. Reference braindump.md for research, examples, and outline
 2. Hook the reader with an anecdote, problem statement, or rhetorical question
 3. Structure with TL;DR bullets, clear H2/H3 headings, short paragraphs
-4. Ground abstract concepts in personal examples; cite research/sources
+4. Ground abstract concepts in personal examples; cite research from braindump
 5. End with practical implications and a question to engage readers
 
 ## When to Use This Skill
 
 Use blog-writing when:
-- Creating a new blog post from an outline or topic idea
-- Drafting content for Substack publication
-- Writing analytical or opinion pieces on technology, management, or personal insights
-- Translating rough notes into polished, publishable content
-- The user wants content that sounds authentic and conversational, not corporate or AI-generated
+- Writing or revising draft.md (the actual blog post)
+- User asks to draft a section or the full post
+- Refining existing draft content
+- User runs `/polish` for quality improvements
+- Translating ideas from braindump.md into polished prose
 
 Skip this skill for:
+- Brainstorming phase (use **brainstorming** skill)
+- Gathering research (use **research-synthesis** skill)
 - Technical documentation or API references
 - Academic papers requiring formal tone
-- Marketing copy or sales materials
-- Quick social media posts or tweets
+
+## Two-Document Workflow
+
+When working on a blog post, you'll interact with two files:
+
+**braindump.md** - The messy workspace:
+- Research findings, citations, sources
+- Rough ideas and notes
+- Outline iterations
+- Examples and anecdotes
+- Questions to resolve
+
+**draft.md** - The clean blog post:
+- Structured markdown following the template below
+- Dhruv's voice and style
+- Polished, publishable content
+- References research from braindump
+
+**Your role**: Transform ideas from braindump → polished prose in draft
 
 ## Core Voice & Tone Principles
 
@@ -166,3 +185,10 @@ The goal is to sound like a thoughtful person sharing insights from personal exp
 - Be practical but not simplistic
 
 When in doubt, ask yourself: "Does this sound like something a real person would say to a friend over coffee while discussing an interesting problem they've been thinking about?"
+
+## Integration with Other Skills
+
+- **Before drafting**: Use **brainstorming** skill to refine ideas
+- **During drafting**: Use **research-synthesis** skill if citations are needed
+- **While writing**: Reference braindump.md for examples and research
+- **After drafting**: Run `/polish` to apply quality checklist
