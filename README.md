@@ -33,11 +33,20 @@ Custom commands for project management and documentation:
 
 **`manage-permissions.ts`**: Interactive tool for managing Claude Code permissions across projects.
 
-Promotes permissions from project-specific settings to global config, with optional cleanup of redundant local entries. Features multi-select interface, dry-run preview mode, and clean functional architecture (domain, filesystem, UI layers).
+Auto-discovers projects by recursively scanning for `.claude/settings.local.json` files. Promotes permissions from project local settings to global `~/.claude/settings.json`, with optional cleanup of redundant local entries. Features auto-discovery, multi-select interface, dry-run preview mode, and clean functional architecture (domain, filesystem, UI layers).
 
 ```bash
-bun scripts/manage-permissions.ts          # Interactive mode
-bun scripts/manage-permissions.ts --dry-run  # Preview changes
+# Auto-discover from home directory
+bun scripts/manage-permissions.ts
+
+# Search from specific root path(s)
+bun scripts/manage-permissions.ts ~/Code ~/Projects
+
+# Dry-run (preview only)
+bun scripts/manage-permissions.ts --dry-run
+
+# Dry-run with custom search root
+bun scripts/manage-permissions.ts --dry-run ~/Code
 ```
 
 ### Skills

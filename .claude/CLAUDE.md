@@ -89,41 +89,60 @@ Skills reference MCP tools by prefixed names (e.g., `Context7:get-library-docs`,
 
 ### `manage-permissions.ts`
 
-Interactive tool for managing Claude Code permissions across project configurations. Built with functional programming principles and clean separation of concerns (domain, filesystem, UI layers).
+Interactive tool for managing Claude Code permissions across project configurations. Auto-discovers projects, promotes project-specific permissions to global config, and optionally cleans up redundant local settings. Built with functional programming principles and clean separation of concerns (domain, filesystem, UI layers).
 
 **Features:**
-- Collects permissions from all projects tracked in `~/.claude.json`
-- Multi-select interface to choose permissions for promotion to global config
-- Merges selected permissions into `config/settings.json`
-- Optionally removes promoted permissions from project-specific `.claude/settings.local.json` files
+- Auto-discovers all projects with permissions by recursively scanning filesystem
+- Default: searches home directory; optionally specify root path(s)
+- Skips common build/dependency directories (node_modules, .git, .cache, etc.)
+- Collects permissions from `.claude/settings.local.json` in discovered projects
+- Multi-select interface to choose which permissions to promote to global
+- Merges selected permissions into `~/.claude/settings.json`
+- Optionally removes promoted permissions from project-specific files
 - `--dry-run` mode to preview changes without modifying files
 
 **Usage:**
 
 ```bash
-# Interactive mode with prompts
+# Auto-discover from home directory
 bun scripts/manage-permissions.ts
+
+# Search from specific root path(s)
+bun scripts/manage-permissions.ts ~/Code ~/Projects
 
 # Preview mode (no file modifications)
 bun scripts/manage-permissions.ts --dry-run
+
+# Combine custom roots with dry-run
+bun scripts/manage-permissions.ts --dry-run ~/Code
 ```
 
 **Workflow:**
-1. Scans all projects in `~/.claude.json` for locally whitelisted permissions
-2. Displays all unique permissions with project counts
-3. Prompts user to select permissions to promote to global config
-4. Previews global config changes for confirmation
-5. Updates `config/settings.json` with selected permissions
-6. Optionally removes promoted permissions from local project settings
-7. Shows summary of changes (or what would change in dry-run mode)
+1. Recursively scans filesystem starting from root path(s) (default: home)
+2. Finds all projects with `.claude/settings.local.json` containing allowed permissions
+3. Skips known exclusion directories to improve performance
+4. Collects all unique permissions with source projects
+5. Displays permissions in multi-select interface (with project sources)
+6. User selects which permissions to promote to global config
+7. Previews changes to `~/.claude/settings.json` and confirms
+8. Updates global settings with selected permissions
+9. Optionally removes promoted permissions from project local settings
+10. Shows summary of changes applied (or would apply in dry-run mode)
 
 **Architecture:**
 - **Domain Layer**: Pure functions for permission operations (no I/O)
-- **Filesystem Layer**: All file I/O operations isolated
-- **UI Layer**: User interaction via `@inquirer/prompts`
-- **Main**: Orchestration and CLI argument handling
+- **Filesystem Layer**: Recursive directory scanner, settings.json read/write
+- **UI Layer**: User interaction via `@inquirer/prompts` (checkbox, confirm)
+- **Main**: Orchestration, CLI argument parsing, workflow coordination
 
-No `package.json` required - Bun auto-installs `@inquirer/prompts` on first run.
+**Settings files touched:**
+- Reads: `.claude/settings.local.json` from discovered projects
+- Writes: `~/.claude/settings.json` (global user settings)
+
+**Directories skipped during scan:**
+Build artifacts, dependencies, and system dirs: `.git`, `node_modules`, `.next`, `dist`, `build`, `target`, `vendor`, `venv`, and others.
+
+**No `package.json` required** - Bun auto-installs `@inquirer/prompts` on first run.
 
 ## Architecture Decisions
 
