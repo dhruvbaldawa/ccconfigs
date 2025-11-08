@@ -1,6 +1,22 @@
-# Prompt Engineering Research & Best Practices (2025)
+# Prompt Engineering Research & Best Practices
 
 Latest findings from Anthropic research and community best practices for prompt engineering with Claude models.
+
+## Table of Contents
+
+- [Anthropic's Core Research Findings](#anthropics-core-research-findings)
+- [Effective Context Engineering (2024)](#effective-context-engineering-2024)
+- [Agent Architecture Best Practices (2024-2025)](#agent-architecture-best-practices-2024-2025)
+- [Citations and Source Grounding (2024)](#citations-and-source-grounding-2024)
+- [Extended Thinking (2024)](#extended-thinking-2024)
+- [Community Best Practices (2024-2025)](#community-best-practices-2024-2025)
+- [Technique Selection Decision Tree (2025 Consensus)](#technique-selection-decision-tree-2025-consensus)
+- [Measuring Prompt Effectiveness](#measuring-prompt-effectiveness)
+- [Future Directions (2025 and Beyond)](#future-directions-2025-and-beyond)
+- [Key Takeaways from Research](#key-takeaways-from-research)
+- [Research Sources](#research-sources)
+- [Keeping Current](#keeping-current)
+- [Research-Backed Anti-Patterns](#research-backed-anti-patterns)
 
 ---
 
