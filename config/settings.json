@@ -1,6 +1,7 @@
 {
   "permissions": {
     "allow": [
+      "Skill(essentials:*)",
       "Bash(docker compose:*)",
       "Bash(cat:*)",
       "Bash(chmod:*)",
