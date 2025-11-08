@@ -33,7 +33,7 @@ Skip when:
 
 **Examples:**
 - "Recent research on OKR implementation failures"
-- "Companies that abandoned agile methodologies 2023-2024"
+- "Companies that abandoned agile methodologies"
 - "Studies on remote work productivity metrics"
 
 **How to invoke:**
@@ -109,7 +109,7 @@ Research shows:
 ```
 Found interesting pattern: 3 recent studies show 60-70% of OKR
 implementations fail to improve performance. Notable:
-- HBR 2024: 70% failure rate, primarily due to metric gaming
+- HBR research: 70% failure rate, primarily due to metric gaming
 - McKinsey: Companies with >100 OKRs see diminishing returns
 - Google's evolution: Shifted from strict OKRs to "goals and signals"
 
@@ -134,13 +134,13 @@ Format for citations in braindump:
 ## Research
 
 ### OKR Implementation Failures
-Studies show 60-70% failure rate (HBR 2024, McKinsey 2023).
+Studies show 60-70% failure rate (HBR, McKinsey).
 Primary causes: metric gaming, checkbox compliance.
 
 **Sources:**
-- HBR (2024): "Why OKRs Don't Work" - 70% fail to improve performance
-- McKinsey (2023): Survey of 500 companies, correlation with OKR count
-- Google's blog: Evolution of their goals system since 2020
+- HBR: "Why OKRs Don't Work" - 70% fail to improve performance
+- McKinsey: Survey of 500 companies, correlation with OKR count
+- Google's blog: Evolution of their goals system over recent years
 
 **Key Quote:**
 > "When OKRs become a performance evaluation tool, they stop being
@@ -224,50 +224,7 @@ Before adding research to braindump:
 
 ## Example Flow
 
-```
-[During brainstorming]
-
-You: I want to argue that OKRs fail because they measure outputs not outcomes
-
-AI: [invokes research-synthesis]
-    That's a common critique - let me see if there's data to support it...
-
-    [uses Perplexity: "OKR failures output vs outcome measurement"]
-
-    Found strong supporting evidence:
-
-    - Reforge 2024 study: 68% of failed OKR implementations measured
-      outputs (features shipped) vs outcomes (user behavior change)
-    - Amplitude research: Companies measuring outcomes had 3x higher
-      product-market fit scores
-    - Example: Spotify's "squad health" framework specifically avoided
-      output metrics for this reason
-
-    Key pattern: Output metrics are easier to measure but don't correlate
-    with business value. This ties directly to your Goodhart's Law point.
-
-    [updates braindump.md under Research section]
-
-    Added to braindump. This gives you concrete data to back the claim.
-    Want to explore specific examples of good outcome metrics?
-
-You: Yes, give me 2-3 examples
-
-AI: [uses Perplexity: "good OKR outcome metrics examples"]
-
-    Strong examples:
-
-    1. Netflix: "Hours of satisfied viewing" (outcome) vs "hours watched" (output)
-    2. Airbnb: "Nights booked by repeat guests" (outcome) vs "total bookings" (output)
-    3. Stripe: "Developer time to first API call" (outcome) vs "API calls made" (output)
-
-    Pattern: Outcome metrics measure behavior change or satisfaction,
-    outputs just measure activity.
-
-    [adds to braindump under Examples]
-
-    These work well as concrete illustrations. Should we outline the post now?
-```
+For detailed conversation examples showing research synthesis techniques and MCP tool usage, see reference/examples.md.
 
 ## Integration with Other Skills
 

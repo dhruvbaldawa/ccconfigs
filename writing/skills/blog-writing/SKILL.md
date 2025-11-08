@@ -1,6 +1,6 @@
 ---
 name: blog-writing
-description: Write blog posts in Dhruv Baldawa's distinctive voice - conversational yet analytical, grounded in personal experience, with clear structure and practical insights optimized for Substack.
+description: Write blog posts in Dhruv Baldawa's distinctive voice - conversational yet analytical, grounded in personal experience, with clear structure and practical insights optimized for Substack. Use when writing or revising draft.md, translating ideas from braindump into polished prose.
 ---
 
 # Blog Writing
