@@ -8,6 +8,11 @@
       "name": "essentials",
       "source": "./essentials",
       "description": "My absolute essentials to work with Claude Code"
+    },
+    {
+      "name": "writing",
+      "source": "./writing",
+      "description": "Blog writing plugin with Dhruv's distinctive style and voice"
     }
   ]
 }

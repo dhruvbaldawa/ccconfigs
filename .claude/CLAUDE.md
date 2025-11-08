@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Purpose
 
-Personal Claude Code plugin marketplace containing the **essentials** plugin - systematic development workflows including MCP server integrations, slash commands, and development skills.
+Personal Claude Code plugin marketplace containing:
+- **essentials** - Systematic development workflows including MCP server integrations, slash commands, and development skills
+- **writing** - Blog writing with conversation-driven workflow for ideation, research, drafting, and polishing
 
 ## Repository Structure
 
@@ -20,19 +22,33 @@ ccconfigs/
 ├── .claude/                        # Project-specific configuration
 │   ├── CLAUDE.md                  # This file - repository guidance
 │   └── settings.local.json        # Local overrides (gitignored)
-└── essentials/                     # The essentials plugin
+├── essentials/                     # The essentials plugin
+│   ├── .claude-plugin/plugin.json # Plugin metadata
+│   ├── .mcp.json                  # MCP server configurations
+│   ├── commands/                  # Slash command definitions (.md files)
+│   │   ├── breakdown.md          # Creates agile task breakdowns
+│   │   ├── do.md                 # Executes tasks from specs
+│   │   └── optimize-doc.md       # Optimizes documentation
+│   └── skills/                    # Development skill frameworks
+│       ├── debugging/            # UNDERSTAND methodology (10-step checklist)
+│       │   ├── SKILL.md
+│       │   └── reference/       # Root cause framework, antipatterns
+│       └── technical-planning/   # Risk-first planning (4-phase approach)
+│           └── SKILL.md
+└── writing/                        # The writing plugin
     ├── .claude-plugin/plugin.json # Plugin metadata
-    ├── .mcp.json                  # MCP server configurations
-    ├── commands/                  # Slash command definitions (.md files)
-    │   ├── breakdown.md          # Creates agile task breakdowns
-    │   ├── do.md                 # Executes tasks from specs
-    │   └── optimize-doc.md       # Optimizes documentation
-    └── skills/                    # Development skill frameworks
-        ├── debugging/            # UNDERSTAND methodology (10-step checklist)
+    ├── commands/                  # Slash command definitions
+    │   ├── new-post.md           # Initialize new blog post (braindump + draft)
+    │   └── polish.md             # Hybrid refinement (suggest → confirm → apply)
+    └── skills/                    # Writing skill frameworks
+        ├── blog-writing/         # Dhruv's distinctive voice and style
+        │   └── SKILL.md
+        ├── brainstorming/        # Collaborative ideation
         │   ├── SKILL.md
-        │   └── reference/       # Root cause framework, antipatterns
-        └── technical-planning/   # Risk-first planning (4-phase approach)
-            └── SKILL.md
+        │   └── reference/        # Conversation examples
+        └── research-synthesis/   # MCP tool usage and synthesis
+            ├── SKILL.md
+            └── reference/        # Research examples
 ```
 
 ## Working with This Repository
@@ -50,13 +66,13 @@ Configuration files only (JSON and Markdown). No build, test, or lint commands.
 
 ### Adding to This Repository
 
-**New plugins**: Create sibling directory to `essentials/`, then register in `.claude-plugin/marketplace.json`
+**New plugins**: Create sibling directory to `essentials/` or `writing/`, then register in `.claude-plugin/marketplace.json`
 
 **MCP servers**: Add to `essentials/.mcp.json` using `pnpx` command pattern
 
-**Slash commands**: Add `.md` files to `essentials/commands/` with YAML frontmatter
+**Slash commands**: Add `.md` files to `[plugin]/commands/` with YAML frontmatter
 
-**Skills**: Create directory in `essentials/skills/` with `SKILL.md` and optional `reference/` subdirectory
+**Skills**: Create directory in `[plugin]/skills/` with `SKILL.md` and optional `reference/` subdirectory for examples and supporting materials
 
 ## The Essentials Plugin
 
@@ -84,6 +100,50 @@ Configuration files only (JSON and Markdown). No build, test, or lint commands.
 - **Sequential-thinking**: Structured thinking framework
 
 Skills reference MCP tools by prefixed names (e.g., `Context7:get-library-docs`, `Firecrawl:search`).
+
+## The Writing Plugin
+
+### Overview
+
+Conversation-driven workflow for blog writing in Dhruv Baldawa's distinctive style. Emphasizes natural back-and-forth over rigid command sequences, with two-document approach separating messy ideation from polished prose.
+
+### Two-Document Workflow
+
+**braindump.md** - Messy collaborative workspace:
+- Research findings, citations, sources
+- Rough ideas and notes
+- Outline iterations
+- Examples and anecdotes
+- Questions to resolve
+
+**draft.md** - Clean blog post:
+- Structured markdown in Dhruv's voice
+- Polished, publishable content
+- References research from braindump
+
+### Slash Commands
+
+**`/new-post [topic]`**: Initializes new blog post with directory structure. Creates `posts/[topic]/` containing braindump.md (with template sections: Context, Research, Examples, etc.) and draft.md (with frontmatter and structure). Kicks off brainstorming conversation.
+
+**`/polish [topic or path]`**: Hybrid refinement workflow (suggest → confirm → apply). Runs quality checklist from blog-writing skill, presents 3-5 concrete improvements, waits for user confirmation, applies approved changes. Can be run multiple times during writing process, not just final pass.
+
+### Skills
+
+**blog-writing**: Write posts in Dhruv's distinctive voice - conversational yet analytical, grounded in personal experience, with clear structure and practical insights optimized for Substack. Active during drafting phase. Transforms ideas from braindump → polished prose in draft. Includes voice/tone principles, structure template, language guidelines, quality checklist (14 points), and common pitfalls.
+
+**brainstorming**: Collaborative ideation through questions and exploration. Starts with questions not suggestions, explores tensions, challenges assumptions, helps refine vague ideas into concrete topics. Updates braindump.md as ideas evolve. Knows when to transition to drafting. Reference materials include conversation examples.
+
+**research-synthesis**: Guides when to use Perplexity (broad research), Firecrawl (specific URLs), or Context7 (technical docs). Synthesizes findings into narrative (not just lists), integrates naturally during conversation, maintains source attribution. Includes decision tree and quality standards. Reference materials include detailed research examples with MCP tool usage patterns.
+
+**Key pattern**: Skills guide natural conversation, commands are just utilities. Most operations (add to braindump, revise draft) happen through chat. MCP tools (Perplexity, Firecrawl, Context7) used proactively during conversation, not via separate commands.
+
+### Design Philosophy
+
+- **Conversation-first**: Natural dialogue over rigid command sequences
+- **Minimal commands**: Only `/new-post` and `/polish` - everything else through chat
+- **Iterative**: Write section by section, pause, resume
+- **Skills guide flow**: Brainstorming → Research → Drafting → Polishing
+- **Progressive disclosure**: Main SKILL.md files concise (<500 lines), examples in reference/
 
 ## Utility Scripts
 
@@ -167,8 +227,12 @@ Build artifacts, dependencies, and system dirs: `.git`, `node_modules`, `.next`,
 
 **Commands vs Skills**: Commands are explicit user entry points with arguments (`/breakdown spec.md`). Skills are reusable methodologies Claude can invoke proactively or on request ("use systematic debugging"). This separation allows skills to be referenced from multiple commands.
 
-**Stateful commands**: `/breakdown` and `/do` maintain state in the spec document itself rather than in separate tracking. This makes the spec document the single source of truth for project progress.
+**Stateful commands**: `/breakdown` and `/do` (essentials) maintain state in the spec document itself rather than in separate tracking. This makes the spec document the single source of truth for project progress. Similarly, `/new-post` and `/polish` (writing) maintain state in braindump.md and draft.md files.
 
 **Markdown for everything**: Human-readable, version control friendly, no compilation required. Skills are structured as comprehensive frameworks with decision trees and quality checklists embedded directly in markdown.
 
-**Reference subdirectories**: Complex skills (debugging, technical-planning) include `reference/` directories with supporting materials that provide deeper context without cluttering the main skill file.
+**Reference subdirectories**: Complex skills (debugging, technical-planning, brainstorming, research-synthesis) include `reference/` directories with supporting materials that provide deeper context without cluttering the main skill file. Following best practices: keep SKILL.md under 500 lines, move examples and detailed patterns to reference files.
+
+**Conversation-driven workflow** (writing plugin): Emphasizes natural dialogue over rigid command sequences. Skills guide conversation flow (brainstorming → research → drafting → polishing), while commands are minimal utilities (`/new-post`, `/polish`). Most operations happen through chat, not separate commands.
+
+**Two-document pattern** (writing plugin): Separates messy ideation (braindump.md) from polished output (draft.md). Allows back-and-forth collaboration without polluting the final deliverable. Similar to how `/breakdown` creates task lists separate from implementation.
