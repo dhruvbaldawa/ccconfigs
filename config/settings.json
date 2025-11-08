@@ -7,5 +7,43 @@
   "enabledPlugins": {
     "essentials@ccconfigs": true
   },
-  "alwaysThinkingEnabled": true
+  "alwaysThinkingEnabled": true,
+  "permissions": {
+    "ask": [
+      "Bash(docker compose down:*)",
+      "Bash(docker-compose down:*)"
+    ],
+    "allow": [
+      "Bash(docker compose:*)",
+      "Bash(cat:*)",
+      "Bash(chmod:*)",
+      "Bash(curl:*)",
+      "Bash(echo:*)",
+      "Bash(find:*)",
+      "Bash(gh:*)",
+      "Bash(git add:*)",
+      "Bash(git check-ignore:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(grep:*)",
+      "Bash(just:*)",
+      "Bash(ls:*)",
+      "Bash(mkdir:*)",
+      "Bash(pnpm:*)",
+      "Bash(python:*)",
+      "Bash(rg:*)",
+      "Bash(source:*)",
+      "Bash(test:*)",
+      "Bash(tree:*)",
+      "Bash(uv run:*)",
+      "Bash(uv sync:*)",
+      "WebFetch(domain:*)",
+      "WebSearch",
+      "mcp__plugin_essentials_firecrawl__firecrawl_scrape",
+      "mcp__plugin_essentials_firecrawl__firecrawl_search",
+      "mcp__plugin_essentials_perplexity__deep_research",
+      "mcp__plugin_essentials_perplexity__search",
+      "mcp__plugin_essentials_sequential-thinking__process_thought"
+    ]
+  }
 }
