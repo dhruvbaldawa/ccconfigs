@@ -1,9 +1,9 @@
 ---
-name: prompt-engineering
-description: Systematic prompt engineering methodology using Anthropic 2025 best practices. Balances simplicity, cost, and effectiveness. Reference framework for creating and optimizing prompts.
+name: engineering-prompts
+description: Engineers effective prompts using systematic methodology. Use when designing prompts for Claude, optimizing existing prompts, or balancing simplicity, cost, and effectiveness. Applies progressive disclosure and empirical validation to prompt development.
 ---
 
-# Prompt Engineering
+# Engineering Prompts
 
 ---
 

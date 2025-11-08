@@ -2,6 +2,21 @@
 
 Before/after examples across different use cases demonstrating the application of prompt engineering techniques.
 
+## Table of Contents
+
+- [Example 1: Code Review](#example-1-code-review)
+- [Example 2: Data Extraction](#example-2-data-extraction)
+- [Example 3: Bug Analysis](#example-3-bug-analysis)
+- [Example 4: Long Document Analysis](#example-4-long-document-analysis)
+- [Example 5: Agent Workflow with Tools](#example-5-agent-workflow-with-tools)
+- [Example 6: Repeated Queries with Caching](#example-6-repeated-queries-with-caching)
+- [Example 7: Format Conversion with Prefilling](#example-7-format-conversion-with-prefilling)
+- [Example 8: Simple Task (Minimal Techniques)](#example-8-simple-task-minimal-techniques)
+- [Complexity Progression](#complexity-progression)
+- [Anti-Pattern Examples](#anti-pattern-examples)
+- [Key Takeaways](#key-takeaways)
+- [Practice Exercise](#practice-exercise)
+
 ---
 
 ## Example 1: Code Review

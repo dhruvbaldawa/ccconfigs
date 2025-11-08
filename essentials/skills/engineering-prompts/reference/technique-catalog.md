@@ -2,6 +2,22 @@
 
 Deep dive into each of the 9 core prompt engineering techniques with examples, token costs, and combination strategies.
 
+## Table of Contents
+
+- [1. Clarity and Directness](#1-clarity-and-directness)
+- [2. XML Structure](#2-xml-structure)
+- [3. Chain of Thought](#3-chain-of-thought)
+- [4. Multishot Prompting](#4-multishot-prompting)
+- [5. System Prompt (Role Assignment)](#5-system-prompt-role-assignment)
+- [6. Prefilling](#6-prefilling)
+- [7. Long Context Optimization](#7-long-context-optimization)
+- [8. Context Budget Management](#8-context-budget-management)
+- [9. Tool Documentation](#9-tool-documentation)
+- [Technique Combination Matrix](#technique-combination-matrix)
+- [Decision Framework](#decision-framework)
+- [Common Patterns](#common-patterns)
+- [Measuring Effectiveness](#measuring-effectiveness)
+
 ---
 
 ## 1. Clarity and Directness

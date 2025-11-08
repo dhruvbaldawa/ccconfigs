@@ -2,6 +2,17 @@
 
 Advanced techniques for identifying fundamental causes rather than symptoms.
 
+## Table of Contents
+
+- [The 5 Whys (Applied to Code)](#the-5-whys-applied-to-code)
+- [Architectural Analysis Method](#architectural-analysis-method)
+- [Data Flow Tracing](#data-flow-tracing)
+- [State Analysis Patterns](#state-analysis-patterns)
+- [Integration Point Analysis](#integration-point-analysis)
+- [Dependency Chain Analysis](#dependency-chain-analysis)
+- [Performance Root Cause Analysis](#performance-root-cause-analysis)
+- [Sequential Thinking Templates](#sequential-thinking-templates)
+
 ## The 5 Whys (Applied to Code)
 
 Ask "why" iteratively to drill down from symptom to root cause.

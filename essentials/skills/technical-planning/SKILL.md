@@ -1,6 +1,6 @@
 ---
 name: technical-planning
-description: Skill for planning technical projects with risk-first development, milestone structuring, and managed deferral. Use when users need help planning software projects, defining milestones, structuring development phases, or breaking down tasks
+description: Plans technical projects with risk-first development, milestone structuring, and managed deferral. Use when planning software projects, defining milestones, structuring development phases, or breaking down complex tasks into manageable iterations.
 ---
 
 # Technical Planning
