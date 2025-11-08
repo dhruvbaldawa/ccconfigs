@@ -1,10 +1,10 @@
 // ABOUTME: Interactive permission management for Claude Code configurations
-// ABOUTME: Promotes project permissions to global config and cleans up redundant local settings
+// ABOUTME: Auto-discovers projects and promotes permissions to global config
 
-import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, readdirSync } from 'fs';
 import { join, resolve } from 'path';
 import { homedir } from 'os';
-import { checkbox, confirm, editor } from '@inquirer/prompts';
+import { checkbox, confirm } from '@inquirer/prompts';
 
 // ============================================================================
 // DOMAIN LAYER - Pure functions for business logic
@@ -17,11 +17,6 @@ interface ClaudeSettings {
     ask?: string[];
   };
   [key: string]: any;
-}
-
-interface PermissionSource {
-  project: string;
-  permission: string;
 }
 
 /**
@@ -103,7 +98,7 @@ function removeFromProjectSettings(
 }
 
 /**
- * Format permission display with project count
+ * Format permission display with project paths
  */
 function formatPermissionChoice(
   permission: string,
@@ -119,6 +114,83 @@ function formatPermissionChoice(
 // FILESYSTEM LAYER - All I/O operations
 // ============================================================================
 
+const SKIP_DIRS = new Set([
+  '.git',
+  'node_modules',
+  '.cache',
+  '.next',
+  'dist',
+  'build',
+  'target',
+  '__pycache__',
+  '.venv',
+  'venv',
+  '.env.local',
+  '.env',
+  'vendor',
+  '.gradle',
+  '.m2',
+  'Library',
+  '.local',
+  'snap',
+  '.cargo',
+  '.npm',
+  '.go',
+  '.deno',
+]);
+
+/**
+ * Recursively find all .claude/settings.local.json files
+ */
+function findProjectsWithPermissions(rootPath: string): string[] {
+  const projects: string[] = [];
+  const visited = new Set<string>();
+
+  function walk(dir: string, depth: number = 0): void {
+    // Prevent infinite loops and limit depth
+    if (depth > 10) return;
+
+    const realPath = resolve(dir);
+    if (visited.has(realPath)) return;
+    visited.add(realPath);
+
+    // Check if this directory has .claude/settings.local.json
+    const settingsPath = join(dir, '.claude', 'settings.local.json');
+    if (existsSync(settingsPath)) {
+      const settings = readSettingsFile(settingsPath);
+      if (settings?.permissions?.allow && settings.permissions.allow.length > 0) {
+        projects.push(dir);
+        return; // Don't recurse into projects that have settings
+      }
+    }
+
+    // Recurse into subdirectories
+    try {
+      const entries = readdirSync(dir, { withFileTypes: true });
+
+      for (const entry of entries) {
+        // Skip hidden directories and known exclusions
+        if (entry.name.startsWith('.') && !entry.name.startsWith('.claude')) {
+          continue;
+        }
+        if (SKIP_DIRS.has(entry.name)) {
+          continue;
+        }
+
+        if (entry.isDirectory()) {
+          const subPath = join(dir, entry.name);
+          walk(subPath, depth + 1);
+        }
+      }
+    } catch {
+      // Silently skip directories we can't read
+    }
+  }
+
+  walk(rootPath);
+  return projects;
+}
+
 function readSettingsFile(filePath: string): ClaudeSettings | null {
   if (!existsSync(filePath)) return null;
 
@@ -133,56 +205,21 @@ function writeSettingsFile(filePath: string, settings: ClaudeSettings): void {
   writeFileSync(filePath, JSON.stringify(settings, null, 2) + '\n');
 }
 
-function getProjectPathsWithPermissions(
-  projectPaths: string[]
-): string[] {
-  return projectPaths.filter(path => {
-    const settingsPath = join(path, '.claude', 'settings.local.json');
-    const settings = readSettingsFile(settingsPath);
-    return settings?.permissions?.allow && settings.permissions.allow.length > 0;
-  });
-}
-
 // ============================================================================
 // UI LAYER - All user interaction
 // ============================================================================
-
-async function selectProjectsUI(
-  suggestedPaths: string[] = []
-): Promise<string[]> {
-  const defaultPaths = suggestedPaths
-    .map(p => resolve(p))
-    .join('\n');
-
-  const input = await editor({
-    postfix: '.txt',
-    default: defaultPaths || '# Enter project paths (one per line)',
-    validate: (text: string) => {
-      if (!text.trim()) {
-        return 'Please enter at least one project path';
-      }
-      return true;
-    },
-  });
-
-  return input
-    .split('\n')
-    .map(p => p.trim())
-    .filter(p => p && !p.startsWith('#'))
-    .map(p => resolve(p.replace('~', homedir())));
-}
 
 async function selectPermissionsUI(
   permissionMap: Map<string, string[]>,
   allPermissions: string[]
 ): Promise<string[]> {
   if (allPermissions.length === 0) {
-    console.log('No permissions found across projects.\n');
+    console.log('No permissions found.\n');
     return [];
   }
 
   console.log(
-    `\nFound ${allPermissions.length} unique permissions across projects.\n`
+    `\nFound ${allPermissions.length} unique permission${allPermissions.length !== 1 ? 's' : ''} across projects.\n`
   );
 
   const choices = allPermissions.map(perm => ({
@@ -285,40 +322,40 @@ function displayResults(
 
 async function main() {
   const isDryRun = process.argv.includes('--dry-run');
-  const projectArgs = process.argv.slice(2).filter(arg => !arg.startsWith('--'));
+  const rootPaths = process.argv
+    .slice(2)
+    .filter(arg => !arg.startsWith('--'))
+    .map(p => resolve(p.replace('~', homedir())));
+
+  // Default to home directory if no roots provided
+  if (rootPaths.length === 0) {
+    rootPaths.push(homedir());
+  }
 
   const globalSettingsPath = join(homedir(), '.claude', 'settings.json');
 
   console.log('Claude Code Permission Manager\n');
+  console.log(
+    `Searching for .claude/settings.local.json in: ${rootPaths.map(p => p.replace(homedir(), '~')).join(', ')}\n`
+  );
 
-  // Phase 1: Get project paths
-  let projectPaths: string[];
-
-  if (projectArgs.length > 0) {
-    // Use provided paths
-    projectPaths = projectArgs.map(p => resolve(p));
-  } else {
-    // Ask user to enter paths
-    console.log('No project paths provided.');
-    console.log('Edit the file to enter project paths (one per line):\n');
-    projectPaths = await selectProjectsUI();
+  // Phase 1: Discover projects
+  const allProjectPaths = new Set<string>();
+  for (const rootPath of rootPaths) {
+    console.log(`Scanning ${rootPath.replace(homedir(), '~')}...`);
+    const found = findProjectsWithPermissions(rootPath);
+    found.forEach(p => allProjectPaths.add(p));
   }
 
-  // Validate paths have permissions
-  const validPaths = getProjectPathsWithPermissions(projectPaths);
+  const projectPaths = Array.from(allProjectPaths).sort();
 
-  if (validPaths.length === 0) {
-    console.log('No projects with permissions found.');
-    console.log('Checked paths:');
-    projectPaths.forEach(p => {
-      console.log(`  - ${p.replace(homedir(), '~')}/.claude/settings.local.json`);
-    });
+  if (projectPaths.length === 0) {
+    console.log('\nNo projects with permissions found.');
     process.exit(0);
   }
 
-  console.log(
-    `\nFound ${validPaths.length} project${validPaths.length !== 1 ? 's' : ''} with permissions\n`
-  );
+  console.log(`\nFound ${projectPaths.length} project${projectPaths.length !== 1 ? 's' : ''} with permissions:\n`);
+  projectPaths.forEach(p => console.log(`  - ${p.replace(homedir(), '~')}`));
 
   // Phase 2: Collect and select permissions
   const readProjectSettings = (path: string) => {
@@ -326,7 +363,7 @@ async function main() {
     return readSettingsFile(settingsPath);
   };
 
-  const permissionMap = buildPermissionMap(validPaths, readProjectSettings);
+  const permissionMap = buildPermissionMap(projectPaths, readProjectSettings);
   const allPermissions = getUniquePermissions(permissionMap);
 
   const selectedPermissions = await selectPermissionsUI(
@@ -377,14 +414,13 @@ async function main() {
   }
 
   // Phase 6: Preview cleanup
-  displayCleanupSummary(validPaths, selectedPermissions);
+  displayCleanupSummary(projectPaths, selectedPermissions);
 
   // Phase 7: Apply cleanup
   let projectsUpdated = 0;
   let permissionsRemoved = 0;
 
-  for (const projectPath of validPaths) {
-    const settingsPath = join(projectPath, '.claude', 'settings.local.json');
+  for (const projectPath of projectPaths) {
     const settings = readProjectSettings(projectPath);
     if (!settings?.permissions?.allow) continue;
 
@@ -395,6 +431,7 @@ async function main() {
 
     if (removedCount > 0) {
       if (!isDryRun) {
+        const settingsPath = join(projectPath, '.claude', 'settings.local.json');
         writeSettingsFile(settingsPath, updated);
       }
       projectsUpdated++;
