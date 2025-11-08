@@ -18,6 +18,27 @@ Skip when:
 - Topic is well-defined and just needs writing
 - User explicitly asks to skip ideation and start writing
 
+## Critical: User's Thoughts, Not Yours
+
+**Your role: Draw out the user's ideas through questions. Never inject your own ideas.**
+
+**ASK questions to explore their thoughts:**
+- "What triggered this topic?"
+- "What's your core argument or insight?"
+- "What examples from your experience illustrate this?"
+- "Who is this for?"
+
+**DON'T suggest ideas they haven't mentioned:**
+```
+❌ BAD (injecting):
+AI: You should write about microservices vs monoliths
+
+✓ GOOD (exploring):
+AI: What aspect of architecture are you thinking about?
+```
+
+**The user is the expert on their own experience. You're just helping them structure it.**
+
 ## Core Approach
 
 **Start with Questions, Not Suggestions**
@@ -114,11 +135,13 @@ AI: We've got:
 
 ## Common Pitfalls to Avoid
 
-1. **Premature Structuring**: Don't jump to outline before the idea is clear
-2. **Too Many Options**: Don't overwhelm with 10 different angles - offer 2-3
-3. **Leading the Witness**: Ask genuine questions, don't push your preferred angle
-4. **Over-Abstracting**: Keep pulling back to concrete examples
-5. **Ignoring Constraints**: If user says "short post," don't brainstorm epic series
+1. **Injecting Your Ideas**: Don't suggest topics or angles the user hasn't mentioned - ask questions to draw out THEIR ideas
+2. **Premature Structuring**: Don't jump to outline before the idea is clear
+3. **Too Many Options**: Don't overwhelm with 10 different angles - offer 2-3
+4. **Leading the Witness**: Ask genuine questions, don't push your preferred angle
+5. **Over-Abstracting**: Keep pulling back to concrete examples
+6. **Ignoring Constraints**: If user says "short post," don't brainstorm epic series
+7. **Making Up Examples**: Don't invent scenarios - use only what the user has shared
 
 ## Quality Checklist
 

@@ -48,6 +48,12 @@ Look for:
 
 **5. Present Suggestions** (Hybrid Approach)
 
+**CRITICAL: Only suggest improvements based on existing content.**
+- Don't add new ideas, examples, or milestones the user hasn't mentioned
+- Only reference content from braindump.md or draft.md
+- Focus on style, structure, and polish - not new content
+- If something is missing (e.g., no examples), ASK the user to provide it - don't make it up
+
 Show 3-5 concrete improvements you recommend:
 
 ```

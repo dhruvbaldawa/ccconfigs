@@ -20,6 +20,38 @@ Skip when:
 - User explicitly says "I don't need research, just write"
 - Topic is purely opinion-based without factual claims
 
+## Critical: Never Hallucinate or Make Up Data
+
+**Only use REAL research from MCP tools. Never invent information.**
+
+**NEVER make up:**
+- Statistics or percentages ("70% of companies...")
+- Study names or researchers ("HBR study shows...")
+- Company examples or case studies
+- Technical specifications or benchmarks
+- Quotes or citations
+
+**ALWAYS use MCP tools for research:**
+- Perplexity: For real data, studies, trends
+- Firecrawl: For actual content from URLs
+- Context7: For official documentation
+
+**If you can't find real data:**
+```
+❌ BAD (hallucinating):
+AI: Research shows 70% of OKR implementations fail...
+
+✓ GOOD (admitting lack of data):
+AI: I don't have data on OKR failure rates. Should I research this
+    using Perplexity, or would you prefer to skip the statistic?
+```
+
+**Before adding research to braindump:**
+- Verify it came from MCP tool results (not your training data)
+- Include source attribution always
+- If uncertain about accuracy, say so
+- Don't "fill in" missing details with assumptions
+
 ## MCP Tool Selection
 
 ### Perplexity (Broad Research)
