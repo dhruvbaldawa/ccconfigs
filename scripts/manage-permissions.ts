@@ -211,7 +211,8 @@ function writeSettingsFile(filePath: string, settings: ClaudeSettings): void {
 
 async function selectPermissionsUI(
   permissionMap: Map<string, string[]>,
-  allPermissions: string[]
+  allPermissions: string[],
+  message: string = 'Select permissions to add to global config:'
 ): Promise<string[]> {
   if (allPermissions.length === 0) {
     console.log('No permissions found.\n');
@@ -228,7 +229,7 @@ async function selectPermissionsUI(
   }));
 
   const selected = await checkbox({
-    message: 'Select permissions to add to global config:',
+    message,
     choices,
     loop: false,
     pageSize: 10,
@@ -441,7 +442,8 @@ async function cleanupWorkflow(
   // Phase 2: User selects which permissions to remove
   const selectedPermissions = await selectPermissionsUI(
     permissionMap,
-    allPermissions
+    allPermissions,
+    'Select permissions to remove from project local settings:'
   );
 
   if (selectedPermissions.length === 0) {
