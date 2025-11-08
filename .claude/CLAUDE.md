@@ -103,31 +103,50 @@ Interactive tool for managing Claude Code permissions across project configurati
 
 **Usage:**
 
+**Promote mode** (default: select permissions to promote to global):
 ```bash
-# Auto-discover from home directory
+# Auto-discover and promote
 bun scripts/manage-permissions.ts
 
-# Search from specific root path(s)
+# From specific roots
 bun scripts/manage-permissions.ts ~/Code ~/Projects
 
-# Preview mode (no file modifications)
-bun scripts/manage-permissions.ts --dry-run
-
-# Combine custom roots with dry-run
+# Dry-run preview
 bun scripts/manage-permissions.ts --dry-run ~/Code
 ```
 
+**Cleanup mode** (remove permissions from project local settings):
+```bash
+# Cleanup: select and remove permissions from projects
+bun scripts/manage-permissions.ts --cleanup
+
+# Cleanup from specific roots
+bun scripts/manage-permissions.ts --cleanup ~/Code
+
+# Cleanup dry-run
+bun scripts/manage-permissions.ts --cleanup --dry-run
+```
+
 **Workflow:**
-1. Recursively scans filesystem starting from root path(s) (default: home)
-2. Finds all projects with `.claude/settings.local.json` containing allowed permissions
-3. Skips known exclusion directories to improve performance
-4. Collects all unique permissions with source projects
-5. Displays permissions in multi-select interface (with project sources)
-6. User selects which permissions to promote to global config
-7. Previews changes to `~/.claude/settings.json` and confirms
-8. Updates global settings with selected permissions
-9. Optionally removes promoted permissions from project local settings
-10. Shows summary of changes applied (or would apply in dry-run mode)
+
+*Promote Mode* (default):
+1. Recursively scans filesystem for projects
+2. Collects all unique permissions from project local settings
+3. Displays permissions in multi-select interface (with project counts)
+4. User selects which permissions to promote to global config
+5. Previews changes to `~/.claude/settings.json` and confirms
+6. Updates global settings with selected permissions
+7. Asks if user wants to remove promoted permissions from local settings
+8. Shows summary of all changes applied
+
+*Cleanup Mode* (`--cleanup` flag):
+1. Recursively scans filesystem for projects
+2. Collects all permissions from project local settings
+3. Displays permissions in multi-select interface (with project counts)
+4. User selects which permissions to remove from project locals
+5. Previews cleanup scope (which projects/permissions affected)
+6. Confirms and removes selected permissions from local settings
+7. Shows summary of permissions removed (or would remove in dry-run mode)
 
 **Architecture:**
 - **Domain Layer**: Pure functions for permission operations (no I/O)

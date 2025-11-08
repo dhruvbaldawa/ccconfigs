@@ -33,20 +33,20 @@ Custom commands for project management and documentation:
 
 **`manage-permissions.ts`**: Interactive tool for managing Claude Code permissions across projects.
 
-Auto-discovers projects by recursively scanning for `.claude/settings.local.json` files. Promotes permissions from project local settings to global `~/.claude/settings.json`, with optional cleanup of redundant local entries. Features auto-discovery, multi-select interface, dry-run preview mode, and clean functional architecture (domain, filesystem, UI layers).
+Auto-discovers projects by recursively scanning for `.claude/settings.local.json` files. Two modes: **promote** (default) moves permissions to global config with optional cleanup, or **cleanup** (with `--cleanup` flag) removes permissions from project locals only. Features auto-discovery, multi-select interface, dry-run preview mode, and clean functional architecture (domain, filesystem, UI layers).
 
+**Promote mode** (select permissions to move to global):
 ```bash
-# Auto-discover from home directory
-bun scripts/manage-permissions.ts
+bun scripts/manage-permissions.ts                    # From home dir
+bun scripts/manage-permissions.ts ~/Code ~/Projects  # From specific roots
+bun scripts/manage-permissions.ts --dry-run          # Preview only
+```
 
-# Search from specific root path(s)
-bun scripts/manage-permissions.ts ~/Code ~/Projects
-
-# Dry-run (preview only)
-bun scripts/manage-permissions.ts --dry-run
-
-# Dry-run with custom search root
-bun scripts/manage-permissions.ts --dry-run ~/Code
+**Cleanup mode** (remove permissions from projects):
+```bash
+bun scripts/manage-permissions.ts --cleanup          # Remove permissions
+bun scripts/manage-permissions.ts --cleanup ~/Code   # From specific root
+bun scripts/manage-permissions.ts --cleanup --dry-run  # Preview only
 ```
 
 ### Skills
