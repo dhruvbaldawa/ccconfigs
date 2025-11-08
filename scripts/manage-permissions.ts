@@ -317,11 +317,202 @@ function displayResults(
 }
 
 // ============================================================================
+// WORKFLOWS
+// ============================================================================
+
+/**
+ * Promote workflow: select permissions to promote to global, optionally cleanup
+ */
+async function promoteWorkflow(
+  projectPaths: string[],
+  globalSettingsPath: string,
+  isDryRun: boolean
+) {
+  const readProjectSettings = (path: string) => {
+    const settingsPath = join(path, '.claude', 'settings.local.json');
+    return readSettingsFile(settingsPath);
+  };
+
+  // Phase 1: Collect and select permissions
+  const permissionMap = buildPermissionMap(projectPaths, readProjectSettings);
+  const allPermissions = getUniquePermissions(permissionMap);
+
+  const selectedPermissions = await selectPermissionsUI(
+    permissionMap,
+    allPermissions
+  );
+
+  if (selectedPermissions.length === 0) {
+    console.log('No permissions selected. Exiting.\n');
+    process.exit(0);
+  }
+
+  // Phase 2: Preview and confirm global changes
+  const globalSettings = readSettingsFile(globalSettingsPath) || {};
+  const confirmGlobal = await confirmGlobalChangesUI(
+    selectedPermissions,
+    globalSettingsPath
+  );
+
+  if (!confirmGlobal) {
+    console.log('Cancelled.\n');
+    process.exit(0);
+  }
+
+  // Phase 3: Apply global changes
+  const updatedGlobalSettings = addToGlobalPermissions(
+    globalSettings,
+    selectedPermissions
+  );
+
+  if (!isDryRun) {
+    writeSettingsFile(globalSettingsPath, updatedGlobalSettings);
+  }
+
+  // Phase 4: Ask about cleanup
+  const confirmCleanup = await confirmCleanupUI();
+
+  if (!confirmCleanup) {
+    displayResults(
+      true,
+      globalSettingsPath,
+      selectedPermissions.length,
+      0,
+      0,
+      isDryRun
+    );
+    process.exit(0);
+  }
+
+  // Phase 5: Preview cleanup
+  displayCleanupSummary(projectPaths, selectedPermissions);
+
+  // Phase 6: Apply cleanup
+  let projectsUpdated = 0;
+  let permissionsRemoved = 0;
+
+  for (const projectPath of projectPaths) {
+    const settings = readProjectSettings(projectPath);
+    if (!settings?.permissions?.allow) continue;
+
+    const originalCount = settings.permissions.allow.length;
+    const updated = removeFromProjectSettings(settings, selectedPermissions);
+    const newCount = updated.permissions?.allow?.length || 0;
+    const removedCount = originalCount - newCount;
+
+    if (removedCount > 0) {
+      if (!isDryRun) {
+        const settingsPath = join(projectPath, '.claude', 'settings.local.json');
+        writeSettingsFile(settingsPath, updated);
+      }
+      projectsUpdated++;
+      permissionsRemoved += removedCount;
+    }
+  }
+
+  displayResults(
+    true,
+    globalSettingsPath,
+    selectedPermissions.length,
+    projectsUpdated,
+    permissionsRemoved,
+    isDryRun
+  );
+}
+
+/**
+ * Cleanup workflow: select and remove permissions from project local settings
+ */
+async function cleanupWorkflow(
+  projectPaths: string[],
+  isDryRun: boolean
+) {
+  const readProjectSettings = (path: string) => {
+    const settingsPath = join(path, '.claude', 'settings.local.json');
+    return readSettingsFile(settingsPath);
+  };
+
+  console.log('Cleanup Mode: Removing permissions from project local settings\n');
+
+  // Phase 1: Collect all permissions from projects
+  const permissionMap = buildPermissionMap(projectPaths, readProjectSettings);
+  const allPermissions = getUniquePermissions(permissionMap);
+
+  // Phase 2: User selects which permissions to remove
+  const selectedPermissions = await selectPermissionsUI(
+    permissionMap,
+    allPermissions
+  );
+
+  if (selectedPermissions.length === 0) {
+    console.log('No permissions selected. Exiting.\n');
+    process.exit(0);
+  }
+
+  // Phase 3: Preview cleanup
+  displayCleanupSummary(projectPaths, selectedPermissions);
+
+  // Phase 4: Confirm cleanup
+  const confirmCleanup = await confirmCleanupUI();
+
+  if (!confirmCleanup) {
+    console.log('Cancelled.\n');
+    process.exit(0);
+  }
+
+  // Phase 5: Apply cleanup
+  let projectsUpdated = 0;
+  let permissionsRemoved = 0;
+
+  for (const projectPath of projectPaths) {
+    const settings = readProjectSettings(projectPath);
+    if (!settings?.permissions?.allow) continue;
+
+    const originalCount = settings.permissions.allow.length;
+    const updated = removeFromProjectSettings(settings, selectedPermissions);
+    const newCount = updated.permissions?.allow?.length || 0;
+    const removedCount = originalCount - newCount;
+
+    if (removedCount > 0) {
+      if (!isDryRun) {
+        const settingsPath = join(projectPath, '.claude', 'settings.local.json');
+        writeSettingsFile(settingsPath, updated);
+      }
+      projectsUpdated++;
+      permissionsRemoved += removedCount;
+    }
+  }
+
+  // Phase 6: Display results
+  console.log('\n' + '='.repeat(60));
+  console.log(isDryRun ? 'DRY RUN RESULTS' : 'COMPLETED');
+  console.log('='.repeat(60));
+
+  if (projectsUpdated > 0) {
+    console.log(
+      `✓ Project settings: ${projectsUpdated} file${projectsUpdated !== 1 ? 's' : ''} updated`
+    );
+    console.log(
+      `  Removed ${permissionsRemoved} permission${permissionsRemoved !== 1 ? 's' : ''}`
+    );
+  } else {
+    console.log('- No permissions were removed');
+  }
+
+  if (isDryRun) {
+    console.log('\nNo files were modified (dry-run mode)');
+  }
+
+  console.log('='.repeat(60) + '\n');
+}
+
+// ============================================================================
 // MAIN - Orchestration and workflow
 // ============================================================================
 
 async function main() {
   const isDryRun = process.argv.includes('--dry-run');
+  const isCleanupMode = process.argv.includes('--cleanup');
   const rootPaths = process.argv
     .slice(2)
     .filter(arg => !arg.startsWith('--'))
@@ -357,96 +548,12 @@ async function main() {
   console.log(`\nFound ${projectPaths.length} project${projectPaths.length !== 1 ? 's' : ''} with permissions:\n`);
   projectPaths.forEach(p => console.log(`  - ${p.replace(homedir(), '~')}`));
 
-  // Phase 2: Collect and select permissions
-  const readProjectSettings = (path: string) => {
-    const settingsPath = join(path, '.claude', 'settings.local.json');
-    return readSettingsFile(settingsPath);
-  };
-
-  const permissionMap = buildPermissionMap(projectPaths, readProjectSettings);
-  const allPermissions = getUniquePermissions(permissionMap);
-
-  const selectedPermissions = await selectPermissionsUI(
-    permissionMap,
-    allPermissions
-  );
-
-  if (selectedPermissions.length === 0) {
-    console.log('No permissions selected. Exiting.\n');
-    process.exit(0);
+  // Route to appropriate workflow
+  if (isCleanupMode) {
+    await cleanupWorkflow(projectPaths, isDryRun);
+  } else {
+    await promoteWorkflow(projectPaths, globalSettingsPath, isDryRun);
   }
-
-  // Phase 3: Preview and confirm global changes
-  const globalSettings = readSettingsFile(globalSettingsPath) || {};
-  const confirmGlobal = await confirmGlobalChangesUI(
-    selectedPermissions,
-    globalSettingsPath
-  );
-
-  if (!confirmGlobal) {
-    console.log('Cancelled.\n');
-    process.exit(0);
-  }
-
-  // Phase 4: Apply global changes
-  const updatedGlobalSettings = addToGlobalPermissions(
-    globalSettings,
-    selectedPermissions
-  );
-
-  if (!isDryRun) {
-    writeSettingsFile(globalSettingsPath, updatedGlobalSettings);
-  }
-
-  // Phase 5: Ask about cleanup
-  const confirmCleanup = await confirmCleanupUI();
-
-  if (!confirmCleanup) {
-    displayResults(
-      true,
-      globalSettingsPath,
-      selectedPermissions.length,
-      0,
-      0,
-      isDryRun
-    );
-    process.exit(0);
-  }
-
-  // Phase 6: Preview cleanup
-  displayCleanupSummary(projectPaths, selectedPermissions);
-
-  // Phase 7: Apply cleanup
-  let projectsUpdated = 0;
-  let permissionsRemoved = 0;
-
-  for (const projectPath of projectPaths) {
-    const settings = readProjectSettings(projectPath);
-    if (!settings?.permissions?.allow) continue;
-
-    const originalCount = settings.permissions.allow.length;
-    const updated = removeFromProjectSettings(settings, selectedPermissions);
-    const newCount = updated.permissions?.allow?.length || 0;
-    const removedCount = originalCount - newCount;
-
-    if (removedCount > 0) {
-      if (!isDryRun) {
-        const settingsPath = join(projectPath, '.claude', 'settings.local.json');
-        writeSettingsFile(settingsPath, updated);
-      }
-      projectsUpdated++;
-      permissionsRemoved += removedCount;
-    }
-  }
-
-  displayResults(
-    true,
-    globalSettingsPath,
-    selectedPermissions.length,
-    projectsUpdated,
-    permissionsRemoved,
-    isDryRun
-  );
 }
 
 main().catch(error => {
