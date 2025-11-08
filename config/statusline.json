@@ -8,6 +8,12 @@
         "color": "cyan"
       },
       {
+        "id": "66721d12-32e1-4476-b650-12435726007b",
+        "type": "custom-command",
+        "backgroundColor": "bgRed",
+        "commandPath": "echo \"${PROVIDER:ANT}\""
+      },
+      {
         "id": "5",
         "type": "git-branch",
         "color": "magenta"
@@ -26,12 +32,6 @@
         "id": "568b94db-61e5-4454-89fc-b15c2a0228c1",
         "type": "block-timer",
         "backgroundColor": "bgWhite"
-      },
-      {
-        "id": "66721d12-32e1-4476-b650-12435726007b",
-        "type": "custom-command",
-        "backgroundColor": "bgRed",
-        "commandPath": "echo \"Z.ai: ${ZCLAUDE:0}\""
       }
     ],
     [],

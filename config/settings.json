@@ -1,18 +1,5 @@
 {
-  "statusLine": {
-    "type": "command",
-    "command": "bunx -y ccstatusline@latest",
-    "padding": 0
-  },
-  "enabledPlugins": {
-    "essentials@ccconfigs": true
-  },
-  "alwaysThinkingEnabled": true,
   "permissions": {
-    "ask": [
-      "Bash(docker compose down:*)",
-      "Bash(docker-compose down:*)"
-    ],
     "allow": [
       "Bash(docker compose:*)",
       "Bash(cat:*)",
@@ -44,6 +31,19 @@
       "mcp__plugin_essentials_perplexity__deep_research",
       "mcp__plugin_essentials_perplexity__search",
       "mcp__plugin_essentials_sequential-thinking__process_thought"
+    ],
+    "ask": [
+      "Bash(docker compose down:*)",
+      "Bash(docker-compose down:*)"
     ]
-  }
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bunx -y ccstatusline@latest",
+    "padding": 0
+  },
+  "enabledPlugins": {
+    "essentials@ccconfigs": true
+  },
+  "alwaysThinkingEnabled": true
 }
