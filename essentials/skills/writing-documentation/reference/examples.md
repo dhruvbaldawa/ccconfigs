@@ -6,7 +6,7 @@ Concrete examples of documentation improvements by applying Strunk & White princ
 
 ### Before (73 words)
 
-```markdown
+```
 # MyProject
 
 This is basically a really awesome library that we've built in order to help developers
@@ -18,7 +18,7 @@ and it has been designed in such a way that it's fairly easy to use.
 
 ### After (17 words)
 
-```markdown
+```
 # MyProject
 
 A TypeScript library for validating and transforming structured data.
@@ -49,7 +49,7 @@ Supports JSON, XML, and CSV formats with built-in validation rules.
 
 ### Before (119 words)
 
-```markdown
+```
 ### validateData()
 
 This function is used for the purpose of validating data that has been provided by the user.
@@ -70,9 +70,12 @@ validation succeeded or failed.
 
 ### After (38 words + example)
 
-```markdown
-### validateData(data, schema, options)
+**Function signature:**
+```
+validateData(data, schema, options)
+```
 
+**Description:**
 Validates data against a schema and returns the result.
 
 **Parameters:**
@@ -84,13 +87,11 @@ Validates data against a schema and returns the result.
 - `ValidationResult`: { valid: boolean, errors: array }
 
 **Example:**
-
 ```javascript
 const result = validateData(
   { email: 'user@example.com' },
   { email: 'email' }
 );
-```
 ```
 
 ### Key Changes
@@ -119,7 +120,7 @@ const result = validateData(
 
 ### Before (139 words)
 
-```markdown
+```
 ## Getting Started with Installation
 
 Before you can actually start using MyProject, you're going to need to install it first.
@@ -133,9 +134,7 @@ higher, but newer versions should work fine too.
 Once you've got Node.js set up and ready to go, you can then proceed to install MyProject
 itself. Just open up your terminal and type in the following command:
 
-```bash
 npm install myproject
-```
 
 After npm finishes downloading and installing all of the necessary dependencies, you
 should be all set!
@@ -143,23 +142,24 @@ should be all set!
 
 ### After (28 words)
 
-```markdown
+**Section heading:**
+```
 ## Installation
+```
+
+**Content:**
 
 Requires Node.js 14 or later.
 
 Install via npm:
-
 ```bash
 npm install myproject
 ```
 
 Verify installation:
-
 ```javascript
 const myproject = require('myproject');
 console.log(myproject.version);
-```
 ```
 
 ### Key Changes
@@ -187,7 +187,7 @@ console.log(myproject.version);
 
 ### Before (172 words)
 
-```markdown
+```
 ## Why We Decided to Use Message Queues
 
 After quite a bit of discussion and consideration of various different options, we made
@@ -211,8 +211,10 @@ ways. But we ultimately felt that the benefits outweighed the added complexity.
 
 ### After (72 words)
 
-```markdown
+**Section heading:**
+```
 ## Design Decision: Message Queue Communication
+```
 
 **Decision**: Use RabbitMQ message queues for inter-service communication.
 
@@ -234,7 +236,6 @@ Direct HTTP calls:
 
 Added operational complexity (RabbitMQ cluster to maintain) and eventual consistency
 (messages process asynchronously) for improved resilience.
-```
 
 ### Key Changes
 
