@@ -1,0 +1,59 @@
+{
+  "version": 3,
+  "lines": [
+    [
+      {
+        "id": "1",
+        "type": "model",
+        "color": "cyan"
+      },
+      {
+        "id": "5",
+        "type": "git-branch",
+        "color": "magenta"
+      },
+      {
+        "id": "3",
+        "type": "context-percentage",
+        "color": "brightBlack"
+      },
+      {
+        "id": "b76f7919-36af-4bc9-99bc-f54306ad9e2c",
+        "type": "session-cost",
+        "backgroundColor": "bgBlue"
+      },
+      {
+        "id": "568b94db-61e5-4454-89fc-b15c2a0228c1",
+        "type": "block-timer",
+        "backgroundColor": "bgWhite"
+      },
+      {
+        "id": "66721d12-32e1-4476-b650-12435726007b",
+        "type": "custom-command",
+        "backgroundColor": "bgRed",
+        "commandPath": "echo \"Z.ai: ${ZCLAUDE:0}\""
+      }
+    ],
+    [],
+    []
+  ],
+  "flexMode": "full-minus-40",
+  "compactThreshold": 60,
+  "colorLevel": 2,
+  "defaultPadding": " ",
+  "inheritSeparatorColors": false,
+  "globalBold": false,
+  "powerline": {
+    "enabled": true,
+    "separators": [
+      ""
+    ],
+    "separatorInvertBackground": [
+      false
+    ],
+    "startCaps": [],
+    "endCaps": [],
+    "theme": "nord-aurora",
+    "autoAlign": false
+  }
+}
