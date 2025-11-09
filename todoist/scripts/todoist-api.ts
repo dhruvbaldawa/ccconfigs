@@ -118,11 +118,11 @@ async function apiRequest<T>(
 // Public API
 // ============================================================================
 
-export async function fetchTasks(sectionId?: string): Promise<TodoistTask[]> {
+export async function fetchTasks(projectId?: string): Promise<TodoistTask[]> {
   const config = loadConfig();
-  const section = sectionId || config.sections.todo;
+  const project = projectId || config.projectId;
 
-  return apiRequest<TodoistTask[]>(`/tasks?section_id=${section}`);
+  return apiRequest<TodoistTask[]>(`/tasks?project_id=${project}`);
 }
 
 export async function getTask(taskId: string): Promise<TodoistTask> {
