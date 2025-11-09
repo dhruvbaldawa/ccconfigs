@@ -1,47 +1,40 @@
 # Plan: {{PROJECT_NAME}}
 
-**Status:** pending
-**Created:** {{CREATED_DATE}}
-**Last Updated:** {{LAST_UPDATED}}
-**Current Milestone:** (none yet)
-**Current Agent:** planning-agent
-
 ## Overview
 
-{{1-2 paragraph description of the complete project}}
+{{1-2 paragraph description}}
+
+## Requirements
+
+- {{Requirement 1}}
+- {{Requirement 2}}
+
+## Architecture
+
+- {{Key decision 1}}
+- {{Key decision 2}}
+
+## Milestones
+
+See `milestones.md` for detailed breakdown.
+
+**M1:** {{Milestone 1 name}} - {{Brief objectives}}
+**M2:** {{Milestone 2 name}} - {{Brief objectives}}
+**M3:** {{Milestone 3 name}} - {{Brief objectives}}
 
 ## Documents
 
-- [Technical Specification](./technical-spec.md) - Detailed technical requirements
-- [Architecture](./architecture.md) - System design and component interactions
-- [Milestones](./milestones.md) - Milestone breakdown and dependencies
+- `milestones.md` - Milestone breakdown and dependencies
+- `technical-spec.md` (if complex) - Detailed technical requirements
+- `architecture.md` (if complex) - System design decisions
 
-## Milestone Progress
+## Progress
 
-### ⏳ Milestone 0: Planning & Design (pending)
-- Technical spec creation
-- Architecture decisions
-- Milestone definitions
-
-### ⏳ Milestone 1: {{Milestone 1 Name}} (pending)
-**Tasks:** 0/{{M1_TOTAL}} completed
-**Status:** See [milestones/m1-{{milestone-name}}/status.md](./milestones/m1-{{milestone-name}}/status.md)
-**Description:** {{Brief description of milestone 1 objectives}}
-
-### ⏳ Milestone 2: {{Milestone 2 Name}} (pending)
-**Dependencies:** M1 completion
-**Tasks:** 0/{{M2_TOTAL}} completed
-**Description:** {{Brief description of milestone 2 objectives}}
-
-### ⏳ Milestone 3: {{Milestone 3 Name}} (pending)
-**Dependencies:** M2 completion
-**Tasks:** 0/{{M3_TOTAL}} completed
-**Description:** {{Brief description of milestone 3 objectives}}
-
-## Current Focus
-
-{{What is currently being worked on}}
+Check agent directories for current status:
+```bash
+ls -la pending/ implementation/ review/ testing/ completed/
+```
 
 ## Notes
 
-{{Any important project-level notes, risks, or dependencies}}
+{{Important project-level notes or risks}}
