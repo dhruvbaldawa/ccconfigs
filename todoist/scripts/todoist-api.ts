@@ -1,0 +1,198 @@
+#!/usr/bin/env bun
+/**
+ * Todoist API client
+ * Provides type-safe wrappers around Todoist API v1
+ */
+
+import { readFileSync } from 'fs';
+import { homedir } from 'os';
+import { join } from 'path';
+
+// ============================================================================
+// Types
+// ============================================================================
+
+interface TodoistConfig {
+  apiToken: string;
+  projectId: string;
+  sections: {
+    todo: string;
+    inProgress: string;
+    forReview: string;
+  };
+}
+
+interface TodoistTask {
+  id: string;
+  content: string;
+  description: string;
+  project_id: string;
+  section_id: string | null;
+  priority: number;
+  due?: {
+    date: string;
+    datetime?: string;
+    string: string;
+  };
+  labels: string[];
+  created_at: string;
+}
+
+interface TodoistComment {
+  id: string;
+  task_id: string;
+  content: string;
+  posted_at: string;
+}
+
+// ============================================================================
+// Configuration
+// ============================================================================
+
+export function loadConfig(): TodoistConfig {
+  const configPath = join(homedir(), '.config', 'ccconfigs', 'todoist.json');
+
+  try {
+    const config = JSON.parse(readFileSync(configPath, 'utf-8'));
+
+    if (!config.apiToken) {
+      throw new Error('apiToken not configured in todoist.json');
+    }
+
+    if (!config.projectId) {
+      throw new Error('projectId not configured in todoist.json');
+    }
+
+    if (!config.sections?.todo ||
+        !config.sections?.inProgress ||
+        !config.sections?.forReview) {
+      throw new Error('sections not fully configured in todoist.json');
+    }
+
+    return config as TodoistConfig;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      throw new Error(`Config file not found at ${configPath}`);
+    }
+    throw error;
+  }
+}
+
+// ============================================================================
+// API Client
+// ============================================================================
+
+const API_BASE = 'https://api.todoist.com/api/v1';
+
+async function apiRequest<T>(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<T> {
+  const config = loadConfig();
+
+  const response = await fetch(`${API_BASE}${endpoint}`, {
+    ...options,
+    headers: {
+      'Authorization': `Bearer ${config.apiToken}`,
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(
+      `Todoist API error (${response.status}): ${errorText}`
+    );
+  }
+
+  // Handle 204 No Content
+  if (response.status === 204) {
+    return null as T;
+  }
+  const r = (await response.json()).results as T;
+  return r as Promise<T>;
+}
+
+// ============================================================================
+// Public API
+// ============================================================================
+
+export async function fetchTasks(projectId?: string): Promise<TodoistTask[]> {
+  const config = loadConfig();
+
+  return apiRequest<TodoistTask[]>(`/tasks?project_id=${projectId}`);
+}
+
+export async function getTask(taskId: string): Promise<TodoistTask> {
+  return apiRequest<TodoistTask>(`/tasks/${taskId}`);
+}
+
+export async function moveTask(
+  taskId: string,
+  sectionId: string
+): Promise<TodoistTask> {
+  return apiRequest<TodoistTask>(`/tasks/${taskId}/move`, {
+    method: 'POST',
+    body: JSON.stringify({ section_id: sectionId }),
+  });
+}
+
+export async function addComment(
+  taskId: string,
+  content: string
+): Promise<TodoistComment> {
+  return apiRequest<TodoistComment>('/comments', {
+    method: 'POST',
+    body: JSON.stringify({
+      task_id: taskId,
+      content,
+    }),
+  });
+}
+
+// ============================================================================
+// CLI Support
+// ============================================================================
+
+if (import.meta.main) {
+  const [command, ...args] = process.argv.slice(2);
+
+  try {
+    switch (command) {
+      case 'fetch_tasks':
+        const tasks = await fetchTasks(args[0]);
+        console.log(JSON.stringify(tasks, null, 2));
+        break;
+
+      case 'get_task':
+        if (!args[0]) throw new Error('Usage: get_task <task_id>');
+        const task = await getTask(args[0]);
+        console.log(JSON.stringify(task, null, 2));
+        break;
+
+      case 'move_task':
+        if (!args[0] || !args[1]) {
+          throw new Error('Usage: move_task <task_id> <section_id>');
+        }
+        const movedTask = await moveTask(args[0], args[1]);
+        console.log(JSON.stringify(movedTask, null, 2));
+        break;
+
+      case 'add_comment':
+        if (!args[0] || !args[1]) {
+          throw new Error('Usage: add_comment <task_id> <content>');
+        }
+        const comment = await addComment(args[0], args[1]);
+        console.log(JSON.stringify(comment, null, 2));
+        break;
+
+      default:
+        console.error('Usage: todoist-api.ts {fetch_tasks|get_task|move_task|add_comment} [args...]');
+        process.exit(1);
+    }
+  } catch (error) {
+    console.error('Error:', (error as Error).message);
+    process.exit(1);
+  }
+}
