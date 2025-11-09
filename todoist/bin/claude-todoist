@@ -6,7 +6,7 @@ set -euo pipefail
 
 # Determine plugin root directory
 PLUGIN_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SEARCH_SCRIPT="${PLUGIN_ROOT}/scripts/search-tasks.sh"
+SEARCH_SCRIPT="${PLUGIN_ROOT}/scripts/search-tasks.ts"
 
 # Check if claude command exists
 if ! command -v claude &> /dev/null; then

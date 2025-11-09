@@ -1,13 +1,9 @@
 ---
 description: Move the linked Todoist task to 'For Review' immediately
+argument-hint: (no arguments)
 ---
 
 Manually move the currently linked Todoist task to "For Review" section. Useful when you want to mark the task as complete before the session ends.
-
-**Usage:**
-```bash
-/done
-```
 
 **What happens:**
 - Moves the linked task from "In Progress" to "For Review"
@@ -28,23 +24,7 @@ Manually move the currently linked Todoist task to "For Review" section. Useful 
 **Implementation:**
 
 ```bash
-if [ -z "${CLAUDE_TODOIST_TASK_ID:-}" ]; then
-  echo "Error: No Todoist task linked to this session."
-  echo "Use the claude-todoist wrapper or /search command to link a task first."
-  exit 1
-fi
-
-# Load configuration
-source "${CLAUDE_PLUGIN_ROOT}/scripts/todoist-api.sh"
-load_config
-
-# Move task to "For Review"
-echo "Moving task ${CLAUDE_TODOIST_TASK_ID} to 'For Review'..."
-
-if move_task "$CLAUDE_TODOIST_TASK_ID" "$TODOIST_SECTION_FOR_REVIEW" > /dev/null; then
-  echo "✓ Task moved to 'For Review'"
-else
-  echo "Error: Failed to move task. API error occurred."
-  exit 1
-fi
+# Find plugin scripts directory (slash commands don't have CLAUDE_PLUGIN_ROOT)
+PLUGIN_DIR="$HOME/.claude/plugins/todoist"
+"${PLUGIN_DIR}/scripts/done.ts"
 ```

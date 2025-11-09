@@ -1,13 +1,9 @@
 ---
 description: Attach a link (PR, doc, commit) to the linked Todoist task
+argument-hint: <URL> [DESCRIPTION]
 ---
 
 Add a comment with a link to the currently linked Todoist task. Useful for tracking related pull requests, documentation, commits, or other assets.
-
-**Usage:**
-```bash
-/attach <url> [description]
-```
 
 **Arguments:**
 - `url` (required): URL to attach (PR, commit, doc, etc.)
@@ -39,5 +35,7 @@ Add a comment with a link to the currently linked Todoist task. Useful for track
 **Implementation:**
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/attach-asset.sh" "$@"
+# Find plugin scripts directory (slash commands don't have CLAUDE_PLUGIN_ROOT)
+PLUGIN_DIR="$HOME/.claude/plugins/todoist"
+"${PLUGIN_DIR}/scripts/attach.ts" "$@"
 ```

@@ -10,16 +10,16 @@ else
   SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 fi
 
-source "${SCRIPT_DIR}/todoist-api.sh"
-
 # Check if a task is linked to this session
 if [ -z "${CLAUDE_TODOIST_TASK_ID:-}" ]; then
   # No task linked - exit silently
   exit 0
 fi
 
-# Load Todoist configuration
-if ! load_config; then
+# Load configuration and get section ID
+TODOIST_SECTION_IN_PROGRESS=$(jq -r '.todoist.sections.inProgress // empty' ~/.claude/settings.json)
+
+if [ -z "$TODOIST_SECTION_IN_PROGRESS" ]; then
   echo "Warning: Failed to load Todoist configuration. Task status will not be updated." >&2
   exit 0
 fi
@@ -27,13 +27,13 @@ fi
 # Move task to "In Progress" section
 echo "Moving Todoist task ${CLAUDE_TODOIST_TASK_ID} to 'In Progress'..." >&2
 
-if move_task "$CLAUDE_TODOIST_TASK_ID" "$TODOIST_SECTION_IN_PROGRESS" > /dev/null; then
+if "${SCRIPT_DIR}/todoist-api.ts" move_task "$CLAUDE_TODOIST_TASK_ID" "$TODOIST_SECTION_IN_PROGRESS" > /dev/null 2>&1; then
   echo "✓ Task moved to 'In Progress'" >&2
 
   # Add a comment to track session start
   if [ -n "${CLAUDE_SESSION_ID:-}" ]; then
-    add_comment "$CLAUDE_TODOIST_TASK_ID" \
-      "🤖 Claude Code session started (session: ${CLAUDE_SESSION_ID})" > /dev/null
+    "${SCRIPT_DIR}/todoist-api.ts" add_comment "$CLAUDE_TODOIST_TASK_ID" \
+      "🤖 Claude Code session started (session: ${CLAUDE_SESSION_ID})" > /dev/null 2>&1 || true
   fi
 
   # Persist the task ID for the rest of the session
