@@ -1,6 +1,7 @@
 ---
 description: Search and link a Todoist task to the current session
 argument-hint: (no arguments)
+allowed-tools: Bash(${TODOIST_PLUGIN_ROOT}/scripts/*), Bash(jq:*)
 ---
 
 Search for tasks in your Todoist "To Do" section and link one to this Claude Code session. Once linked, the task will be automatically moved to "For Review" when the session ends.

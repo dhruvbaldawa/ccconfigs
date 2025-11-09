@@ -1,6 +1,7 @@
 ---
 description: Move the linked Todoist task to 'For Review' immediately
 argument-hint: (no arguments)
+allowed-tools: Bash(${TODOIST_PLUGIN_ROOT}/scripts/done.ts:*)
 ---
 
 Manually move the currently linked Todoist task to "For Review" section. Useful when you want to mark the task as complete before the session ends.

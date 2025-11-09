@@ -1,6 +1,7 @@
 ---
 description: Unlink the current Todoist task from this session
 argument-hint: (no arguments)
+allowed-tools: Bash(${TODOIST_PLUGIN_ROOT}/scripts/unlink.ts:*)
 ---
 
 Remove the link between this Claude Code session and the currently linked Todoist task. After unlinking, the session-end hook will not move the task to "For Review".

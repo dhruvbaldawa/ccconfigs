@@ -1,6 +1,7 @@
 ---
 description: Attach a link (PR, doc, commit) to the linked Todoist task
 argument-hint: <URL> [DESCRIPTION]
+allowed-tools: Bash(${TODOIST_PLUGIN_ROOT}/scripts/attach.ts:*)
 ---
 
 Add a comment with a link to the currently linked Todoist task. Useful for tracking related pull requests, documentation, commits, or other assets.
