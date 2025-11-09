@@ -17,7 +17,7 @@ if [ -z "${CLAUDE_TODOIST_TASK_ID:-}" ]; then
 fi
 
 # Load configuration and get section ID
-TODOIST_SECTION_FOR_REVIEW=$(jq -r '.todoist.sections.forReview // empty' ~/.claude/settings.json)
+TODOIST_SECTION_FOR_REVIEW=$(jq -r '.sections.forReview // empty' ~/.config/ccconfigs/todoist.json)
 
 if [ -z "$TODOIST_SECTION_FOR_REVIEW" ]; then
   echo "Warning: Failed to load Todoist configuration. Task status will not be updated." >&2

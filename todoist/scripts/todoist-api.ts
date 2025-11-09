@@ -50,29 +50,29 @@ interface TodoistComment {
 // ============================================================================
 
 export function loadConfig(): TodoistConfig {
-  const settingsPath = join(homedir(), '.claude', 'settings.json');
+  const configPath = join(homedir(), '.config', 'ccconfigs', 'todoist.json');
 
   try {
-    const settings = JSON.parse(readFileSync(settingsPath, 'utf-8'));
+    const config = JSON.parse(readFileSync(configPath, 'utf-8'));
 
-    if (!settings.todoist?.apiToken) {
-      throw new Error('todoist.apiToken not configured in settings.json');
+    if (!config.apiToken) {
+      throw new Error('apiToken not configured in todoist.json');
     }
 
-    if (!settings.todoist?.projectId) {
-      throw new Error('todoist.projectId not configured in settings.json');
+    if (!config.projectId) {
+      throw new Error('projectId not configured in todoist.json');
     }
 
-    if (!settings.todoist?.sections?.todo ||
-        !settings.todoist?.sections?.inProgress ||
-        !settings.todoist?.sections?.forReview) {
-      throw new Error('todoist.sections not fully configured in settings.json');
+    if (!config.sections?.todo ||
+        !config.sections?.inProgress ||
+        !config.sections?.forReview) {
+      throw new Error('sections not fully configured in todoist.json');
     }
 
-    return settings.todoist as TodoistConfig;
+    return config as TodoistConfig;
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-      throw new Error(`Settings file not found at ${settingsPath}`);
+      throw new Error(`Config file not found at ${configPath}`);
     }
     throw error;
   }

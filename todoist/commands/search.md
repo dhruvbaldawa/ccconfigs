@@ -43,7 +43,7 @@ if [ $? -eq 0 ] && [ -n "$TASK_ID" ]; then
   export CLAUDE_TODOIST_TASK_ID="$TASK_ID"
 
   # Move task to "In Progress"
-  SECTION_ID=$(jq -r '.todoist.sections.inProgress' ~/.claude/settings.json)
+  SECTION_ID=$(jq -r '.sections.inProgress' ~/.config/ccconfigs/todoist.json)
   "${TODOIST_PLUGIN_ROOT}/scripts/todoist-api.ts" move_task "$TASK_ID" "$SECTION_ID" > /dev/null 2>&1
 
   echo "✓ Linked to Todoist task: $TASK_ID"

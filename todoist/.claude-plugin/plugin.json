@@ -5,26 +5,5 @@
   "author": "Dhruv Baldawa",
   "dependencies": {
     "fzf": "^0.27.0"
-  },
-  "configuration": {
-    "required": [
-      "todoist.apiToken",
-      "todoist.projectId",
-      "todoist.sections.todo",
-      "todoist.sections.inProgress",
-      "todoist.sections.forReview"
-    ],
-    "schema": {
-      "todoist": {
-        "apiToken": "string (Todoist API token from https://todoist.com/app/settings/integrations)",
-        "projectId": "string (Project ID containing your tasks)",
-        "sections": {
-          "todo": "string (Section ID for 'To Do')",
-          "inProgress": "string (Section ID for 'In Progress')",
-          "forReview": "string (Section ID for 'For Review')"
-        },
-        "defaultFilter": "string (optional, default: no filter - shows all tasks from To Do section)"
-      }
-    }
   }
 }

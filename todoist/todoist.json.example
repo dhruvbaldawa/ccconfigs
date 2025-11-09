@@ -1,0 +1,9 @@
+{
+  "apiToken": "your-todoist-api-token-here",
+  "projectId": "your-project-id",
+  "sections": {
+    "todo": "section-id-for-to-do",
+    "inProgress": "section-id-for-in-progress",
+    "forReview": "section-id-for-review"
+  }
+}
