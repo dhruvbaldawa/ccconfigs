@@ -27,7 +27,7 @@ fi
 # Move task to "For Review" section
 echo "Moving Todoist task ${CLAUDE_TODOIST_TASK_ID} to 'For Review'..." >&2
 
-if "${SCRIPT_DIR}/todoist-api.ts" move_task "$CLAUDE_TODOIST_TASK_ID" "$TODOIST_SECTION_FOR_REVIEW" > /dev/null 2>&1; then
+if bun "${SCRIPT_DIR}/todoist-api.ts" move_task "$CLAUDE_TODOIST_TASK_ID" "$TODOIST_SECTION_FOR_REVIEW"; then
   echo "✓ Task moved to 'For Review'" >&2
 else
   echo "Warning: Failed to move task to 'For Review'. Task may not exist or API error occurred." >&2

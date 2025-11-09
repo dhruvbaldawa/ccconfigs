@@ -27,12 +27,12 @@ fi
 # Move task to "In Progress" section
 echo "Moving Todoist task ${CLAUDE_TODOIST_TASK_ID} to 'In Progress'..." >&2
 
-if "${SCRIPT_DIR}/todoist-api.ts" move_task "$CLAUDE_TODOIST_TASK_ID" "$TODOIST_SECTION_IN_PROGRESS" > /dev/null 2>&1; then
+if bun "${SCRIPT_DIR}/todoist-api.ts" move_task "$CLAUDE_TODOIST_TASK_ID" "$TODOIST_SECTION_IN_PROGRESS"; then
   echo "✓ Task moved to 'In Progress'" >&2
 
   # Add a comment to track session start
   if [ -n "${CLAUDE_SESSION_ID:-}" ]; then
-    "${SCRIPT_DIR}/todoist-api.ts" add_comment "$CLAUDE_TODOIST_TASK_ID" \
+    bun "${SCRIPT_DIR}/todoist-api.ts" add_comment "$CLAUDE_TODOIST_TASK_ID" \
       "🤖 Claude Code session started (session: ${CLAUDE_SESSION_ID})" > /dev/null 2>&1 || true
   fi
 
