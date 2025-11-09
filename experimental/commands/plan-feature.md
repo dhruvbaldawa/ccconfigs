@@ -1,115 +1,54 @@
 ---
-description: Create structured implementation plan using planning agent. Analyzes requirements, breaks down tasks, identifies dependencies.
+description: Create implementation plan with task breakdown in pending/
 ---
 
 # Plan Feature
 
-You are coordinating a **planning workflow** to analyze a feature request and create a structured implementation plan.
+Spawn planning agent to analyze request and create `.plans/<project>/` structure.
 
-## Input
+## Usage
 
-The user has requested planning for: {{ARGS}}
+```
+/plan-feature Add user authentication with JWT
+/plan-feature Build real-time notifications
+```
 
 ## Your Task
-
-Spawn the planning agent to analyze this request and create a comprehensive plan in `.plans/<project>/`.
 
 ```typescript
 await Task({
   subagent_type: 'planning-agent',
   model: 'sonnet',
-  description: 'Analyze and plan feature',
+  description: 'Plan feature',
   prompt: `
-    Analyze and create implementation plan for:
-    "${{{ARGS}}}"
+    Analyze and plan: "${{{ARGS}}}"
 
-    Follow these steps:
+    1. Glob codebase to understand patterns
+    2. Determine single vs multi-milestone (<10 tasks vs >=10)
+    3. Create .plans/<project-name>/ with:
+       - plan.md
+       - pending/, implementation/, review/, testing/, completed/ directories
+       - All task files in pending/
+       - milestones.md (if multi-milestone)
 
-    1. **Understand the Requirement**
-       - What is being requested?
-       - Why is it needed?
-       - What's the expected outcome?
-
-    2. **Explore the Codebase**
-       - Use Glob to find relevant files
-       - Use Grep to understand existing patterns
-       - Read similar implementations for context
-
-    3. **Determine Project Structure**
-       - Decide: single-milestone or multi-milestone?
-       - Decision criteria:
-         * <10 tasks → single-milestone
-         * >=10 tasks OR >2 weeks duration → multi-milestone
-         * High architectural complexity → multi-milestone + architecture.md
-
-    4. **Create Project Structure**
-       - Use templates from experimental/templates/
-       - Create .plans/<project-name>/
-       - Generate plan.md (use appropriate template)
-       - Create all task files in tasks/
-       - Initialize handoffs.md
-
-    5. **Task Breakdown**
-       - Each task should be atomic (1-2 hours work)
-       - Specific file changes listed
-       - Clear acceptance criteria
-       - Dependencies explicitly stated
-
-    6. **Quality Check**
-       - Verify all tasks have acceptance criteria
-       - Ensure dependencies are clear
-       - Confirm file impacts are identified
-       - Security implications considered
-
-    7. **Summarize the Plan**
-       - Total number of tasks
-       - Estimated complexity
-       - Key files to be modified
-       - Any risks or uncertainties
-
-    IMPORTANT:
-    - You are planning ONLY - do not implement
-    - Read-only operations on codebase
-    - Create clear, actionable tasks
-    - Enable implementation agent to work autonomously
+    4. Summarize:
+       - Total tasks
+       - Complexity estimate
+       - Key files
+       - Risks
   `
 });
 ```
 
-## After Planning Complete
-
-Summarize the plan for the user:
+## Output
 
 ```markdown
 ✅ Planning Complete
 
-Created plan for "{{feature name}}" in .plans/{{project-name}}/
+Project: user-authentication
+Tasks: 6 in pending/
+Complexity: Medium
+Key files: src/models/User.ts, src/routes/auth.ts, src/middleware/auth.ts
 
-**Structure:** {{Single milestone | Multi-milestone}}
-**Tasks:** {{N}} total
-**Estimated Duration:** {{estimate}}
-**Complexity:** {{Low | Medium | High}}
-
-**Key Files:**
-- {{file1}} ({{create | modify}})
-- {{file2}} ({{create | modify}})
-- ...
-
-**Risks:**
-- {{Risk 1 if any}}
-- {{Risk 2 if any}}
-
-**Next Steps:**
-- Ready for implementation: Use `/implement-plan {{project-name}}`
-- Or review plan: `Read .plans/{{project-name}}/plan.md`
-```
-
-## Example Usage
-
-```
-/plan-feature Add user authentication with JWT
-
-/plan-feature Implement real-time notifications using WebSocket
-
-/plan-feature Refactor database layer to use Prisma ORM
+Next: /implement-plan user-authentication
 ```
