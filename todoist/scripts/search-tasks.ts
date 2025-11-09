@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 /**
  * Interactive task search using fzf
- * Fetches tasks from Todoist "To Do" section and presents them in fzf
+ * Fetches all tasks from configured Todoist project and presents them in fzf
  */
 
 import { $ } from 'bun';
@@ -61,10 +61,11 @@ async function main() {
     const config = loadConfig();
     console.error('Fetching tasks from Todoist...');
 
-    const tasks = await fetchTasks(config.sections.todo);
+    // Fetch all tasks from the project (not filtered by section)
+    const tasks = await fetchTasks();
 
     if (tasks.length === 0) {
-      console.error('No tasks found in "To Do" section.');
+      console.error('No tasks found in project.');
       process.exit(1);
     }
 
