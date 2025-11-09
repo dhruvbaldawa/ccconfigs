@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 /**
  * Todoist API client
- * Provides type-safe wrappers around Todoist REST API v2
+ * Provides type-safe wrappers around Todoist Sync API v9
  */
 
 import { readFileSync } from 'fs';
@@ -27,7 +27,7 @@ interface TodoistTask {
   content: string;
   description: string;
   project_id: string;
-  section_id: string;
+  section_id: string | null;
   priority: number;
   due?: {
     date: string;
@@ -35,14 +35,27 @@ interface TodoistTask {
     string: string;
   };
   labels: string[];
-  created_at: string;
+  added_at: string;
 }
 
 interface TodoistComment {
   id: string;
-  task_id: string;
+  item_id: string;
   content: string;
   posted_at: string;
+}
+
+interface SyncResponse {
+  sync_token: string;
+  items?: TodoistTask[];
+  notes?: TodoistComment[];
+}
+
+interface Command {
+  type: string;
+  uuid: string;
+  args: Record<string, any>;
+  temp_id?: string;
 }
 
 // ============================================================================
@@ -79,24 +92,37 @@ export function loadConfig(): TodoistConfig {
 }
 
 // ============================================================================
-// API Client
+// API Client (Sync API v9)
 // ============================================================================
 
-const API_BASE = 'https://api.todoist.com/rest/v2';
+const API_BASE = 'https://api.todoist.com/sync/v9/sync';
 
-async function apiRequest<T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<T> {
+function generateUUID(): string {
+  return crypto.randomUUID();
+}
+
+async function syncRequest(
+  syncToken: string,
+  resourceTypes: string[],
+  commands?: Command[]
+): Promise<SyncResponse> {
   const config = loadConfig();
 
-  const response = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
+  const formData = new URLSearchParams();
+  formData.append('sync_token', syncToken);
+  formData.append('resource_types', JSON.stringify(resourceTypes));
+
+  if (commands && commands.length > 0) {
+    formData.append('commands', JSON.stringify(commands));
+  }
+
+  const response = await fetch(API_BASE, {
+    method: 'POST',
     headers: {
       'Authorization': `Bearer ${config.apiToken}`,
-      'Content-Type': 'application/json',
-      ...options.headers,
+      'Content-Type': 'application/x-www-form-urlencoded',
     },
+    body: formData.toString(),
   });
 
   if (!response.ok) {
@@ -106,50 +132,73 @@ async function apiRequest<T>(
     );
   }
 
-  // Handle 204 No Content
-  if (response.status === 204) {
-    return null as T;
-  }
-
-  return response.json() as Promise<T>;
+  return response.json() as Promise<SyncResponse>;
 }
 
 // ============================================================================
 // Public API
 // ============================================================================
 
-export async function fetchTasks(projectId?: string): Promise<TodoistTask[]> {
+export async function fetchTasks(sectionId?: string): Promise<TodoistTask[]> {
   const config = loadConfig();
-  const project = projectId || config.projectId;
 
-  return apiRequest<TodoistTask[]>(`/tasks?project_id=${project}`);
+  // Fetch all items
+  const response = await syncRequest('*', ['items']);
+
+  if (!response.items) {
+    return [];
+  }
+
+  // Filter by section_id or project_id (client-side)
+  if (sectionId) {
+    return response.items.filter(item => item.section_id === sectionId);
+  }
+
+  // Filter by project_id
+  return response.items.filter(item => item.project_id === config.projectId);
 }
 
-export async function getTask(taskId: string): Promise<TodoistTask> {
-  return apiRequest<TodoistTask>(`/tasks/${taskId}`);
+export async function getTask(taskId: string): Promise<TodoistTask | null> {
+  const response = await syncRequest('*', ['items']);
+
+  if (!response.items) {
+    return null;
+  }
+
+  return response.items.find(item => item.id === taskId) || null;
 }
 
 export async function moveTask(
   taskId: string,
   sectionId: string
-): Promise<TodoistTask> {
-  return apiRequest<TodoistTask>(`/tasks/${taskId}`, {
-    method: 'POST',
-    body: JSON.stringify({ section_id: sectionId }),
-  });
+): Promise<void> {
+  const command: Command = {
+    type: 'item_move',
+    uuid: generateUUID(),
+    args: {
+      id: taskId,
+      section_id: sectionId,
+    },
+  };
+
+  await syncRequest('*', [], [command]);
 }
 
 export async function addComment(
   taskId: string,
   content: string
-): Promise<TodoistComment> {
-  return apiRequest<TodoistComment>('/comments', {
-    method: 'POST',
-    body: JSON.stringify({
-      task_id: taskId,
+): Promise<void> {
+  const command: Command = {
+    type: 'note_add',
+    uuid: generateUUID(),
+    temp_id: generateUUID(),
+    args: {
+      item_id: taskId,
       content,
-    }),
-  });
+    },
+  };
+
+  await syncRequest('*', [], [command]);
 }
 
 // ============================================================================
@@ -176,16 +225,16 @@ if (import.meta.main) {
         if (!args[0] || !args[1]) {
           throw new Error('Usage: move_task <task_id> <section_id>');
         }
-        const movedTask = await moveTask(args[0], args[1]);
-        console.log(JSON.stringify(movedTask, null, 2));
+        await moveTask(args[0], args[1]);
+        console.log('Task moved successfully');
         break;
 
       case 'add_comment':
         if (!args[0] || !args[1]) {
           throw new Error('Usage: add_comment <task_id> <content>');
         }
-        const comment = await addComment(args[0], args[1]);
-        console.log(JSON.stringify(comment, null, 2));
+        await addComment(args[0], args[1]);
+        console.log('Comment added successfully');
         break;
 
       default:
