@@ -62,65 +62,108 @@ mv testing/002-login.md completed/002-login.md
 ## Four Specialized Agents
 
 ### 1. Planning Agent (Sonnet)
-- Analyzes requirements
-- Creates task breakdown in `pending/`
+- Uses **technical-planning skill** (risk-first development)
+- Asks clarifying questions (never assumes)
+- Creates risk-prioritized iterations (Foundation → Integration → Polish)
+- Generates tasks with LLM Prompt blocks (step-by-step instructions)
+- Documents deferred items with rationale
 - Read-only (no code changes)
-- **~75 lines** (ultra-lean, activation-focused)
+- **~100 lines**
 
 ### 2. Implementation Agent (Haiku)
 - Globs `pending/` for tasks with met dependencies
 - Claims: `mv pending/ → implementation/`
-- Writes code, runs tests
+- **Follows LLM Prompt block step-by-step**
+- Writes code + tests together (prevent regressions)
+- Marks **Status: Stuck** if blocked, STOPS for human help
 - Handoff: `mv implementation/ → review/`
-- **~75 lines**
+- **~93 lines**
 
 ### 3. Review Agent (Sonnet)
 - Globs `review/` for tasks
-- Checks security (OWASP Top 10), quality, performance
+- **Fresh eyes** - reviews outputs (diff, tests) not implementation notes
+- Checks security (OWASP Top 10), quality, performance, test coverage
+- Verifies **Working Result** achieved and **Validation** checklist complete
 - Approves: `mv review/ → testing/`
 - Rejects: `mv review/ → implementation/`
-- **~75 lines**
+- **~102 lines**
 
 ### 4. Testing Agent (Haiku)
 - Globs `testing/` for tasks
-- Writes behavior-focused tests (not logic-focused)
-- Chooses granularity (unit/integration/e2e)
+- Validates existing tests (implementation already wrote them)
+- Adds missing edge cases only (minimal, no test bloat)
+- Verifies behavior-focused (not implementation details)
+- Checks coverage >80% statements, >75% branches
 - Completes: `mv testing/ → completed/`
-- **~78 lines**
+- **~92 lines**
 
 ## Task File (Single Source of Truth)
 
 ```markdown
 # Task 002: Implement Login Endpoint
 
+**Iteration:** Foundation
+**Status:** Pending
 **Dependencies:** 001
-**Files:** src/routes/auth.ts, src/controllers/authController.ts
+**Files:** src/routes/auth.ts, tests/auth.test.ts
 
 ## Description
 POST /api/auth/login accepting email/password, returning JWT.
 
-## Acceptance
-- [ ] Validates email format
-- [ ] Bcrypt password check
-- [ ] Returns JWT token
-- [ ] Rate limited (5/min)
+## Working Result
+User can login via POST /api/auth/login with valid credentials and receive JWT token.
+
+## Validation
+- [ ] Valid login returns 200 + JWT token
+- [ ] Invalid password returns 401
+- [ ] Rate limit returns 429 (5 req/min)
+- [ ] All tests passing (no regressions)
+
+## LLM Prompt
+<prompt>
+1. Read **src/middleware/auth.ts** to understand existing auth patterns
+2. Create **src/routes/auth.ts** with POST /login endpoint
+3. Implement email validation (valid format)
+4. Implement bcrypt password verification
+5. Generate JWT token (24h expiry, HS256 algorithm)
+6. Add rate limiting using express-rate-limit (5 req/min per IP)
+7. Write tests in **tests/auth.test.ts**:
+   - Valid login returns 200 + token
+   - Invalid password returns 401
+   - Missing email returns 400
+   - Rate limit blocks 6th request
+8. Run full test suite: `npm test`
+</prompt>
 
 ## Notes
 
-**planning-agent:** Follow auth patterns in src/middleware/
+**planning-agent:** Follow auth patterns in src/middleware/. Rate limiting required for OWASP A04. Mark Stuck if auth middleware missing.
 
-**implementation-agent:** Used bcrypt + JWT. Added rate limiting.
+**implementation-agent:**
+- Followed LLM Prompt steps 1-8
+- Implemented bcrypt + JWT (HS256, 24h expiry)
+- Added express-rate-limit (5 req/min)
+- 12 tests written, all passing
+- Full test suite: 94/94 passing (no regressions)
+- Working Result verified ✓
 
 **review-agent:**
-Security: 90/100 | Quality: 95/100
-Approved → testing
+Security: 90/100 | Quality: 95/100 | Performance: 95/100 | Tests: 90/100
+Working Result verified: ✓
+Validation: 4/4 passing
+Full test suite: 94/94 passing
+Diff: 145 lines (reasonable)
+APPROVED → testing
 
 **testing-agent:**
-15 tests, 94% coverage
-All passing → completed
+Validated 12 tests (all behavior-focused)
+Added 3 edge case tests (empty email, JWT expiry, concurrent requests)
+Coverage: 94% statements, 88% branches
+Working Result verified ✓
+Completed → moving to completed/
 ```
 
-**No timestamps. No status field. Location = status.**
+**Status field tracks blockers. Location tracks workflow stage.**
 
 ## Progress Tracking (Derived)
 
