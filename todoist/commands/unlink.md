@@ -17,7 +17,8 @@ Remove the link between this Claude Code session and the currently linked Todois
 - You want to prevent automatic status updates
 
 **Requirements:**
-- A task must be linked to this session
+- A task must be linked to this session (via `claude-todoist` wrapper or `/search`)
+- The task ID is automatically read from the `CLAUDE_TODOIST_TASK_ID` environment variable
 - If no task is linked, the command will display a message
 
 **Note:** To link a different task after unlinking, use `/search`.

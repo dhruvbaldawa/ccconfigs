@@ -4,14 +4,15 @@ argument-hint: (no arguments)
 allowed-tools: Bash(${TODOIST_PLUGIN_ROOT}/scripts/*), Bash(jq:*)
 ---
 
-Search for tasks in your configured Todoist project and link one to this Claude Code session. Once linked, the task will be automatically moved to "For Review" when the session ends.
+Search for tasks in your configured Todoist project and link one to this Claude Code session. Once linked, the task will be automatically available to all other `/todoist:*` commands without needing to specify which task to use.
 
 **What happens:**
 1. Fetches all tasks from your configured project
 2. Presents an interactive fzf search menu
-3. Selected task is linked to this session (sets CLAUDE_TODOIST_TASK_ID)
+3. Selected task is linked to this session (sets CLAUDE_TODOIST_TASK_ID environment variable)
 4. Task is immediately moved to "In Progress"
-5. Session-end hook will move it to "For Review" automatically
+5. All subsequent `/todoist:attach`, `/todoist:done`, and `/todoist:unlink` commands will automatically use this task
+6. Session-end hook will move it to "For Review" automatically when the session ends
 
 **Example:**
 ```

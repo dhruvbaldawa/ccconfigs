@@ -31,7 +31,8 @@ Add a comment with a link to the currently linked Todoist task. Useful for track
 
 **Requirements:**
 - A task must be linked to this session (via `claude-todoist` wrapper or `/search`)
-- If no task is linked, the command will fail with an error
+- The task ID is automatically read from the `CLAUDE_TODOIST_TASK_ID` environment variable
+- If no task is linked, the command will fail with an error message
 
 **Implementation:**
 

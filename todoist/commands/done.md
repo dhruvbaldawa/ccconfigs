@@ -18,7 +18,8 @@ Manually move the currently linked Todoist task to "For Review" section. Useful 
 
 **Requirements:**
 - A task must be linked to this session (via `claude-todoist` wrapper or `/search`)
-- If no task is linked, the command will fail with an error
+- The task ID is automatically read from the `CLAUDE_TODOIST_TASK_ID` environment variable
+- If no task is linked, the command will fail with an error message
 
 **Note:** This does NOT unlink the task from the session. To unlink, use `/unlink`.
 
