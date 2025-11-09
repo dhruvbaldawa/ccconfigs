@@ -24,7 +24,6 @@ Manually move the currently linked Todoist task to "For Review" section. Useful 
 **Implementation:**
 
 ```bash
-# Find plugin scripts directory (slash commands don't have CLAUDE_PLUGIN_ROOT)
-PLUGIN_DIR="$HOME/.claude/plugins/todoist"
-"${PLUGIN_DIR}/scripts/done.ts"
+# Use TODOIST_PLUGIN_ROOT set by claude-todoist wrapper
+"${TODOIST_PLUGIN_ROOT}/scripts/done.ts"
 ```

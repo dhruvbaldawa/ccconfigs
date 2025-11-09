@@ -8,6 +8,9 @@ set -euo pipefail
 PLUGIN_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SEARCH_SCRIPT="${PLUGIN_ROOT}/scripts/search-tasks.ts"
 
+# Export plugin root for use in slash commands
+export TODOIST_PLUGIN_ROOT="$PLUGIN_ROOT"
+
 # Check if claude command exists
 if ! command -v claude &> /dev/null; then
   echo "Error: 'claude' command not found. Please install Claude Code first." >&2

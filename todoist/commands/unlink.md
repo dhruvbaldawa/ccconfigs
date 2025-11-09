@@ -24,7 +24,6 @@ Remove the link between this Claude Code session and the currently linked Todois
 **Implementation:**
 
 ```bash
-# Find plugin scripts directory (slash commands don't have CLAUDE_PLUGIN_ROOT)
-PLUGIN_DIR="$HOME/.claude/plugins/todoist"
-"${PLUGIN_DIR}/scripts/unlink.ts"
+# Use TODOIST_PLUGIN_ROOT set by claude-todoist wrapper
+"${TODOIST_PLUGIN_ROOT}/scripts/unlink.ts"
 ```

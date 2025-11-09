@@ -35,7 +35,6 @@ Add a comment with a link to the currently linked Todoist task. Useful for track
 **Implementation:**
 
 ```bash
-# Find plugin scripts directory (slash commands don't have CLAUDE_PLUGIN_ROOT)
-PLUGIN_DIR="$HOME/.claude/plugins/todoist"
-"${PLUGIN_DIR}/scripts/attach.ts" "$@"
+# Use TODOIST_PLUGIN_ROOT set by claude-todoist wrapper
+"${TODOIST_PLUGIN_ROOT}/scripts/attach.ts" "$@"
 ```

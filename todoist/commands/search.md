@@ -24,12 +24,12 @@ Search for tasks in your Todoist "To Do" section and link one to this Claude Cod
 **Implementation:**
 
 ```bash
-# Find plugin scripts directory (slash commands don't have CLAUDE_PLUGIN_ROOT)
-PLUGIN_DIR="$HOME/.claude/plugins/todoist"
-SEARCH_SCRIPT="${PLUGIN_DIR}/scripts/search-tasks.ts"
+# Use TODOIST_PLUGIN_ROOT set by claude-todoist wrapper
+SEARCH_SCRIPT="${TODOIST_PLUGIN_ROOT}/scripts/search-tasks.ts"
 
 if [ ! -f "$SEARCH_SCRIPT" ]; then
-  echo "Error: Todoist plugin scripts not found at $PLUGIN_DIR"
+  echo "Error: Todoist plugin scripts not found at $TODOIST_PLUGIN_ROOT"
+  echo "Make sure you're using the claude-todoist wrapper to launch Claude."
   exit 1
 fi
 
@@ -43,7 +43,7 @@ if [ $? -eq 0 ] && [ -n "$TASK_ID" ]; then
 
   # Move task to "In Progress"
   SECTION_ID=$(jq -r '.todoist.sections.inProgress' ~/.claude/settings.json)
-  "${PLUGIN_DIR}/scripts/todoist-api.ts" move_task "$TASK_ID" "$SECTION_ID" > /dev/null 2>&1
+  "${TODOIST_PLUGIN_ROOT}/scripts/todoist-api.ts" move_task "$TASK_ID" "$SECTION_ID" > /dev/null 2>&1
 
   echo "✓ Linked to Todoist task: $TASK_ID"
   echo "Task moved to 'In Progress'"
