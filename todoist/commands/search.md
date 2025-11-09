@@ -35,7 +35,7 @@ if [ ! -f "$SEARCH_SCRIPT" ]; then
 fi
 
 # Run the search script
-TASK_ID=$("$SEARCH_SCRIPT" 2>&1)
+TASK_ID=$(bun "$SEARCH_SCRIPT" 2>&1)
 
 if [ $? -eq 0 ] && [ -n "$TASK_ID" ]; then
   # Update environment for current session
@@ -44,7 +44,7 @@ if [ $? -eq 0 ] && [ -n "$TASK_ID" ]; then
 
   # Move task to "In Progress"
   SECTION_ID=$(jq -r '.sections.inProgress' ~/.config/ccconfigs/todoist.json)
-  "${TODOIST_PLUGIN_ROOT}/scripts/todoist-api.ts" move_task "$TASK_ID" "$SECTION_ID" > /dev/null 2>&1
+  bun "${TODOIST_PLUGIN_ROOT}/scripts/todoist-api.ts" move_task "$TASK_ID" "$SECTION_ID" > /dev/null 2>&1
 
   echo "✓ Linked to Todoist task: $TASK_ID"
   echo "Task moved to 'In Progress'"
