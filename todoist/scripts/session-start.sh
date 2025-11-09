@@ -3,6 +3,12 @@
 
 set -euo pipefail
 
+# Read hook input from stdin
+HOOK_INPUT=$(cat)
+
+# Extract session_id from JSON input
+SESSION_ID=$(echo "$HOOK_INPUT" | jq -r '.session_id // empty')
+
 # Determine script directory (works with CLAUDE_PLUGIN_ROOT)
 if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
   SCRIPT_DIR="${CLAUDE_PLUGIN_ROOT}/scripts"
@@ -25,15 +31,11 @@ if [ -z "$TODOIST_SECTION_IN_PROGRESS" ]; then
 fi
 
 # Move task to "In Progress" section
-echo "Moving Todoist task ${CLAUDE_TODOIST_TASK_ID} to 'In Progress'..." >&2
-
 if bun "${SCRIPT_DIR}/todoist-api.ts" move_task "$CLAUDE_TODOIST_TASK_ID" "$TODOIST_SECTION_IN_PROGRESS"; then
-  echo "✓ Task moved to 'In Progress'" >&2
-
   # Add a comment to track session start
-  if [ -n "${CLAUDE_SESSION_ID:-}" ]; then
+  if [ -n "$SESSION_ID" ]; then
     bun "${SCRIPT_DIR}/todoist-api.ts" add_comment "$CLAUDE_TODOIST_TASK_ID" \
-      "🤖 Claude Code session started (session: ${CLAUDE_SESSION_ID})" > /dev/null 2>&1 || true
+      "🤖 Claude Code session started (session: $SESSION_ID)" > /dev/null 2>&1 || true
   fi
 
   # Persist the task ID for the rest of the session

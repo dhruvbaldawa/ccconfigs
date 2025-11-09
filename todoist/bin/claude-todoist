@@ -23,7 +23,7 @@ select_task() {
   echo "" >&2
 
   # Run search script to get task ID
-  if task_id=$("$SEARCH_SCRIPT" 2>&1); then
+  if task_id=$(bun "$SEARCH_SCRIPT"); then
     export CLAUDE_TODOIST_TASK_ID="$task_id"
     echo "" >&2
     echo "✓ Selected task: $task_id" >&2
