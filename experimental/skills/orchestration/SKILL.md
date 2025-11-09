@@ -35,12 +35,13 @@ pending/ → implementation/ → review/ → testing/ → completed/
 
 ### Planning Agent (Sonnet)
 ```bash
-# Creates structure
+# Uses technical-planning skill for risk-first breakdown
+# Creates structure with LLM Prompt blocks
 .plans/<project>/
-├── plan.md
+├── plan.md (with risk analysis, deferred items)
 ├── pending/
-│   ├── 001-task.md
-│   └── 002-task.md
+│   ├── 001-task.md (Iteration: Foundation, LLM Prompt block)
+│   └── 002-task.md (Iteration: Integration, LLM Prompt block)
 ├── implementation/
 ├── review/
 ├── testing/
@@ -56,11 +57,17 @@ for task in .plans/project/pending/*.md; do
     # Claim task
     mv "$task" ".plans/project/implementation/$(basename $task)"
 
-    # Implement
-    # ... write code ...
+    # Follow LLM Prompt block step-by-step
+    # Write code + tests together
+    # Mark Status: Stuck if blocked, STOP
 
     # Append notes
-    echo -e "\n**implementation-agent:** Implemented using bcrypt. All criteria met." >> "$task"
+    echo -e "\n**implementation-agent:**" >> "$task"
+    echo "- Followed LLM Prompt steps 1-7" >> "$task"
+    echo "- Implemented bcrypt + JWT" >> "$task"
+    echo "- Added 12 tests: all passing" >> "$task"
+    echo "- Full test suite: 94/94 passing (no regressions)" >> "$task"
+    echo "- Working Result verified ✓" >> "$task"
 
     # Handoff to review
     mv ".plans/project/implementation/$(basename $task)" ".plans/project/review/$(basename $task)"
@@ -71,16 +78,21 @@ done
 
 ### Review Agent (Sonnet)
 ```bash
-# Review tasks in review/
+# Review tasks in review/ with fresh eyes
 for task in .plans/project/review/*.md; do
-  # Read task, check files
+  # Read task for Working Result and Validation checklist
   files=$(grep "Files:" "$task" | cut -d: -f2-)
 
-  # Review security, quality, performance
-  # ... analyze code ...
+  # Review outputs: git diff, tests (not implementation notes)
+  # Check security, quality, performance, test coverage
+  # Verify Working Result achieved
 
   # Append scores
-  echo -e "\n**review-agent:**\nSecurity: 90/100 | Quality: 95/100\nApproved → testing" >> "$task"
+  echo -e "\n**review-agent:**" >> "$task"
+  echo "Security: 90/100 | Quality: 95/100 | Performance: 95/100 | Tests: 90/100" >> "$task"
+  echo "Working Result verified: ✓" >> "$task"
+  echo "Validation checklist: 3/3 passing" >> "$task"
+  echo "APPROVED → testing" >> "$task"
 
   # Approve: move to testing
   mv "$task" ".plans/project/testing/$(basename $task)"
@@ -92,20 +104,74 @@ done
 
 ### Testing Agent (Haiku)
 ```bash
-# Test tasks in testing/
+# Validate tests in testing/ (implementation already wrote them)
 for task in .plans/project/testing/*.md; do
-  # Write tests
-  # ... create test files ...
+  # Validate existing tests (behavior-focused? right granularity?)
+  # Add missing edge cases only (minimal, no bloat)
 
-  # Run tests
+  # Run tests + coverage
   npm test
+  npm run coverage
 
   # Append results
-  echo -e "\n**testing-agent:**\n15 tests, 94% coverage\nAll passing → completed" >> "$task"
+  echo -e "\n**testing-agent:**" >> "$task"
+  echo "Validated 12 existing tests (all behavior-focused)" >> "$task"
+  echo "Added 3 edge case tests" >> "$task"
+  echo "Coverage: 94% statements, 88% branches" >> "$task"
+  echo "Working Result verified ✓" >> "$task"
+  echo "Completed → moving to completed/" >> "$task"
 
   # Complete
   mv "$task" ".plans/project/completed/$(basename $task)"
 done
+```
+
+## Task File Structure
+
+```markdown
+# Task 002: Implement Login Endpoint
+
+**Iteration:** Foundation
+**Status:** Pending | Stuck
+**Dependencies:** 001
+**Files:** src/routes/auth.ts, tests/auth.test.ts
+
+## Description
+POST /api/auth/login accepting email/password, returning JWT.
+
+## Working Result
+User can login via POST /api/auth/login with valid credentials and receive JWT token.
+
+## Validation
+- [ ] Valid login returns 200 + JWT token
+- [ ] Invalid password returns 401
+- [ ] Rate limit returns 429 (5 req/min)
+- [ ] All tests passing (no regressions)
+
+## LLM Prompt
+<prompt>
+1. Read **src/middleware/auth.ts** to understand patterns
+2. Create **src/routes/auth.ts** with POST /login endpoint
+3. Implement email validation
+4. Implement bcrypt password verification
+5. Generate JWT token (24h expiry, HS256)
+6. Add rate limiting (5 req/min per IP)
+7. Write tests in **tests/auth.test.ts**:
+   - Valid login returns 200 + token
+   - Invalid password returns 401
+   - Rate limit blocks 6th request
+8. Run full test suite: `npm test`
+</prompt>
+
+## Notes
+
+**planning-agent:** Follow auth patterns in src/middleware/. Mark Stuck if auth middleware missing.
+
+**implementation-agent:** [Added after implementation]
+
+**review-agent:** [Added after review]
+
+**testing-agent:** [Added after testing]
 ```
 
 ## Progress Tracking
@@ -134,53 +200,37 @@ No manual counters. File location = truth.
 await Task({
   subagent_type: 'planning-agent',
   model: 'sonnet',
-  prompt: `Create plan for: ${userRequest}
-
-  Create .plans/<project>/ structure with pending/ tasks.`
+  prompt: `Plan: ${userRequest}`
 });
 
 // For each task
 const tasks = glob('.plans/project/pending/*.md');
 
 for (const task of tasks) {
-  // Implementation
+  // Implementation: code + tests
   await Task({
     subagent_type: 'implementation-agent',
     model: 'haiku',
-    prompt: `Execute task from pending/ with met dependencies.
-
-    1. mv pending/task.md implementation/task.md
-    2. Implement per acceptance criteria
-    3. Append notes
-    4. mv implementation/task.md review/task.md`
+    prompt: `Execute task from pending/ with met dependencies.`
   });
 
-  // Review
+  // Review: fresh eyes on diff and tests
   await Task({
     subagent_type: 'review-agent',
     model: 'sonnet',
-    prompt: `Review task in review/.
-
-    1. Check security/quality/performance
-    2. Append scores
-    3. If approved: mv review/task.md testing/task.md
-    4. If rejected: mv review/task.md implementation/task.md`
+    prompt: `Review task in review/.`
   });
 
-  // Testing
+  // Testing: validate + add missing edge cases
   await Task({
     subagent_type: 'testing-agent',
     model: 'haiku',
-    prompt: `Test task in testing/.
-
-    1. Design test scenarios (behavior-focused)
-    2. Choose granularity (unit/integration/e2e)
-    3. Write tests, run, check coverage
-    4. Append results
-    5. mv testing/task.md completed/task.md`
+    prompt: `Validate tests in testing/.`
   });
 }
 ```
+
+Agents know their responsibilities from agent definitions. Commands just orchestrate.
 
 ### Concurrent (Advanced)
 
@@ -231,6 +281,17 @@ if ls .plans/project/completed/$dep-*.md 2>/dev/null; then
 fi
 ```
 
+**Stuck Handling:**
+```markdown
+**Status:** Stuck
+
+## Notes
+
+**implementation-agent:** Cannot complete - missing auth middleware (expected src/middleware/auth.ts). Stopping for human guidance.
+```
+
+Agent stops, human reviews, provides guidance or fixes blocker.
+
 **Rejection Flow:**
 ```markdown
 ## Notes
@@ -239,10 +300,10 @@ fi
 
 **review-agent:**
 Security: 65/100
-REJECTED - Missing rate limiting
+REJECTED - Missing rate limiting (OWASP A04)
 → Moving back to implementation
 
-**implementation-agent:** Added rate limiting. Resubmitting.
+**implementation-agent:** Added express-rate-limit. Resubmitting.
 
 **review-agent:**
 Security: 90/100
@@ -250,14 +311,6 @@ APPROVED → testing
 ```
 
 File history in git log shows full journey.
-
-**Blocked Tasks:**
-```bash
-# Move to pending/ with prefix
-mv implementation/003-api.md pending/BLOCKED-003-api.md
-```
-
-Or create `blocked/` directory.
 
 ## Benefits
 
@@ -267,6 +320,7 @@ Or create `blocked/` directory.
 4. **Atomic Handoffs:** `mv` is atomic
 5. **Git History:** Task journey visible
 6. **Natural Rejection:** Moving back is explicit
+7. **Stuck Handling:** Agents stop for human help
 
 ## Limitations
 

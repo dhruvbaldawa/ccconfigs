@@ -4,7 +4,7 @@ description: Create implementation plan with task breakdown in pending/
 
 # Plan Feature
 
-Spawn planning agent to analyze request and create `.plans/<project>/` structure.
+Spawn planning-agent to analyze request and create `.plans/<project>/` structure.
 
 ## Usage
 
@@ -20,25 +20,15 @@ await Task({
   subagent_type: 'planning-agent',
   model: 'sonnet',
   description: 'Plan feature',
-  prompt: `
-    Analyze and plan: "${{{ARGS}}}"
-
-    1. Glob codebase to understand patterns
-    2. Determine single vs multi-milestone (<10 tasks vs >=10)
-    3. Create .plans/<project-name>/ with:
-       - plan.md
-       - pending/, implementation/, review/, testing/, completed/ directories
-       - All task files in pending/
-       - milestones.md (if multi-milestone)
-
-    4. Summarize:
-       - Total tasks
-       - Complexity estimate
-       - Key files
-       - Risks
-  `
+  prompt: `Plan: "${{{ARGS}}}"`
 });
 ```
+
+Planning agent will:
+- Use technical-planning skill for risk-first analysis
+- Create .plans/<project>/ with risk analysis and iterations
+- Generate tasks with LLM Prompt blocks in pending/
+- Document deferred items
 
 ## Output
 
@@ -46,9 +36,14 @@ await Task({
 ✅ Planning Complete
 
 Project: user-authentication
-Tasks: 6 in pending/
-Complexity: Medium
-Key files: src/models/User.ts, src/routes/auth.ts, src/middleware/auth.ts
+Tasks: 6 total (Foundation: 2, Integration: 3, Polish: 1)
+
+Risk Mitigation:
+- Iteration 1 (Foundation): Bcrypt password hashing (Critical+Unknown)
+- Iteration 2 (Integration): JWT middleware, rate limiting (Critical+Known)
+- Iteration 3 (Polish): Password reset flow (Non-Critical)
+
+Deferred to Iteration 2: OAuth integration
 
 Next: /implement-plan user-authentication
 ```

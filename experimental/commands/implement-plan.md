@@ -15,7 +15,7 @@ Execute tasks from `.plans/<project>/pending/` through Kanban flow.
 
 ## Your Task
 
-For each task in `pending/`:
+Loop through tasks in `.plans/{{ARGS}}/` following Kanban flow:
 
 ### 1. Implementation
 
@@ -24,18 +24,16 @@ await Task({
   subagent_type: 'implementation-agent',
   model: 'haiku',
   description: 'Implement task',
-  prompt: `
-    Execute task from .plans/{{ARGS}}/pending/ with met dependencies.
-
-    1. Find task: glob pending/*.md, check dependencies in completed/
-    2. Claim: mv pending/XXX.md implementation/XXX.md
-    3. Implement per acceptance criteria
-    4. Run tests
-    5. Append notes to task file
-    6. Handoff: mv implementation/XXX.md review/XXX.md
-  `
+  prompt: `Execute task from .plans/{{ARGS}}/pending/ with met dependencies.`
 });
 ```
+
+Implementation agent will:
+- Find task with met dependencies, claim to implementation/
+- Follow LLM Prompt block step-by-step
+- Write code + tests together
+- Mark Status: Stuck if blocked, STOP for human help
+- Handoff to review/ when complete
 
 ### 2. Review
 
@@ -44,19 +42,15 @@ await Task({
   subagent_type: 'review-agent',
   model: 'sonnet',
   description: 'Review task',
-  prompt: `
-    Review task in .plans/{{ARGS}}/review/
-
-    1. Read task, check changed files
-    2. Security: OWASP Top 10, rate limiting, input validation
-    3. Quality: readability, patterns, error handling
-    4. Performance: N+1 queries, indexes
-    5. Append scores and issues
-    6. If approved (security >80): mv review/XXX.md testing/XXX.md
-    7. If rejected: mv review/XXX.md implementation/XXX.md
-  `
+  prompt: `Review task in .plans/{{ARGS}}/review/ with fresh eyes.`
 });
 ```
+
+Review agent will:
+- Review git diff, tests (outputs only, not process)
+- Verify Working Result and Validation checklist
+- Check security/quality/performance/tests
+- Approve to testing/ or reject to implementation/
 
 ### 3. Testing
 
@@ -64,26 +58,22 @@ await Task({
 await Task({
   subagent_type: 'testing-agent',
   model: 'haiku',
-  description: 'Test task',
-  prompt: `
-    Test task in .plans/{{ARGS}}/testing/
-
-    1. Design test scenarios (behavior-focused)
-    2. Choose granularity (unit/integration/e2e)
-    3. Write tests, run them
-    4. Check coverage (>80%)
-    5. Append results
-    6. Complete: mv testing/XXX.md completed/XXX.md
-  `
+  description: 'Validate tests',
+  prompt: `Validate tests in .plans/{{ARGS}}/testing/`
 });
 ```
 
-### 4. Check Progress
+Testing agent will:
+- Validate existing tests (implementation already wrote them)
+- Add missing edge cases only (minimal, no bloat)
+- Check coverage >80%
+- Complete to completed/
+
+### 4. Progress Check
 
 ```bash
-pending=$(ls .plans/{{ARGS}}/pending/*.md 2>/dev/null | wc -l)
 completed=$(ls .plans/{{ARGS}}/completed/*.md 2>/dev/null | wc -l)
-total=$((pending + completed + ...))
+total=$(find .plans/{{ARGS}} -name "*.md" -not -name "plan.md" -not -name "milestones.md" | wc -l)
 echo "Progress: $completed/$total"
 ```
 
@@ -99,6 +89,7 @@ Review Scores (avg):
 - Security: 92/100
 - Quality: 90/100
 - Performance: 95/100
+- Tests: 91/100
 
 Test Coverage: 94%
 

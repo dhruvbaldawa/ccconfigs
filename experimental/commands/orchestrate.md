@@ -29,7 +29,7 @@ Total: {{score}}
 >= 10 → Multi-agent justified
 ```
 
-###  2. Planning Phase
+### 2. Planning Phase
 
 ```typescript
 await Task({
@@ -40,33 +40,37 @@ await Task({
 });
 ```
 
+Planning agent uses technical-planning skill for risk-first breakdown.
+
 ### 3. Implementation Loop
+
+Loop through tasks following Kanban flow:
 
 ```typescript
 // While tasks in pending/
 while (hasPendingTasks()) {
-  // Implementation
+  // Implementation: code + tests
   await Task({
     subagent_type: 'implementation-agent',
     model: 'haiku',
     prompt: 'Execute next task from pending/'
   });
 
-  // Review
+  // Review: fresh eyes on diff and tests
   await Task({
     subagent_type: 'review-agent',
     model: 'sonnet',
     prompt: 'Review task in review/'
   });
 
-  // If rejected, loop back through implementation
-  // If approved, continue to testing
+  // If rejected: loops back to implementation
+  // If approved: continues to testing
 
-  // Testing
+  // Testing: validate + add missing edge cases
   await Task({
     subagent_type: 'testing-agent',
     model: 'haiku',
-    prompt: 'Test task in testing/'
+    prompt: 'Validate tests in testing/'
   });
 }
 ```
@@ -78,8 +82,8 @@ while (hasPendingTasks()) {
 npm test
 
 # Check all tasks completed
-completed=$(ls .plans/project/completed/*.md | wc -l)
-total=$(find .plans/project -name "*.md" -type f | grep -E "(pending|implementation|review|testing|completed)" | wc -l)
+completed=$(ls .plans/project/completed/*.md 2>/dev/null | wc -l)
+total=$(find .plans/project -name "*.md" -not -name "plan.md" -not -name "milestones.md" | wc -l)
 
 if [ $completed -eq $total ]; then
   echo "✅ All tasks complete"
@@ -92,12 +96,13 @@ fi
 ✅ Feature Complete: "{{ARGS}}"
 
 Plan: .plans/<project>/
-Tasks: 8/8 completed
+Tasks: 8/8 completed (Foundation: 3, Integration: 4, Polish: 1)
 
 Quality:
 - Security: 90/100 avg
 - Quality: 92/100 avg
 - Performance: 95/100 avg
+- Tests: 91/100 avg
 - Coverage: 94%
 
 Cost estimate: ~$1.50 (optimized with Haiku workers)
