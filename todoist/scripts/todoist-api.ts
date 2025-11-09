@@ -110,23 +110,18 @@ async function apiRequest<T>(
   if (response.status === 204) {
     return null as T;
   }
-
-  return response.json() as Promise<T>;
+  const r = (await response.json()).results as T;
+  return r as Promise<T>;
 }
 
 // ============================================================================
 // Public API
 // ============================================================================
 
-export async function fetchTasks(sectionId?: string): Promise<TodoistTask[]> {
+export async function fetchTasks(projectId?: string): Promise<TodoistTask[]> {
   const config = loadConfig();
 
-  // Build query parameters
-  const params = sectionId
-    ? `section_id=${sectionId}`
-    : `project_id=${config.projectId}`;
-
-  return apiRequest<TodoistTask[]>(`/tasks?${params}`);
+  return apiRequest<TodoistTask[]>(`/tasks?project_id=${projectId}`);
 }
 
 export async function getTask(taskId: string): Promise<TodoistTask> {
@@ -137,7 +132,7 @@ export async function moveTask(
   taskId: string,
   sectionId: string
 ): Promise<TodoistTask> {
-  return apiRequest<TodoistTask>(`/tasks/${taskId}`, {
+  return apiRequest<TodoistTask>(`/tasks/${taskId}/move`, {
     method: 'POST',
     body: JSON.stringify({ section_id: sectionId }),
   });
