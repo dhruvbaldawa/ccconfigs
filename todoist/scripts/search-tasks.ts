@@ -61,11 +61,10 @@ async function main() {
     const config = loadConfig();
     console.error('Fetching tasks from Todoist...');
 
-    // Fetch all tasks from the project (not filtered by section)
-    const tasks = await fetchTasks();
+    const tasks = await fetchTasks(config.projectId);
 
     if (tasks.length === 0) {
-      console.error('No tasks found in project.');
+      console.error('No tasks found for project.');
       process.exit(1);
     }
 

@@ -2,8 +2,30 @@
   "name": "todoist",
   "version": "1.0.0",
   "description": "Integrate Claude Code sessions with Todoist task management. Automatically moves tasks between sections (To Do → In Progress → For Review) as you work.",
-  "author": "Dhruv Baldawa",
-  "dependencies": {
-    "fzf": "^0.27.0"
+  "author": {
+    "name": "Dhruv Baldawa"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/session-start.sh"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/session-start.sh"
+          }
+        ]
+      }
+    ]
   }
 }
