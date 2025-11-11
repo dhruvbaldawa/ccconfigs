@@ -7,11 +7,32 @@ description: Plans technical projects with risk-first development, milestone str
 
 ## Core Principles
 
-**Focus on "What" Not "How"**: Define deliverable outcomes, not implementation details.
+**Focus on "What" Not "How"**: Define deliverable outcomes, not implementation details. Specify constraints and success criteria, but leave implementation choices flexible.
+
+**Last Responsible Moment**: Defer decisions until you have enough information to make them well, but not so late that they block progress. Make reversible decisions quickly; delay irreversible ones until necessary.
 
 **Risk-First Development**: Address highest-risk technical challenges first. Build proof-of-concepts before full implementation. Ship working but imperfect solutions to validate core assumptions early.
 
 **Managed Deferral**: Explicitly document what's being deferred and when it will be addressed. Distinguish between core value delivery and polish/optimization.
+
+### Decision Timing Framework
+
+**Decide Early (Requirements Phase)**:
+- User problems being solved
+- Success criteria and measurement
+- Hard constraints (security, compliance, performance SLAs)
+- Critical integrations and dependencies
+- Technology choices that affect architecture
+
+**Defer to Implementation (Execution Phase)**:
+- Specific algorithms or data structures
+- Internal API design details
+- Code organization patterns
+- Library choices (when multiple options work)
+- Performance optimizations (until proven necessary)
+- UI/UX details (until user testing)
+
+**Why**: Early decisions should enable work without locking in details. Implementation decisions become clearer with hands-on experience and often reveal better alternatives than upfront planning suggests.
 
 ## Agent Guidelines
 
@@ -75,7 +96,12 @@ Verify:
 
 **Goal**: One-sentence description of milestone outcome
 
-**Core Tasks**: 4-6 main implementation tasks (avoid sub-task details)
+**Core Tasks**: 4-6 main implementation tasks following Last Responsible Moment principle:
+- Define clear outcomes and constraints
+- Identify dependencies and integration points
+- Provide context and considerations (not step-by-step instructions)
+- Leave implementation details flexible
+- Flag questions to resolve during execution
 
 **Success Criteria**:
 - Minimum Viable Success (must achieve for milestone completion)
@@ -84,6 +110,23 @@ Verify:
 **Risk Mitigation**: Specific unknowns to be resolved in this milestone
 
 **Deferred Items**: What's intentionally left out and target milestone for inclusion
+
+### Task Breakdown Guidelines
+
+When breaking down tasks, provide **guidance not prescription**:
+
+**✓ Good Task Definition** (outcome-focused):
+- Goal: "Enable users to authenticate securely"
+- Constraints: "Must integrate with existing session middleware; <100ms response time"
+- Guidance: "Consider session vs. token auth; review existing patterns in src/middleware/"
+- Validation: "Users can log in, sessions persist, tests pass"
+
+**✗ Poor Task Definition** (overly prescriptive):
+- Step 1: "Create file auth.js with bcrypt import"
+- Step 2: "Write hashPassword function using bcrypt.hash with 10 rounds"
+- Step 3: "Create Express middleware checking req.session.userId"
+
+**Why**: Good definitions let the implementer choose the best approach based on what they learn. Poor definitions lock in choices before understanding the context, often leading to rework.
 
 ### Example Milestone Definition
 
@@ -173,9 +216,12 @@ Verify:
 
 - **Making assumptions instead of asking clarifying questions** when requirements are unclear
 - **Proceeding with incomplete information** rather than requesting necessary details
+- **Creating overly prescriptive task definitions** with step-by-step instructions instead of outcome-focused guidance
+- **Making implementation decisions too early** when they could be deferred to execution
 - Spending time on low-risk features while deferring critical unknowns
 - Over-engineering solutions before validating core assumptions
 - Planning implementation details instead of focusing on deliverable outcomes
 - **Guessing at user needs** instead of understanding specific problems being solved
 - Failing to document deferral decisions and rationale
 - Optimizing prematurely instead of proving core functionality first
+- **Locking in technology choices** before understanding the full context

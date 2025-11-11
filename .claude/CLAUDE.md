@@ -82,9 +82,9 @@ Configuration files only (JSON and Markdown). No build, test, or lint commands.
 
 ### Slash Commands
 
-**`/breakdown [SPEC DOCUMENT]`**: Creates structured, agile task breakdowns from design documents. Outputs iterations with tasks that include status, goals, validation checklists, and detailed LLM prompts. Designed to work iteratively - generates one iteration at a time to avoid token limits.
+**`/breakdown [SPEC DOCUMENT]`**: Creates structured, agile task breakdowns from design documents following the **Last Responsible Moment** principle. Outputs iterations with tasks that include status, goals, constraints, dependencies, implementation guidance (not step-by-step instructions), and validation checklists. Tasks focus on outcomes and provide context for decision-making rather than prescribing implementation details. Designed to work iteratively - generates one iteration at a time to avoid token limits.
 
-**`/do [SPEC DOCUMENT] [TASK NUMBER | --resume] [ADDITIONAL CONTEXT] [--auto]`**: Executes tasks from breakdown documents. Updates task status to "In Progress", follows the LLM prompt, validates completion criteria. With `--auto` flag, automatically commits after each task and continues to the next. Supports `--resume` to continue from first incomplete task.
+**`/do [SPEC DOCUMENT] [TASK NUMBER | --resume] [ADDITIONAL CONTEXT] [--auto]`**: Executes tasks from breakdown documents. Updates task status to "In Progress", reads the implementation guidance to understand context and considerations, makes informed implementation decisions during development, and validates completion criteria. With `--auto` flag, automatically commits after each task and continues to the next. Supports `--resume` to continue from first incomplete task.
 
 **`/optimize-doc [DOCUMENT]`**: Optimizes documentation for conciseness and clarity. Strengthens vague instructions, removes redundancy while preserving correctness. Can run idempotently - multiple passes won't degrade quality.
 
@@ -104,7 +104,7 @@ Configuration files only (JSON and Markdown). No build, test, or lint commands.
 
 **debugging**: Systematic debugging using UNDERSTAND methodology (10-step checklist). Focuses on root cause analysis over symptom treatment. Integrates with MCP tools (Context7 for docs, Firecrawl for research, SequentialThinking for complex analysis). Includes antipattern awareness and decision framework for when to use which tools. Reference materials document common debugging failures.
 
-**technical-planning**: Risk-first development methodology. Four-phase approach: Requirements & Risk Analysis, Milestone Planning, Implementation Strategy, Execution Framework. Emphasizes "what" over "how", managed deferral, and addressing highest-risk challenges first. Includes decision framework for handling unclear requirements.
+**technical-planning**: Risk-first development methodology with Last Responsible Moment decision-making. Four-phase approach: Requirements & Risk Analysis, Milestone Planning, Implementation Strategy, Execution Framework. Emphasizes "what" over "how", defers implementation decisions until execution, manages deferral explicitly, and addresses highest-risk challenges first. Includes decision timing framework (what to decide early vs. defer), task breakdown guidelines (outcome-focused vs. prescriptive), and decision framework for handling unclear requirements.
 
 ### MCP Servers
 
