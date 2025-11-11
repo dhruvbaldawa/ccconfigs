@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# Claude Code wrapper with Todoist integration
+# Usage: claude-todoist [claude arguments...]
+
+set -euo pipefail
+
+# Determine plugin root directory
+PLUGIN_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SEARCH_SCRIPT="${PLUGIN_ROOT}/scripts/search-tasks.ts"
+
+# Export plugin root for use in slash commands
+export TODOIST_PLUGIN_ROOT="$PLUGIN_ROOT"
+
+# Check if claude command exists
+if ! command -v claude &> /dev/null; then
+  echo "Error: 'claude' command not found. Please install Claude Code first." >&2
+  exit 1
+fi
+
+# Function to prompt user for task selection
+select_task() {
+  echo "=== Todoist Task Selection ===" >&2
+  echo "" >&2
+
+  # Run search script to get task ID
+  if task_id=$(bun "$SEARCH_SCRIPT"); then
+    export CLAUDE_TODOIST_TASK_ID="$task_id"
+    echo "" >&2
+    echo "✓ Selected task: $task_id" >&2
+    echo "" >&2
+    return 0
+  else
+    # User cancelled selection
+    echo "" >&2
+    echo "No task selected. Launching Claude Code without Todoist integration." >&2
+    echo "" >&2
+    return 1
+  fi
+}
+
+# Main logic
+main() {
+  # Check if we should skip task selection
+  # (e.g., when resuming a session, the task might already be linked)
+  if [ -z "${CLAUDE_TODOIST_TASK_ID:-}" ]; then
+    # Attempt to select a task (non-blocking if cancelled)
+    select_task || true
+  fi
+
+  # Launch Claude Code with all arguments
+  exec claude "$@"
+}
+
+main "$@"
