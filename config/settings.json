@@ -27,11 +27,9 @@
       "Bash(uv sync:*)",
       "WebFetch(domain:*)",
       "WebSearch",
-      "mcp__plugin_essentials_firecrawl__firecrawl_scrape",
-      "mcp__plugin_essentials_firecrawl__firecrawl_search",
-      "mcp__plugin_essentials_perplexity__deep_research",
-      "mcp__plugin_essentials_perplexity__search",
-      "mcp__plugin_essentials_sequential-thinking__process_thought"
+      "mcp__plugin_essentials_firecrawl",
+      "mcp__plugin_essentials_perplexity",
+      "mcp__plugin_essentials_sequential-thinking"
     ],
     "ask": [
       "Bash(docker compose down:*)",
