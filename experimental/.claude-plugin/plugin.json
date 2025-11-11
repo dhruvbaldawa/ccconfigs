@@ -2,53 +2,7 @@
   "name": "experimental",
   "version": "0.1.0",
   "description": "Experimental multi-agent development workflows with planning, implementation, review, and testing agents",
-  "author": "Dhruv Baldawa",
-  "claude_code_version": ">=1.0.0",
-  "tags": ["multi-agent", "orchestration", "workflow", "experimental", "development"],
-  "agents": [
-    {
-      "name": "planning-agent",
-      "description": "Analyzes requirements and creates task breakdowns",
-      "file": "agents/planning-agent.md"
-    },
-    {
-      "name": "implementation-agent",
-      "description": "Executes tasks and writes code",
-      "file": "agents/implementation-agent.md"
-    },
-    {
-      "name": "review-agent",
-      "description": "Security, quality, and standards review",
-      "file": "agents/review-agent.md"
-    },
-    {
-      "name": "testing-agent",
-      "description": "Behavior-focused test design and implementation",
-      "file": "agents/testing-agent.md"
-    }
-  ],
-  "commands": [
-    {
-      "name": "plan-feature",
-      "description": "Create structured implementation plan",
-      "file": "commands/plan-feature.md"
-    },
-    {
-      "name": "implement-plan",
-      "description": "Execute tasks from existing plan",
-      "file": "commands/implement-plan.md"
-    },
-    {
-      "name": "orchestrate",
-      "description": "Full workflow from planning to implementation",
-      "file": "commands/orchestrate.md"
-    }
-  ],
-  "skills": [
-    {
-      "name": "multi-agent-orchestration",
-      "description": "Coordinate multiple specialized agents",
-      "file": "skills/orchestration/SKILL.md"
-    }
-  ]
+  "author": {
+    "name": "Dhruv Baldawa"
+  }
 }

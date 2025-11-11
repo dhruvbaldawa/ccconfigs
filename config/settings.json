@@ -42,7 +42,9 @@
     "padding": 0
   },
   "enabledPlugins": {
-    "essentials@ccconfigs": true
+    "essentials@ccconfigs": true,
+    "todoist@ccconfigs": true,
+    "experimental@ccconfigs": true
   },
   "alwaysThinkingEnabled": true
 }
