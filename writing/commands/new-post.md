@@ -78,7 +78,7 @@ status: draft
 
 ## After Setup
 
-Once files are created, **invoke the brainstorming skill** and start the conversation:
+Once files are created, **invoke the brainstorming skill** (from essentials plugin) and start the conversation:
 
 - Ask clarifying questions about the topic
 - Explore what triggered this idea

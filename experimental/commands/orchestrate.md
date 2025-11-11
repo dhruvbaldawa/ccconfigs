@@ -9,11 +9,38 @@ Complete multi-agent workflow from planning through implementation.
 ## Usage
 
 ```
-/orchestrate Add user authentication with JWT
-/orchestrate Build real-time notifications using WebSocket
+# Standard (clear requirements)
+/orchestrate Add JWT authentication to login endpoint
+
+# Discovery mode (vague idea)
+/orchestrate --discover "Something with notifications, maybe realtime?"
 ```
 
 ## Your Task
+
+### 0. Discovery Phase (if --discover flag)
+
+```typescript
+await Task({
+  subagent_type: 'discovery-agent',
+  model: 'sonnet',
+  description: 'Discover requirements',
+  prompt: `Explore: "${{{ARGS}}}"`
+});
+```
+
+Discovery agent will:
+- Brainstorm interactively (asks questions, explores tensions)
+- Research using MCP tools (Perplexity, Firecrawl, Context7)
+- Create `.plans/<project>/discovery.md` with findings and clarified requirements
+- Recommend next steps when ready
+
+**IMPORTANT: Wait for user confirmation before proceeding to planning.**
+
+User may:
+- Confirm and continue: "Ready to plan"
+- Request more research: "Can you look into X?"
+- Adjust requirements: "Actually, I need Y instead"
 
 ### 1. Complexity Check
 
@@ -36,11 +63,14 @@ await Task({
   subagent_type: 'planning-agent',
   model: 'sonnet',
   description: 'Plan feature',
-  prompt: `Plan: "${{{ARGS}}}"`
+  prompt: `Plan: "${{{ARGS}}}"
+
+  ${discoveryExists ? 'Read .plans/<project>/discovery.md for context and clarified requirements.' : ''}`
 });
 ```
 
 Planning agent uses technical-planning skill for risk-first breakdown.
+If discovery.md exists, planning agent incorporates findings and constraints.
 
 ### 3. Implementation Loop
 
