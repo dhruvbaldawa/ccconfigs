@@ -128,13 +128,13 @@ Test first. Add complexity only if underperforming.
 
 ```
 Need latest practices?
-└─ mcp__perplexity__search
+└─ mcp__plugin_essentials_perplexity
 
 Complex analysis needed?
-└─ mcp__sequential-thinking__sequentialthinking
+└─ mcp__plugin_essentials_sequential-thinking
 
 Need library docs?
-└─ mcp__context7__get-library-docs
+└─ mcp__plugin_essentials_context7
 ```
 
 ### Context Management

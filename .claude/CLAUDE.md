@@ -25,14 +25,24 @@ ccconfigs/
 ├── essentials/                     # The essentials plugin
 │   ├── .claude-plugin/plugin.json # Plugin metadata
 │   ├── .mcp.json                  # MCP server configurations
+│   ├── agents/                    # Agent definitions
+│   │   ├── discovery-agent.md   # Brainstorms and researches vague ideas
+│   │   └── prompt-engineer.md   # Prompt engineering
 │   ├── commands/                  # Slash command definitions (.md files)
 │   │   ├── breakdown.md          # Creates agile task breakdowns
 │   │   ├── do.md                 # Executes tasks from specs
-│   │   └── optimize-doc.md       # Optimizes documentation
+│   │   ├── optimize-doc.md       # Optimizes documentation
+│   │   └── research.md           # Research blockers using discovery-agent
 │   └── skills/                    # Development skill frameworks
+│       ├── brainstorming/        # Collaborative ideation (projects + writing)
+│       │   ├── SKILL.md
+│       │   └── reference/        # Conversation examples
 │       ├── debugging/            # UNDERSTAND methodology (10-step checklist)
 │       │   ├── SKILL.md
-│       │   └── reference/       # Root cause framework, antipatterns
+│       │   └── reference/        # Root cause framework, antipatterns
+│       ├── research-synthesis/   # MCP tool usage and synthesis
+│       │   ├── SKILL.md
+│       │   └── reference/        # Research examples
 │       └── technical-planning/   # Risk-first planning (4-phase approach)
 │           └── SKILL.md
 └── writing/                        # The writing plugin
@@ -41,14 +51,8 @@ ccconfigs/
     │   ├── new-post.md           # Initialize new blog post (braindump + draft)
     │   └── polish.md             # Hybrid refinement (suggest → confirm → apply)
     └── skills/                    # Writing skill frameworks
-        ├── blog-writing/         # Dhruv's distinctive voice and style
-        │   └── SKILL.md
-        ├── brainstorming/        # Collaborative ideation
-        │   ├── SKILL.md
-        │   └── reference/        # Conversation examples
-        └── research-synthesis/   # MCP tool usage and synthesis
-            ├── SKILL.md
-            └── reference/        # Research examples
+        └── blog-writing/         # Dhruv's distinctive voice and style
+            └── SKILL.md
 ```
 
 ## Working with This Repository
@@ -84,9 +88,19 @@ Configuration files only (JSON and Markdown). No build, test, or lint commands.
 
 **`/optimize-doc [DOCUMENT]`**: Optimizes documentation for conciseness and clarity. Strengthens vague instructions, removes redundancy while preserving correctness. Can run idempotently - multiple passes won't degrade quality.
 
+**`/research [TASK FILE | QUESTION]`**: Research blockers or questions using discovery-agent. Invokes brainstorming + research-synthesis skills with MCP tools (Perplexity, Firecrawl, Context7). For stuck tasks, updates task file with findings. For general questions, provides summary with sources.
+
 **Key pattern**: `/breakdown` and `/do` work with shared state in a spec document. Breakdown creates the plan, do executes tasks one by one while maintaining state in the document.
 
+### Agents
+
+**discovery-agent**: Brainstorms and researches vague ideas into concrete requirements. Invokes brainstorming skill for collaborative ideation through questions, uses MCP tools for research, synthesizes findings into discovery.md (projects) or braindump.md (writing). Used by `/research` command and experimental `/orchestrate --discover`.
+
 ### Skills
+
+**brainstorming**: Collaborative ideation for projects and writing. Asks clarifying questions, suggests angles, challenges assumptions, helps refine vague ideas into concrete requirements or topics. Context-aware transitions - guides to technical-planning for projects or blog-writing for posts. Emphasizes drawing out user's ideas (not injecting your own).
+
+**research-synthesis**: MCP tool usage patterns and synthesis methodology. Guides when to use Perplexity (broad research), Firecrawl (specific URLs), or Context7 (technical docs). Synthesizes findings into narrative (not just lists), integrates naturally during conversation, maintains source attribution. Includes decision tree and quality standards.
 
 **debugging**: Systematic debugging using UNDERSTAND methodology (10-step checklist). Focuses on root cause analysis over symptom treatment. Integrates with MCP tools (Context7 for docs, Firecrawl for research, SequentialThinking for complex analysis). Includes antipattern awareness and decision framework for when to use which tools. Reference materials document common debugging failures.
 
@@ -131,9 +145,9 @@ Conversation-driven workflow for blog writing in Dhruv Baldawa's distinctive sty
 
 **blog-writing**: Write posts in Dhruv's distinctive voice - conversational yet analytical, grounded in personal experience, with clear structure and practical insights optimized for Substack. Active during drafting phase. Transforms ideas from braindump → polished prose in draft. Includes voice/tone principles, structure template, language guidelines, quality checklist (14 points), and common pitfalls.
 
-**brainstorming**: Collaborative ideation through questions and exploration. Starts with questions not suggestions, explores tensions, challenges assumptions, helps refine vague ideas into concrete topics. Updates braindump.md as ideas evolve. Knows when to transition to drafting. Reference materials include conversation examples.
-
-**research-synthesis**: Guides when to use Perplexity (broad research), Firecrawl (specific URLs), or Context7 (technical docs). Synthesizes findings into narrative (not just lists), integrates naturally during conversation, maintains source attribution. Includes decision tree and quality standards. Reference materials include detailed research examples with MCP tool usage patterns.
+**Uses skills from essentials plugin:**
+- **brainstorming** (essentials): Collaborative ideation through questions and exploration. Context-aware for writing - updates braindump.md, transitions to drafting when ready.
+- **research-synthesis** (essentials): MCP tool usage for research. Synthesizes findings into braindump.md during ideation.
 
 **Key pattern**: Skills guide natural conversation, commands are just utilities. Most operations (add to braindump, revise draft) happen through chat. MCP tools (Perplexity, Firecrawl, Context7) used proactively during conversation, not via separate commands.
 

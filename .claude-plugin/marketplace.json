@@ -15,6 +15,11 @@
       "description": "Blog writing plugin with Dhruv's distinctive style and voice"
     },
     {
+      "name": "experimental",
+      "source": "./experimental",
+      "description": "Multi-agent development workflows (planning, implementation, review, testing agents)"
+    },
+    {
       "name": "todoist",
       "source": "./todoist",
       "description": "Todoist integration - link Claude Code sessions to tasks and automatically track progress"
