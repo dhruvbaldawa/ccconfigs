@@ -1,9 +1,11 @@
-# Experimental: Multi-Agent Development Workflows
+# Experimental: Multi-Skill Development Workflows
 
-**Status:** Experimental (v0.2.0)
-**Architecture:** Kanban Flow (File Movement = Handoff)
+**Status:** Experimental (v0.3.0)
+**Architecture:** Kanban Flow (File Movement = Handoff) + Skills (Visibility + Interaction)
 
-Multi-agent orchestration plugin coordinating specialized agents via physical file movement. Task files move between directories like a Kanban board: `pending/` → `implementation/` → `review/` → `testing/` → `completed/`.
+Multi-skill orchestration plugin coordinating specialized skills via physical file movement. Task files move between directories like a Kanban board: `pending/` → `implementation/` → `review/` → `testing/` → `completed/`.
+
+**Key improvement:** Skills run in main conversation (full visibility) instead of isolated subagents (black box).
 
 ## Quick Start
 
@@ -18,9 +20,14 @@ Multi-agent orchestration plugin coordinating specialized agents via physical fi
 /orchestrate Build real-time notifications
 ```
 
-## Architecture: Kanban Flow
+## Architecture: Skills + Kanban Flow
 
-**Core concept:** File location = current owner. No separate status tracking.
+**Core concepts:**
+- **File location = workflow stage** (pending/implementation/review/testing/completed)
+- **Status field = completion state** (Pending → READY_FOR_REVIEW → APPROVED → COMPLETED)
+- **Skills update task files** with status and detailed notes
+- **Orchestrator moves files** between directories based on status
+- **Everything visible** in main conversation (no hidden subagent execution)
 
 ```
 .plans/user-auth/
@@ -59,43 +66,41 @@ mv review/002-login.md testing/002-login.md
 mv testing/002-login.md completed/002-login.md
 ```
 
-## Four Specialized Agents
+## Four Specialized Skills
 
-### 1. Planning Agent (Sonnet)
+### 1. Planning Skill
 - Uses **technical-planning skill** (risk-first development)
 - Asks clarifying questions (never assumes)
 - Creates risk-prioritized iterations (Foundation → Integration → Polish)
 - Generates tasks with LLM Prompt blocks (step-by-step instructions)
 - Documents deferred items with rationale
 - Read-only (no code changes)
-- **~100 lines**
+- **Runs in main conversation** → you see all questions and decisions
 
-### 2. Implementation Agent (Haiku)
-- Globs `pending/` for tasks with met dependencies
-- Claims: `mv pending/ → implementation/`
+### 2. Implementation Skill
+- Receives task file path from orchestrator
 - **Follows LLM Prompt block step-by-step**
 - Writes code + tests together (prevent regressions)
-- Marks **Status: Stuck** if blocked, STOPS for human help
-- Handoff: `mv implementation/ → review/`
-- **~93 lines**
+- **Updates task file:** Status → "READY_FOR_REVIEW", appends implementation notes
+- Marks **Status: STUCK** if blocked, reports blocker
+- **Runs in main conversation** → you see code being written, tests running
 
-### 3. Review Agent (Sonnet)
-- Globs `review/` for tasks
+### 3. Review Skill
+- Receives task file path from orchestrator
 - **Fresh eyes** - reviews outputs (diff, tests) not implementation notes
 - Checks security (OWASP Top 10), quality, performance, test coverage
 - Verifies **Working Result** achieved and **Validation** checklist complete
-- Approves: `mv review/ → testing/`
-- Rejects: `mv review/ → implementation/`
-- **~102 lines**
+- **Updates task file:** Status → "APPROVED" or "REJECTED", appends review notes with scores
+- **Runs in main conversation** → you see security analysis, quality checks
 
-### 4. Testing Agent (Haiku)
-- Globs `testing/` for tasks
+### 4. Testing Skill
+- Receives task file path from orchestrator
 - Validates existing tests (implementation already wrote them)
 - Adds missing edge cases only (minimal, no test bloat)
 - Verifies behavior-focused (not implementation details)
 - Checks coverage >80% statements, >75% branches
-- Completes: `mv testing/ → completed/`
-- **~92 lines**
+- **Updates task file:** Status → "COMPLETED", appends testing notes with coverage
+- **Runs in main conversation** → you see test validation, coverage reports
 
 ## Task File (Single Source of Truth)
 
@@ -163,7 +168,11 @@ Working Result verified ✓
 Completed → moving to completed/
 ```
 
-**Status field tracks blockers. Location tracks workflow stage.**
+**Key updates:**
+- **Status field:** Updated by skills (Pending → READY_FOR_REVIEW → APPROVED → COMPLETED)
+- **Validation checkboxes:** Marked by implementation skill ([ ] → [x])
+- **Notes section:** Each skill appends its own detailed notes
+- **Location:** Updated by orchestrator based on status (pending/ → implementation/ → review/ → testing/ → completed/)
 
 ## Progress Tracking (Derived)
 
@@ -234,15 +243,31 @@ Integration:     _____ × 2
 - Documentation updates
 - Budget constraints
 
-## Benefits
+## Benefits Over Previous Subagent Architecture
 
+### Visibility
+- ✅ **See everything:** Skills run in main conversation
+- ✅ **Real-time progress:** Watch code being written, tests running, reviews happening
+- ❌ **Before:** Subagents ran in isolated contexts (black box)
+
+### Interaction
+- ✅ **Natural interruption:** Say "wait, that's wrong" anytime
+- ✅ **Course correction:** Guide skills mid-execution
+- ❌ **Before:** Could only resume via agentId (clunky)
+
+### Kanban Flow
+- ✅ **Guaranteed movement:** Orchestrator moves files based on status
+- ✅ **Single source of truth:** Task file contains full history
+- ❌ **Before:** Agents told to move files (not enforced)
+
+### Additional Benefits
 1. **Visual Kanban:** `ls .plans/project/*/` shows workflow state
-2. **O(1) Discovery:** Agents glob only their directory
-3. **No Redundancy:** File location = status (single source of truth)
+2. **O(1) Discovery:** Orchestrator knows exactly which directory to check
+3. **No Redundancy:** File location = workflow stage, Status field = completion state
 4. **Atomic Handoffs:** `mv` is atomic operation
-5. **Git History:** Task journey visible in git log
+5. **Git History:** Task journey visible in git log with all skill notes
 6. **Natural Rejection:** Moving file back is explicit
-7. **Parallelization:** Multiple tasks in same directory can run concurrently
+7. **Resume anytime:** Just run `/implement-plan <project>` again
 
 ## Example: Simple Auth Feature
 
@@ -335,11 +360,12 @@ APPROVED → testing
 
 ## Files
 
-**Agents:** `agents/*.md` (~75 lines each, ultra-lean)
+**Skills:** `skills/*/SKILL.md` (planning, implementation, review, testing)
 **Commands:** `commands/*.md` (plan-feature, implement-plan, orchestrate)
-**Skill:** `skills/orchestration/SKILL.md` (Kanban flow patterns)
+**Orchestration Skill:** `skills/orchestration/SKILL.md` (Kanban flow patterns)
 **Templates:** `templates/*.md` (plan, task, milestones)
 **Reference:** `skills/orchestration/reference/` (detailed patterns, cost optimization)
+**Old Agents:** `agents/*.md` (deprecated - use skills instead)
 
 ## References
 
@@ -349,4 +375,22 @@ APPROVED → testing
 
 ---
 
-**Ultra-lean, token-efficient multi-agent workflows via Kanban file movement. Use strategically for complex, high-value tasks.**
+## Migration from v0.2.0 (Subagents)
+
+**v0.3.0 changes:**
+- ✅ Agents converted to skills (run in main conversation)
+- ✅ Commands refactored to invoke skills instead of Task tool
+- ✅ Orchestrator explicitly handles file movement
+- ✅ Skills update task files with status and notes
+- ✅ Full visibility and interaction throughout workflow
+
+**Old agents still available** in `agents/` directory but deprecated.
+
+**Breaking changes:**
+- Commands no longer use `await Task({ subagent_type: '...' })`
+- Commands now invoke skills and handle orchestration directly
+- Better visibility but slightly different invocation pattern
+
+---
+
+**Ultra-lean, token-efficient multi-skill workflows via Kanban file movement. Use strategically for complex, high-value tasks with full visibility.**
