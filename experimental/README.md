@@ -362,16 +362,12 @@ APPROVED → testing
 
 **Skills:** `skills/*/SKILL.md` (planning, implementation, review, testing)
 **Commands:** `commands/*.md` (plan-feature, implement-plan, orchestrate)
-**Orchestration Skill:** `skills/orchestration/SKILL.md` (Kanban flow patterns)
 **Templates:** `templates/*.md` (plan, task, milestones)
-**Reference:** `skills/orchestration/reference/` (detailed patterns, cost optimization)
-**Old Agents:** `agents/*.md` (deprecated - use skills instead)
 
 ## References
 
 - `.plans-structure-design.md` - Detailed Kanban structure specification
-- `skills/orchestration/reference/coordination-patterns.md` - Agent coordination strategies
-- `skills/orchestration/reference/cost-optimization.md` - Token economics (70-85% savings)
+- Commands contain orchestration logic and Kanban flow patterns
 
 ---
 
