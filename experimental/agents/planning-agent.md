@@ -1,7 +1,7 @@
 ---
 name: planning-agent
 description: Analyzes requirements, breaks into atomic tasks using risk-first planning. Use for feature requests, bug investigations, refactoring.
-tools: [Read, Grep, Glob, Bash, Skill]
+tools: [Read, Grep, Glob, Bash, Skill, Write]
 model: sonnet
 ---
 
