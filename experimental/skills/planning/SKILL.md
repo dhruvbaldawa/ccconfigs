@@ -1,25 +1,18 @@
 ---
 name: planning
-description: Risk-first task breakdown for features. Use when breaking down complex feature requests or analyzing requirements.
+description: Invoked by /plan-feature and /orchestrate. Creates .plans/ with risk-prioritized tasks. Skip for simple 1-2 file changes.
 ---
 
 # Planning
 
-Analyze requirements and create actionable task breakdowns using technical-planning skill.
-
 ## Process
 
-1. **Invoke technical-planning skill** for risk analysis and iteration sequencing
-2. **Glob codebase** to understand existing patterns
-3. **Create** `.plans/<project>/` structure:
-   - `plan.md` - overview, risk analysis, deferred items
+1. Invoke technical-planning skill
+2. Create `.plans/<project>/`:
+   - `plan.md` - risk analysis, deferrals
    - `pending/*.md` - task files by iteration
    - `milestones.md` (if >10 tasks)
-4. **Report** completion with summary
-
-## Constraints
-
-Read-only | Ask first (never assume) | Risk-first ordering | Atomic tasks | Document deferrals
+3. Report completion
 
 ## Task File Template
 
@@ -35,7 +28,7 @@ Read-only | Ask first (never assume) | Risk-first ordering | Atomic tasks | Docu
 What needs to be built (2-3 sentences).
 
 ## Working Result
-Concrete deliverable when task complete (e.g., "User can login via POST /api/auth/login and receive JWT").
+Concrete deliverable when complete.
 
 ## Validation
 - [ ] Specific, testable check 1
@@ -55,7 +48,7 @@ Concrete deliverable when task complete (e.g., "User can login via POST /api/aut
 
 ## Notes
 
-**planning:** Follow auth patterns in src/middleware/. Rate limiting for OWASP A04.
+**planning:** [Context, patterns to follow, potential blockers]
 ```
 
 ## Output
