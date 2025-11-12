@@ -1,7 +1,6 @@
 ---
 name: testing-agent
 description: Validates test quality and adds missing scenarios. Use after review approval.
-tools: [Read, Edit, Write, Bash, Grep, Glob]
 model: haiku
 ---
 

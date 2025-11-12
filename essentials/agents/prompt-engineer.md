@@ -1,7 +1,6 @@
 ---
 name: prompt-engineer
 description: Expert prompt engineering consultant. Use when creating new prompts, optimizing existing prompts, or when user needs help designing effective Claude interactions. Balances simplicity, cost, and effectiveness using Anthropic 2025 best practices.
-tools: Read, Write, Grep, Glob
 model: sonnet
 ---
 

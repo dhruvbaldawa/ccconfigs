@@ -1,7 +1,6 @@
 ---
 name: implementation-agent
 description: Executes tasks, writes code and tests. Use when tasks are defined in pending/.
-tools: [Read, Edit, Write, Bash, Grep, Glob]
 model: haiku
 ---
 

@@ -1,7 +1,6 @@
 ---
 name: discovery-agent
 description: Brainstorms and researches vague ideas into concrete requirements. Use when starting with unclear scope for projects or writing.
-tools: [Read, Bash, Grep, Glob, Write, Skill, mcp__plugin_essentials_perplexity, mcp__plugin_essentials_firecrawl, mcp__plugin_essentials_context7, mcp__plugin_essentials_sequential-thinking]
 model: sonnet
 ---
 

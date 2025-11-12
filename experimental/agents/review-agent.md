@@ -1,7 +1,6 @@
 ---
 name: review-agent
 description: Fresh-eyes security, quality, performance review. Use after implementation.
-tools: [Read, Grep, Glob, Bash]
 model: sonnet
 ---
 
