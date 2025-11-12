@@ -1,10 +1,10 @@
 ---
-description: Execute tasks from pending/ using implementation, review, testing agents
+description: Execute tasks from pending/ through Kanban flow (implementation → review → testing)
 ---
 
 # Implement Plan
 
-Execute tasks from `.plans/<project>/pending/` through Kanban flow.
+Execute tasks from `.plans/{{ARGS}}/pending/` through Kanban flow.
 
 ## Usage
 
@@ -15,83 +15,70 @@ Execute tasks from `.plans/<project>/pending/` through Kanban flow.
 
 ## Your Task
 
-Loop through tasks in `.plans/{{ARGS}}/` following Kanban flow:
+Orchestrate **implementation**, **review**, and **testing** skills to complete all tasks.
 
-### 1. Implementation
+### Setup
 
-```typescript
-await Task({
-  subagent_type: 'implementation-agent',
-  model: 'haiku',
-  description: 'Implement task',
-  prompt: `Execute task from .plans/{{ARGS}}/pending/ with met dependencies.`
-});
-```
+Verify plan exists: Check `.plans/{{ARGS}}/pending/` has tasks. If not: "❌ Plan not found. Run: /plan-feature [description] first"
 
-Implementation agent will:
-- Find task with met dependencies, claim to implementation/
-- Follow LLM Prompt block step-by-step
-- Write code + tests together
-- Mark Status: Stuck if blocked, STOP for human help
-- Handoff to review/ when complete
+### Main Loop
 
-### 2. Review
+While tasks in pending/ OR in-flight:
 
-```typescript
-await Task({
-  subagent_type: 'review-agent',
-  model: 'sonnet',
-  description: 'Review task',
-  prompt: `Review task in .plans/{{ARGS}}/review/ with fresh eyes.`
-});
-```
+#### 1. Find Next Task
+Find task in `pending/` with met dependencies (check Dependencies field, verify in `completed/`)
 
-Review agent will:
-- Review git diff, tests (outputs only, not process)
-- Verify Working Result and Validation checklist
-- Check security/quality/performance/tests
-- Approve to testing/ or reject to implementation/
+#### 2. Implementation Phase
+- Move: `pending/NNN-*.md → implementation/NNN-*.md`
+- Report: `🔨 Implementing Task X/Y: [name]`
+- Invoke implementation skill: "Implement .plans/{{ARGS}}/implementation/NNN-*.md"
+- Read Status from task file
+- If `READY_FOR_REVIEW`: Move to `review/`, report "Task X/Y → review"
+- If `STUCK`: STOP, show blocker, ask user how to proceed
 
-### 3. Testing
+#### 3. Review Phase
+- Report: `🔍 Reviewing Task X/Y: [name]`
+- Invoke review skill: "Review .plans/{{ARGS}}/review/NNN-*.md"
+- Read Status from task file
+- If `APPROVED`: Move to `testing/`, report "✅ Task X/Y approved → testing"
+- If `REJECTED`: Move back to `implementation/`, show rejection reasons, loop back to step 2
 
-```typescript
-await Task({
-  subagent_type: 'testing-agent',
-  model: 'haiku',
-  description: 'Validate tests',
-  prompt: `Validate tests in .plans/{{ARGS}}/testing/`
-});
-```
+#### 4. Testing Phase
+- Report: `🧪 Testing Task X/Y: [name]`
+- Invoke testing skill: "Validate tests in .plans/{{ARGS}}/testing/NNN-*.md"
+- Read Status from task file
+- If `COMPLETED`: Move to `completed/`, report "✅ Task X/Y completed"
+- If `NEEDS_FIX`: Move back to `implementation/`, loop back to step 2
 
-Testing agent will:
-- Validate existing tests (implementation already wrote them)
-- Add missing edge cases only (minimal, no bloat)
-- Check coverage >80%
-- Complete to completed/
+#### 5. Progress Update
+After each task: `Progress: X/Y completed | Z in-flight | W pending`
 
-### 4. Progress Check
+### Final Summary
 
-```bash
-completed=$(ls .plans/{{ARGS}}/completed/*.md 2>/dev/null | wc -l)
-total=$(find .plans/{{ARGS}} -name "*.md" -not -name "plan.md" -not -name "milestones.md" | wc -l)
-echo "Progress: $completed/$total"
-```
+When all in completed/:
 
-## Output
+1. Extract scores from review notes: `grep "Security:" completed/*.md | awk...`
+2. Count rejections: `grep -c "REJECTED" completed/*.md`
+3. Run: `npm test`
+4. Report:
 
 ```markdown
 ✅ Implementation Complete
 
 Project: {{ARGS}}
-Completed: 6/6 tasks
+Completed: X/X tasks | Rejected during review: Y (fixed)
 
-Review Scores (avg):
-- Security: 92/100
-- Quality: 90/100
-- Performance: 95/100
-- Tests: 91/100
+Average Review Scores:
+- Security: XX/100 | Quality: XX/100 | Performance: XX/100 | Tests: XX/100
 
-Test Coverage: 94%
+Final Test Coverage: XX% | Full suite: XXX/XXX passing
 
-Next: git add . && git commit
+Next: git add . && git commit -m "Implement {{ARGS}}"
 ```
+
+## Notes
+
+- Skills run in main conversation (full visibility)
+- Orchestrator moves files based on Status field
+- State persists (resume anytime with `/implement-plan {{ARGS}}`)
+- Track rejection count per task (warn if >3)
