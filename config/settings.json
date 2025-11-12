@@ -29,7 +29,8 @@
       "WebSearch",
       "mcp__plugin_essentials_firecrawl",
       "mcp__plugin_essentials_perplexity",
-      "mcp__plugin_essentials_sequential-thinking"
+      "mcp__plugin_essentials_sequential-thinking",
+      "Skill"
     ],
     "ask": [
       "Bash(docker compose down:*)",
