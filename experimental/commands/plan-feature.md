@@ -39,45 +39,12 @@ Project: <project-name>
 Tasks: X total (Foundation: Y, Integration: Z, Polish: W)
 
 Risk Mitigation:
-- Iteration 1 (Foundation): [Critical+Unknown items addressed first]
-- Iteration 2 (Integration): [Critical+Known items]
-- Iteration 3 (Polish): [Non-Critical items]
+- Iteration 1 (Foundation): [Critical+Unknown]
+- Iteration 2 (Integration): [Critical+Known]
+- Iteration 3 (Polish): [Non-Critical]
 
-Deferred Items:
-- [Item]: [Rationale for deferring]
-
-Key Files Impacted:
-- [List of main files that will be modified]
+Deferred: [Items with rationale]
+Key Files: [List]
 
 Next: /implement-plan <project-name>
-```
-
-## Example
-
-```
-/plan-feature Add user authentication with JWT
-```
-
-**Output:**
-```markdown
-✅ Planning Complete
-
-Project: user-authentication
-Tasks: 6 total (Foundation: 2, Integration: 3, Polish: 1)
-
-Risk Mitigation:
-- Iteration 1 (Foundation): Bcrypt password hashing (Critical+Unknown)
-- Iteration 2 (Integration): JWT middleware, rate limiting (Critical+Known)
-- Iteration 3 (Polish): Password reset flow (Non-Critical)
-
-Deferred Items:
-- OAuth integration: Deferred to separate feature (out of scope)
-
-Key Files Impacted:
-- src/models/User.ts
-- src/routes/auth.ts
-- src/middleware/auth.ts
-- tests/auth.test.ts
-
-Next: /implement-plan user-authentication
 ```

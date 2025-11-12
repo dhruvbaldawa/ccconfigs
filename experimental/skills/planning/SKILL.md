@@ -5,30 +5,23 @@ description: Risk-first task breakdown for features. Use when breaking down comp
 
 # Planning
 
-You analyze requirements and create actionable task breakdowns using the technical-planning skill.
+Analyze requirements and create actionable task breakdowns using technical-planning skill.
 
-## Your Role
+## Process
 
-**Always invoke the technical-planning skill** to guide your planning process.
-
-Create `.plans/<project>/` structure:
-- `plan.md` - overview, requirements, risk analysis, deferred items
-- `pending/*.md` - all task files organized by iteration
-- `milestones.md` (if >10 tasks or >2 weeks)
-- `architecture.md` (if architecturally complex)
+1. **Invoke technical-planning skill** for risk analysis and iteration sequencing
+2. **Glob codebase** to understand existing patterns
+3. **Create** `.plans/<project>/` structure:
+   - `plan.md` - overview, risk analysis, deferred items
+   - `pending/*.md` - task files by iteration
+   - `milestones.md` (if >10 tasks)
+4. **Report** completion with summary
 
 ## Constraints
 
-- **Read-only** - analyze code, don't modify
-- **Planning only** - no implementation
-- **Ask first** - never assume unclear requirements (use technical-planning skill guidance)
-- **Risk-first** - tackle highest-risk unknowns in Iteration 1
-- **Atomic tasks** - single responsibility, leaves repo working
-- **Managed deferral** - explicitly document what's deferred
+Read-only | Ask first (never assume) | Risk-first ordering | Atomic tasks | Document deferrals
 
-## Task Structure
-
-Each task file in `pending/`:
+## Task File Template
 
 ```markdown
 # Task 001: Feature Name
@@ -51,54 +44,20 @@ Concrete deliverable when task complete (e.g., "User can login via POST /api/aut
 
 ## LLM Prompt
 <prompt>
-Step-by-step instructions for implementation skill:
-
-1. Read **src/existing-pattern.ts** to understand auth patterns
-2. Create **src/routes/auth.ts** with POST /login endpoint
+1. Read **src/existing-pattern.ts** for patterns
+2. Create **src/routes/auth.ts** with POST /login
 3. Implement bcrypt password verification
-4. Generate JWT token with 24h expiry
+4. Generate JWT token (24h expiry)
 5. Add rate limiting (5 req/min per IP)
-6. Write tests in **tests/auth.test.ts**:
-   - Valid login returns 200 + token
-   - Invalid password returns 401
-   - Rate limit returns 429
-7. Run full test suite: `npm test`
+6. Write tests: valid login, invalid password, rate limit
+7. Run: `npm test`
 </prompt>
 
 ## Notes
 
-**planning:** Follow existing auth patterns in src/middleware/. Rate limiting required for OWASP A04.
+**planning:** Follow auth patterns in src/middleware/. Rate limiting for OWASP A04.
 ```
-
-## Planning Process
-
-**Use technical-planning skill for:**
-1. Risk analysis (Critical+Unknown → Iteration 1)
-2. Clarifying questions (don't assume)
-3. Iteration sequencing (Foundation → Integration → Polish)
-4. Managed deferral decisions
-
-**Then:**
-1. Glob codebase to understand patterns
-2. Create `.plans/<project>/` directories
-3. Write `plan.md` with risk analysis and deferred items
-4. Create task files in `pending/` organized by iteration
-5. Add detailed LLM Prompt to each task
-6. Document stuck paths (when implementation skill should stop for human help)
-
-Done. Report completion to the orchestrator.
 
 ## Output
 
-Summarize:
-- Project name
-- Total tasks by iteration (Foundation: 3, Integration: 4, Polish: 2)
-- Risk mitigation strategy
-- Deferred items (with rationale)
-- Key files impacted
-
-Report to orchestrator:
-```
-Planning complete. Created .plans/<project-name>/
-Tasks: X total (Foundation: Y, Integration: Z, Polish: W)
-```
+Report: `Planning complete. Created .plans/<project-name>/. Tasks: X total (Foundation: Y, Integration: Z, Polish: W)`
