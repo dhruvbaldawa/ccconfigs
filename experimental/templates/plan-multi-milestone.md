@@ -4,10 +4,52 @@
 
 {{1-2 paragraph description of what will be built}}
 
-## Requirements
+## Success Criteria (Project Complete When...)
 
-- {{Requirement 1}}
-- {{Requirement 2}}
+- [ ] {{Core outcome 1 - measurable, testable}}
+- [ ] {{Core outcome 2 - measurable, testable}}
+- [ ] {{Core outcome 3 - measurable, testable}}
+- [ ] {{Core outcome 4 - measurable, testable}}
+- [ ] {{All tests passing with >80% coverage}}
+
+## Milestones
+
+See `milestones.md` for detailed breakdown with iterations and task dependencies.
+
+### M1: Foundation 📋 Not Started (0%)
+**Name**: {{Milestone 1 name}}
+**Outcome**: {{What's achieved - core functionality working}}
+
+Deliverables:
+- [ ] {{Concrete deliverable 1}}
+- [ ] {{Concrete deliverable 2}}
+- [ ] {{Concrete deliverable 3}}
+
+**Risk Focus**: Critical + Unknown (proof-of-concepts, validate assumptions)
+
+### M2: Integration 📋 Not Started (0%)
+**Name**: {{Milestone 2 name}}
+**Outcome**: {{What's achieved - production-ready with integrations}}
+
+Deliverables:
+- [ ] {{Concrete deliverable 1}}
+- [ ] {{Concrete deliverable 2}}
+
+**Risk Focus**: Critical + Known (use established patterns, system integration)
+
+### M3: Polish 📋 Not Started (0%)
+**Name**: {{Milestone 3 name}}
+**Outcome**: {{What's achieved - optimized, documented, deployed}}
+
+Deliverables:
+- [ ] {{Concrete deliverable 1}}
+- [ ] {{Concrete deliverable 2}}
+
+**Risk Focus**: Non-Critical (refinements, performance, UX polish)
+
+**Overall Progress**: M0/M3 complete (0%)
+
+---
 
 ## Risk Analysis
 
@@ -22,47 +64,51 @@
 
 ## Architecture
 
+{{Key architectural decisions - update as implementation progresses}}
+
 - {{Key decision 1}}
 - {{Key decision 2}}
 
-## Milestones
+---
 
-See `milestones.md` for detailed breakdown.
+## Task History
 
-**M1 (Foundation):** {{Milestone 1 name}} - {{Risk mitigation + core functionality}}
-- Focus: Critical + Unknown risks, proof-of-concepts
-- Iterations: Foundation → Integration
+**Completed** (in completed/):
+- {{List completed tasks as they finish}}
 
-**M2 (Integration):** {{Milestone 2 name}} - {{Integration + critical features}}
-- Focus: Critical + Known risks, system integration
-- Iterations: Integration → Polish
+**In Flight**:
+- {{Tasks currently in implementation/review/testing}}
 
-**M3 (Polish):** {{Milestone 3 name}} - {{Optimization + deferred items}}
-- Focus: Non-critical features, performance, UX polish
-- Iterations: Polish
+**Pending** (current iteration):
+- See `milestones.md` for current iteration tasks
+- Generate tasks for M1 iterations only (Foundation, early Integration)
 
-## Documents
+Status tracked via file location: `pending/` → `implementation/` → `review/` → `testing/` → `completed/`
 
-- `milestones.md` - Milestone breakdown with iterations and task dependencies
-- `architecture.md` (if architecturally complex) - System design decisions
+---
+
+## Next Planning Cycle
+
+**Trigger**: {{When to generate next batch - usually milestone completion}}
+
+**Actions**:
+1. Review learnings from {{current milestone}}
+2. Generate {{next milestone}} tasks based on actual architecture
+3. Update risk analysis with new findings
+4. Review deferred items for relevance
+
+**Expected learnings before {{next milestone}}**:
+- {{What you'll discover that informs next planning cycle}}
+
+---
+
+## Supporting Documents
+
+- `milestones.md` - Detailed milestone breakdown with iterations and task dependencies
+- `architecture.md` (if complex) - System design decisions and evolution
 - `technical-spec.md` (if needed) - Detailed technical requirements
 
-## Progress
-
-Status tracked via file location:
-```bash
-# Check current workflow state
-ls .plans/{{project}}/pending/      # Tasks waiting
-ls .plans/{{project}}/implementation/  # Being coded
-ls .plans/{{project}}/review/       # Under review
-ls .plans/{{project}}/testing/      # Test validation
-ls .plans/{{project}}/completed/    # Done
-
-# Count progress
-completed=$(ls .plans/{{project}}/completed/*.md 2>/dev/null | wc -l)
-total=$(find .plans/{{project}} -name "*.md" -not -name "plan.md" -not -name "milestones.md" | wc -l)
-echo "Progress: $completed/$total"
-```
+---
 
 ## Deferred Items
 
