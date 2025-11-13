@@ -192,6 +192,42 @@ When breaking down tasks, provide **guidance not prescription**:
 - Deferred items registry with target scheduling
 - Architecture decision records for major choices
 
+## Execution Protocol
+
+Once you've completed planning (risk analysis, milestones, deferrals), create artifacts in this EXACT order:
+
+**Step 1: Create directories**
+
+```bash
+mkdir -p .plans/<project>/pending
+```
+
+**Step 2: Create plan.md FIRST**
+
+This file MUST exist before creating any task files.
+
+Required sections:
+- **Risk Analysis**: Highest risks identified and mitigation approach
+- **Milestones**: Milestone structure (if >10 tasks or multi-phase project)
+- **Explicit Deferrals**: Decisions deferred to Last Responsible Moment with triggers
+- **Success Criteria**: Overall project success measures
+
+**Step 3: Create task files**
+
+Only after plan.md exists:
+- Save to `.plans/<project>/pending/*.md`
+- Task files MUST reference milestone names from plan.md
+- Follow outcome-focused template (goal, constraints, guidance, validation)
+- One file per iteration/task group
+
+**Step 4: Report completion**
+
+- Summary of milestones created
+- Count of tasks generated
+- Key risks to watch during execution
+
+**VERIFICATION**: Before marking planning complete, confirm plan.md exists and contains all required sections. Task files should reference the milestone structure defined in plan.md.
+
 ## Decision Framework for Agents
 
 **IF** project has unknown technical feasibility → Schedule proof-of-concept in Milestone 1
