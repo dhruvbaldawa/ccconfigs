@@ -14,6 +14,76 @@ description: Invoked by /plan-feature and /orchestrate. Creates .plans/ with ris
    - `milestones.md` (if >10 tasks)
 3. Report completion
 
+## Execution Protocol
+
+Follow this EXACT order when planning:
+
+**Step 1: Create directory structure**
+
+```bash
+mkdir -p .plans/<project>/{pending,implementation,review,testing,completed}
+```
+
+**Step 2: Create plan.md FIRST**
+
+This file MUST exist before creating any task files.
+
+Use template: `experimental/templates/plan-single-milestone.md` or `plan-multi-milestone.md`
+
+Required sections:
+- **Overview**: 1-2 sentence project description
+- **Requirements**: Core requirements list
+- **Risk Analysis**: Critical+Unknown (Foundation), Critical+Known (Integration), Non-Critical (Polish)
+- **Architecture**: Key architectural decisions
+- **Tasks by Iteration**: List of task files with one-line descriptions and dependencies
+- **Deferred Items**: What's being deferred and when/why
+
+**Step 3: Create initial task files ONLY**
+
+Following Last Responsible Moment principle:
+- Generate tasks for **first 1-2 iterations only** (Foundation + early Integration)
+- Do NOT plan entire project upfront - architecture will evolve as you learn
+- Save to `.plans/<project>/pending/NNN-task-name.md`
+- Use template: `experimental/templates/task.md`
+- Each task file includes: Status, Dependencies, Description, Working Result, Validation, LLM Prompt
+
+**Step 4: Document status tracking**
+
+Add to plan.md:
+```markdown
+Status tracked via file location: pending/ → implementation/ → review/ → testing/ → completed/
+```
+
+Task files also have **Status:** field updated by implementation/review/testing skills.
+
+**Step 5: Report completion**
+
+Summary format:
+```
+Planning complete. Created .plans/<project-name>/.
+Tasks: X total (Foundation: Y, Integration: Z)
+Key risks: [List]
+Next: /implement-plan <project-name>
+```
+
+## Iterative Planning Loop
+
+After completing initial tasks, update plan based on learnings:
+
+1. **Complete tasks** → learn about system architecture and constraints
+2. **Update plan.md** with design changes, new risks discovered, architectural decisions
+3. **Generate next batch of tasks** in `pending/` based on updated understanding
+4. **Update deferrals** as decisions get made or context changes
+5. **Repeat** until project complete
+
+Plan.md is a **living document** that tracks architectural evolution, not a static waterfall plan.
+
+**VERIFICATION**: Before marking planning complete, confirm:
+- [ ] plan.md exists with all required sections
+- [ ] Initial task files (1-2 iterations) created in pending/
+- [ ] Task files reference architecture decisions from plan.md
+- [ ] Status tracking mechanism documented in plan.md
+
 ## Task File Template
 
 ```markdown
