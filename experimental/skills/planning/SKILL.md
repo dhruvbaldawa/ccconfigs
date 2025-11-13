@@ -9,10 +9,17 @@ description: Invoked by /plan-feature and /orchestrate. Creates .plans/ with ris
 
 1. Invoke technical-planning skill
 2. Create `.plans/<project>/`:
-   - `plan.md` - risk analysis, deferrals
-   - `pending/*.md` - task files by iteration
+   - `plan.md` - risk analysis, research findings, deferrals
+   - `pending/*.md` - task files by iteration (reference research from plan.md)
    - `milestones.md` (if >10 tasks)
 3. Report completion
+
+### Research Findings Workflow
+
+When you've validated approaches through research:
+1. Document in plan.md § Research Findings (single source of truth)
+2. Tasks reference the research instead of duplicating code/config
+3. Benefits: No duplication, easier to update, clear decision rationale
 
 ## Execution Protocol
 
@@ -101,8 +108,9 @@ Plan.md is a **living document** that tracks:
 - [ ] Milestones defined with outcome statements
 - [ ] Task History section present
 - [ ] Next Planning Cycle trigger documented
+- [ ] Research Findings documented in plan.md (if applicable)
 - [ ] Initial task files (1-2 iterations) created in pending/
-- [ ] Tasks reference architecture decisions from plan.md
+- [ ] Tasks reference research findings and architecture from plan.md (not duplicating)
 - [ ] Status tracking mechanism documented
 
 ## Task File Template
@@ -128,19 +136,135 @@ Concrete deliverable when complete.
 
 ## LLM Prompt
 <prompt>
-1. Read **src/existing-pattern.ts** for patterns
-2. Create **src/routes/auth.ts** with POST /login
-3. Implement bcrypt password verification
-4. Generate JWT token (24h expiry)
-5. Add rate limiting (5 req/min per IP)
-6. Write tests: valid login, invalid password, rate limit
-7. Run: `npm test`
+**Goal:** Enable users to authenticate securely via API endpoint
+
+**Constraints:**
+- Must integrate with existing session middleware
+- Response time <100ms
+- Rate limiting: 5 requests/min per IP
+- Token expiry: 24h
+
+**Implementation Guidance:**
+- Review **src/middleware/auth.ts** for established patterns
+- Consider session vs. token-based auth - choose based on existing architecture
+- Error handling should cover: invalid credentials, rate limits, expired tokens
+- Test coverage should include: valid login, invalid password, rate limiting behavior
+
+**Validation:**
+- Users can successfully authenticate via POST /api/login
+- Invalid credentials return appropriate error
+- Rate limiting prevents brute force attempts
+- Run: `npm test`
 </prompt>
 
 ## Notes
 
 **planning:** [Context, patterns to follow, potential blockers]
 ```
+
+### Example with Established Patterns (Prescriptive Mode)
+
+Use this when you've validated an approach through research or have established codebase patterns:
+
+```markdown
+# Task 003: Add TypeScript ESLint Configuration
+
+**Iteration:** Foundation
+**Status:** Pending
+**Dependencies:** None
+**Files:** .eslintrc.js, tsconfig.json
+
+## Description
+Set up TypeScript ESLint with project-validated rules. Team has researched and agreed on specific ruleset.
+
+## Working Result
+ESLint runs on TypeScript files with agreed-upon rules, catches type errors during development.
+
+## Validation
+- [ ] `npm run lint` passes on existing TypeScript files
+- [ ] VSCode shows inline ESLint errors
+- [ ] Pre-commit hook runs ESLint successfully
+
+## LLM Prompt
+<prompt>
+**Goal:** Configure TypeScript ESLint with team-validated ruleset
+
+**Constraints:**
+- Must work with existing tsconfig.json
+- Should integrate with VSCode
+- Pre-commit hooks must run in <5s
+
+**Implementation Guidance:**
+- Ensure compatibility with existing build pipeline
+- Test on sample TypeScript file before committing
+
+**Established Patterns**:
+See plan.md § Research Findings > "TypeScript ESLint Configuration" for the complete validated setup.
+
+Use the exact configuration documented there - it has been researched and team-approved. Do not modify without discussion.
+
+**Validation:**
+- Run `npm run lint` on existing codebase
+- Verify VSCode shows inline errors
+- Run: `npm test`
+</prompt>
+
+## Notes
+
+**planning:** [Context, patterns to follow, potential blockers]
+```
+
+#### Corresponding plan.md Research Findings Entry
+
+When using the reference pattern above, document the research in plan.md:
+
+```markdown
+## Research Findings
+
+### TypeScript ESLint Configuration
+**Decision**: Use @typescript-eslint with recommended-requiring-type-checking preset
+**Research**: Evaluated ESLint, TSLint (deprecated), and rome. ESLint has best TypeScript support and active community.
+**Validated Approach**:
+
+1. Install dependencies:
+```bash
+npm install -D @typescript-eslint/parser @typescript-eslint/eslint-plugin
+```
+
+2. Create `.eslintrc.js`:
+```javascript
+module.exports = {
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    project: './tsconfig.json',
+    tsconfigRootDir: __dirname,
+  },
+  plugins: ['@typescript-eslint'],
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/recommended-requiring-type-checking',
+  ],
+  rules: {
+    '@typescript-eslint/no-explicit-any': 'error',
+    '@typescript-eslint/explicit-function-return-type': 'warn',
+  },
+};
+```
+
+3. Add to package.json:
+```json
+"scripts": {
+  "lint": "eslint . --ext .ts,.tsx"
+}
+```
+
+**References**:
+- https://typescript-eslint.io/getting-started
+- Internal: See src/config/eslint-base.js for shared rules
+```
+
+Now multiple tasks can reference this research without duplicating the configuration.
 
 ## Output
 
