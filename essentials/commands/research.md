@@ -8,185 +8,138 @@ Research specific blocker or question using specialized research agents and MCP 
 
 ## Usage
 
-```
-# Research stuck task
-/research experimental/.plans/user-auth/implementation/003-jwt.md
-
-# Research general question
-/research "How to implement rate limiting with Redis?"
-
-# Research for writing topic
-/research "Best practices for writing technical blog posts"
+```bash
+/research experimental/.plans/user-auth/implementation/003-jwt.md  # Stuck task
+/research "How to implement rate limiting with Redis?"            # General question
+/research "Best practices for writing technical blog posts"       # Writing research
 ```
 
 ## Your Task
 
 Research: "${{{ARGS}}}"
 
-### Step 1: Analyze Research Type
+### Step 1: Analyze & Select Agents
 
-${isTaskFile ? 'Read task file to understand blocker context and type.' : 'Analyze the question to determine research approach.'}
+${isTaskFile ? 'Read task file to understand blocker context.' : 'Analyze question to determine approach.'}
 
-Determine which research agents to use:
+| Research Need | Agent Combination |
+|--------------|-------------------|
+| **New technology/patterns** | breadth + technical |
+| **Specific error/issue** | depth + technical |
+| **API/library integration** | technical + depth |
+| **Best practices comparison** | breadth + depth |
 
-**Broad understanding needed** (new technology, general patterns, industry trends)
-→ Launch `research-breadth` + `research-technical`
+**Agents available:**
+- **research-breadth** (haiku) - Perplexity: industry trends, consensus, multiple perspectives
+- **research-depth** (haiku) - Firecrawl: specific URLs, implementations, case studies, gotchas
+- **research-technical** (haiku) - Context7: official docs, API signatures, types, configs
 
-**Specific solution needed** (error message, specific implementation issue)
-→ Launch `research-depth` + `research-technical`
+### Step 2: Launch Agents in Parallel
 
-**API/library question** (official documentation, method signatures, configuration)
-→ Launch `research-technical` + `research-depth`
-
-**Best practices/patterns** (architectural decisions, design patterns)
-→ Launch `research-breadth` + `research-depth`
-
-### Step 2: Launch Research Agents in Parallel
-
-Launch 2-3 specialized agents using the Task tool:
+Use Promise.all to launch 2-3 agents:
 
 ```typescript
-// Example: For broad understanding
 await Promise.all([
   Task({
-    subagent_type: 'research-breadth',
+    subagent_type: 'research-breadth',  // or 'research-depth' or 'research-technical'
     model: 'haiku',
-    description: 'Broad survey research',
-    prompt: `Research broad understanding of: "${{{ARGS}}}"
+    description: 'Brief agent description',
+    prompt: `Research: "${{{ARGS}}}"
 
-    Gather multiple perspectives, recent trends, statistical data, and industry consensus.
-    Use Perplexity for broad coverage of recent information.
-    Synthesize into narrative patterns with supporting evidence.`
+    Focus areas and guidance for this agent.
+    Specify which MCP tool to use.
+    Expected output format.`
   }),
 
   Task({
     subagent_type: 'research-technical',
     model: 'haiku',
-    description: 'Technical documentation research',
-    prompt: `Research official documentation for: "${{{ARGS}}}"
+    description: 'Brief agent description',
+    prompt: `Research official docs for: "${{{ARGS}}}"
 
-    Use Context7 to access official library/framework documentation.
-    Extract API specifications, configuration options, and official examples.
-    Provide concrete implementation guidance.`
+    Focus areas and guidance for this agent.`
   })
 ]);
 ```
 
-**Available research agents:**
-- **research-breadth**: Broad surveys via Perplexity (trends, industry consensus, multiple perspectives)
-- **research-depth**: Deep-dive analysis via Firecrawl (specific URLs, implementation details, case studies)
-- **research-technical**: Official docs via Context7 (API references, method signatures, configurations)
-
 ### Step 3: Synthesize Findings
 
-Use the **research-synthesis skill** to:
-- Consolidate findings from all agents
-- Identify concrete path forward
-- Extract actionable implementation guidance
-- Maintain source attribution
-- Note contradictions and gaps
+Use **research-synthesis skill** to:
+- Consolidate findings by theme, identify consensus, note contradictions
+- Narrativize into story (not bullet dumps): "Industry uses X (breadth), via Y API (technical), as shown by Z (depth)"
+- Maintain source attribution (note which agent provided insights)
+- Identify gaps (unanswered questions, disagreements)
+- Extract actions (implementation path, code/configs, risks)
 
 ${isTaskFile ? `
 ### Step 4: Update Task File
 
-Update the task file with research findings:
+Append research findings to task file:
 
 \`\`\`bash
 cat >> "$task_file" <<EOF
 
 **research findings:**
-- [Agent 1]: [key insights with sources]
-- [Agent 2]: [key insights with sources]
-- [Agent 3]: [key insights with sources]
+- [Agent]: [key insights with sources]
+- [Agent]: [key insights with sources]
 
 **resolution:**
-[Concrete path forward based on research]
+[Concrete path forward]
 
 **next steps:**
-[Specific actions to take]
+[Specific actions]
 EOF
 \`\`\`
 
-If blocker is resolved, update status from STUCK to Pending.
+Update status from STUCK to Pending if blocker resolved.
 ` : ''}
 
 ## Output Format
 
-**For stuck tasks:**
+### For Stuck Tasks
+
 ```markdown
 ✅ Research Complete
 
 Task: 003-jwt.md
-Blocker: Rate limiting implementation unclear
+Blocker: [Description]
 
-Research Agents Used:
-- research-breadth: Industry patterns for rate limiting
-- research-technical: express-rate-limit official documentation
+Agents Used: breadth (industry patterns), technical (official docs)
 
 Key Findings:
-1. **Broad Survey** (research-breadth):
-   - Token bucket algorithm is industry standard
-   - Redis store enables distributed rate limiting
-   - Source: [Perplexity: Multiple sources on rate limiting patterns]
+1. **Agent 1**: [Key insight with source]
+2. **Agent 2**: [Key insight with source]
 
-2. **Official Documentation** (research-technical):
-   - express-rate-limit supports Redis via rate-limit-redis package
-   - Configuration: windowMs, max, standardHeaders
-   - Source: [Context7: express-rate-limit API docs]
+Resolution: [Concrete recommendation]
 
-Resolution:
-Use express-rate-limit with Redis store following official patterns.
+Updated task: Findings in Notes, LLM Prompt updated, Status: STUCK → Pending
 
-Updated task with:
-- Research findings in Notes section
-- Updated LLM Prompt with implementation details
-- Status changed from STUCK to Pending
-
-Next: Resume implementation with /implement-plan user-auth
+Next: Resume implementation with /implement-plan <project>
 ```
 
-**For general questions:**
+### For General Questions
+
 ```markdown
 ✅ Research Complete
 
-Question: How to implement rate limiting with Redis?
+Question: [Original question]
 
-Research Agents Used:
-- research-breadth: Industry patterns and best practices
-- research-depth: Specific implementation examples
-- research-technical: Official library documentation
+Agents Used: [List with focus areas]
 
 Synthesis:
+[Narrative combining insights from all agents with source attribution]
 
-1. **Industry Standard Approach** (research-breadth):
-   - express-rate-limit + Redis store (most common Node.js pattern)
-   - Token bucket algorithm with sliding window
-   - Distributed rate limiting across instances
-   - Source: [Perplexity: Rate limiting surveys 2024-2025]
+Recommendation: [What to do with rationale]
 
-2. **Implementation Details** (research-depth):
-   - Redis sorted sets for sliding window
-   - Atomic operations: ZADD, ZREMRANGEBYSCORE, ZCARD
-   - Example from official blog demonstrates pattern
-   - Source: [Firecrawl: Redis rate limiting implementation blog]
+Alternative: [If applicable]
 
-3. **Official API Reference** (research-technical):
-   - rate-limit-redis package integrates with express-rate-limit
-   - RedisStore configuration options documented
-   - TypeScript types available
-   - Source: [Context7: express-rate-limit + rate-limit-redis docs]
-
-Recommendation:
-Use express-rate-limit with rate-limit-redis store for application-level rate limiting.
-This combines simplicity (official package) with scalability (distributed via Redis).
-
-Alternative: nginx rate limiting at reverse proxy level (use if infrastructure preference).
+Sources: [Links with descriptions]
 ```
 
-## Notes
+## Key Points
 
-- Research agents run in **parallel** for faster results
-- Use **research-synthesis skill** to consolidate findings (narrative, not lists)
-- Always maintain **source attribution** from agent outputs
-- For stuck tasks, update task file with findings and next steps
-- Pattern matches `implementing-tasks` skill workflow for consistency
+- Launch agents **in parallel** (Promise.all) for speed
+- Use **research-synthesis skill** to consolidate (narrative, not lists)
+- Maintain **source attribution** (link claims to agents/sources)
+- For tasks: update file with findings and change status if resolved
+- See `essentials/skills/research-synthesis/reference/multi-agent-invocation.md` for detailed patterns
