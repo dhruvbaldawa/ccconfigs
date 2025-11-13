@@ -25,14 +25,11 @@ ccconfigs/
 ├── essentials/                     # The essentials plugin
 │   ├── .claude-plugin/plugin.json # Plugin metadata
 │   ├── .mcp.json                  # MCP server configurations
-│   ├── agents/                    # Agent definitions
-│   │   ├── discovery-agent.md   # Brainstorms and researches vague ideas
-│   │   └── prompt-engineer.md   # Prompt engineering
 │   ├── commands/                  # Slash command definitions (.md files)
 │   │   ├── breakdown.md          # Creates agile task breakdowns
 │   │   ├── do.md                 # Executes tasks from specs
 │   │   ├── optimize-doc.md       # Optimizes documentation
-│   │   └── research.md           # Research blockers using discovery-agent
+│   │   └── research.md           # Research using specialized agents (breadth/depth/technical)
 │   └── skills/                    # Development skill frameworks
 │       ├── brainstorming/        # Collaborative ideation (projects + writing)
 │       │   ├── SKILL.md
@@ -45,14 +42,37 @@ ccconfigs/
 │       │   └── reference/        # Research examples
 │       └── technical-planning/   # Risk-first planning (4-phase approach)
 │           └── SKILL.md
-└── writing/                        # The writing plugin
+├── writing/                        # The writing plugin
+│   ├── .claude-plugin/plugin.json # Plugin metadata
+│   ├── commands/                  # Slash command definitions
+│   │   ├── new-post.md           # Initialize new blog post (braindump + draft)
+│   │   └── polish.md             # Hybrid refinement (suggest → confirm → apply)
+│   └── skills/                    # Writing skill frameworks
+│       └── blog-writing/         # Dhruv's distinctive voice and style
+│           └── SKILL.md
+└── experimental/                   # Experimental workflows plugin
     ├── .claude-plugin/plugin.json # Plugin metadata
-    ├── commands/                  # Slash command definitions
-    │   ├── new-post.md           # Initialize new blog post (braindump + draft)
-    │   └── polish.md             # Hybrid refinement (suggest → confirm → apply)
-    └── skills/                    # Writing skill frameworks
-        └── blog-writing/         # Dhruv's distinctive voice and style
-            └── SKILL.md
+    ├── agents/                    # Specialized agents (used by planning, implementing, reviewing skills)
+    │   ├── research/              # Research agents (parallel invocation)
+    │   │   ├── research-breadth.md      # Broad surveys via Perplexity (haiku)
+    │   │   ├── research-depth.md        # Deep-dive via Firecrawl (haiku)
+    │   │   └── research-technical.md    # Official docs via Context7 (haiku)
+    │   ├── exploration/           # Codebase exploration agents (parallel invocation)
+    │   │   ├── architecture-explorer.md # Execution tracing & layer mapping (haiku)
+    │   │   └── codebase-analyzer.md     # Pattern discovery & conventions (haiku)
+    │   └── review/                # Code review agents (parallel invocation)
+    │       ├── test-coverage-analyzer.md    # Behavioral test gaps (sonnet)
+    │       ├── error-handling-reviewer.md   # Silent failures audit (sonnet)
+    │       └── security-reviewer.md         # OWASP Top 10 vulnerabilities (sonnet)
+    ├── commands/                  # Workflow commands
+    │   ├── plan-feature.md       # Create .plans/ with risk-prioritized tasks
+    │   ├── implement-plan.md     # Execute tasks through kanban workflow
+    │   └── orchestrate.md        # End-to-end: planning → implementation → review
+    └── skills/                    # Workflow skills (invoked by commands)
+        ├── planning/              # Uses exploration agents for context
+        ├── implementing-tasks/    # Uses research agents when stuck
+        ├── reviewing-code/        # Uses review agents in parallel
+        └── testing/               # Test execution and validation
 ```
 
 ## Working with This Repository
@@ -88,13 +108,9 @@ Configuration files only (JSON and Markdown). No build, test, or lint commands.
 
 **`/optimize-doc [DOCUMENT]`**: Optimizes documentation for conciseness and clarity. Strengthens vague instructions, removes redundancy while preserving correctness. Can run idempotently - multiple passes won't degrade quality.
 
-**`/research [TASK FILE | QUESTION]`**: Research blockers or questions using discovery-agent. Invokes brainstorming + research-synthesis skills with MCP tools (Perplexity, Firecrawl, Context7). For stuck tasks, updates task file with findings. For general questions, provides summary with sources.
+**`/research [TASK FILE | QUESTION]`**: Research blockers or questions using specialized research agents. Analyzes question type and launches 2-3 agents in parallel (research-breadth for industry patterns, research-depth for specific solutions, research-technical for official docs). Uses research-synthesis skill to consolidate findings. For stuck tasks, updates task file with findings. For general questions, provides summary with sources. See `essentials/skills/research-synthesis/reference/multi-agent-invocation.md` for detailed patterns.
 
 **Key pattern**: `/breakdown` and `/do` work with shared state in a spec document. Breakdown creates the plan, do executes tasks one by one while maintaining state in the document.
-
-### Agents
-
-**discovery-agent**: Brainstorms and researches vague ideas into concrete requirements. Invokes brainstorming skill for collaborative ideation through questions, uses MCP tools for research, synthesizes findings into discovery.md (projects) or braindump.md (writing). Used by `/research` command and experimental `/orchestrate --discover`.
 
 ### Skills
 
@@ -158,6 +174,68 @@ Conversation-driven workflow for blog writing in Dhruv Baldawa's distinctive sty
 - **Iterative**: Write section by section, pause, resume
 - **Skills guide flow**: Brainstorming → Research → Drafting → Polishing
 - **Progressive disclosure**: Main SKILL.md files concise (<500 lines), examples in reference/
+
+## The Experimental Plugin
+
+### Overview
+
+Multi-skill workflow system using kanban file movement for complex, high-value tasks. Features 8 specialized agents organized in 3 categories (research, exploration, review), all optimized for parallel invocation.
+
+### Specialized Agents
+
+**Research Agents** (3 agents - all haiku, parallel invocation):
+- **research-breadth**: Broad surveys via Perplexity (industry trends, consensus, multiple perspectives)
+- **research-depth**: Deep-dive via Firecrawl (specific URLs, implementation details, case studies)
+- **research-technical**: Official docs via Context7 (API references, method signatures, configurations)
+
+**Exploration Agents** (2 agents - all haiku, parallel invocation):
+- **architecture-explorer**: Traces execution paths, maps architectural layers, identifies patterns
+- **codebase-analyzer**: Finds similar features, extracts conventions, identifies reusable components
+
+**Review Agents** (3 agents - all sonnet, parallel invocation):
+- **test-coverage-analyzer**: Behavioral test gaps with 1-10 criticality ratings
+- **error-handling-reviewer**: Silent failures and poor error handling with severity levels
+- **security-reviewer**: OWASP Top 10 vulnerabilities with 0-100 confidence scores
+
+### Agent Invocation Patterns
+
+**Research agents** used when:
+- `/research` command invoked (2-3 agents based on question type)
+- `implementing-tasks` skill encounters STUCK status (automatic parallel launch)
+
+**Exploration agents** used when:
+- `planning` skill starts (both agents in parallel for codebase context)
+
+**Review agents** used when:
+- `reviewing-code` skill runs (all 3 agents in parallel for comprehensive review)
+
+See `essentials/skills/research-synthesis/reference/multi-agent-invocation.md` for detailed multi-agent patterns.
+
+### Slash Commands
+
+**`/plan-feature [REQUEST]`**: Creates `.plans/<project>/` with risk-prioritized tasks. Invokes planning skill which uses technical-planning skill for risk analysis and launches exploration agents (architecture-explorer + codebase-analyzer) in parallel to understand existing patterns. Generates task files in pending/ following Last Responsible Moment principle.
+
+**`/implement-plan [PROJECT]`**: Executes tasks through kanban workflow (pending → implementation → review → testing → completed). Invokes implementing-tasks skill which launches research agents when stuck, reviewing-code skill which launches all 3 review agents in parallel, and testing skill for validation.
+
+**`/orchestrate [REQUEST]`**: End-to-end workflow from planning through completion. Combines `/plan-feature` and `/implement-plan` in single command with user confirmation between phases.
+
+### Skills
+
+**planning**: Invoked by `/plan-feature`. Uses technical-planning skill for risk-first analysis, launches exploration agents in parallel (architecture-explorer + codebase-analyzer), creates .plans/ structure with tasks in pending/.
+
+**implementing-tasks**: Invoked by `/implement-plan` for tasks in implementation/. When stuck, marks task as STUCK and launches 2-3 research agents in parallel based on blocker type. Uses research-synthesis skill to consolidate findings and update task file.
+
+**reviewing-code**: Invoked by `/implement-plan` for tasks in review/. Performs initial review scoring (security, quality, performance, tests), then launches all 3 review agents in parallel (test-coverage-analyzer, error-handling-reviewer, security-reviewer). Consolidates findings by confidence/severity and decides APPROVE or REJECT.
+
+**testing**: Invoked by `/implement-plan` for tasks in testing/. Runs test suite, validates completion criteria, moves to completed/ on success.
+
+### Design Philosophy
+
+- **Agents for specialized analysis**: Each agent has single, clear responsibility with detailed output format
+- **Parallel invocation**: All agents designed for parallel execution (2-3 research, 2 exploration, 3 review)
+- **Skills orchestrate agents**: Skills determine which agents to launch and consolidate findings
+- **Model optimization**: Haiku for research/exploration (cost-efficient), Sonnet for review (quality-critical)
+- **Stateful kanban**: Tasks move through directories based on status (pending → implementation → review → testing → completed)
 
 ## Utility Scripts
 
@@ -239,7 +317,9 @@ Build artifacts, dependencies, and system dirs: `.git`, `node_modules`, `.next`,
 
 ## Architecture Decisions
 
-**Commands vs Skills**: Commands are explicit user entry points with arguments (`/breakdown spec.md`). Skills are reusable methodologies Claude can invoke proactively or on request ("use systematic debugging"). This separation allows skills to be referenced from multiple commands.
+**Commands vs Skills vs Agents**: Commands are explicit user entry points with arguments (`/breakdown spec.md`). Skills are reusable methodologies Claude can invoke proactively or on request ("use systematic debugging"). Agents are specialized subprocesses with isolated context for focused analysis (run via Task tool). This three-tier separation allows: (1) commands to orchestrate workflows, (2) skills to guide methodology and invoke agents, (3) agents to perform specialized analysis in parallel.
+
+**Agents are for specialized analysis, not general workflows**: Agents should have single, clear responsibilities with detailed output formats (research-breadth for surveys, test-coverage-analyzer for test gaps). General workflows use skills that orchestrate agents. Methodologies (debugging, prompt engineering) are skills, not agents.
 
 **Stateful commands**: `/breakdown` and `/do` (essentials) maintain state in the spec document itself rather than in separate tracking. This makes the spec document the single source of truth for project progress. Similarly, `/new-post` and `/polish` (writing) maintain state in braindump.md and draft.md files.
 
@@ -250,3 +330,5 @@ Build artifacts, dependencies, and system dirs: `.git`, `node_modules`, `.next`,
 **Conversation-driven workflow** (writing plugin): Emphasizes natural dialogue over rigid command sequences. Skills guide conversation flow (brainstorming → research → drafting → polishing), while commands are minimal utilities (`/new-post`, `/polish`). Most operations happen through chat, not separate commands.
 
 **Two-document pattern** (writing plugin): Separates messy ideation (braindump.md) from polished output (draft.md). Allows back-and-forth collaboration without polluting the final deliverable. Similar to how `/breakdown` creates task lists separate from implementation.
+
+**Parallel agent invocation** (experimental plugin): Agents designed for parallel execution using Promise.all pattern. Research agents (2-3 launched together), exploration agents (both launched together), review agents (all 3 launched together). Skills consolidate findings using confidence scores, severity ratings, and synthesis methodology. This reduces latency and provides comprehensive analysis from multiple specialized perspectives.
