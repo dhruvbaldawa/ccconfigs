@@ -128,13 +128,25 @@ Concrete deliverable when complete.
 
 ## LLM Prompt
 <prompt>
-1. Read **src/existing-pattern.ts** for patterns
-2. Create **src/routes/auth.ts** with POST /login
-3. Implement bcrypt password verification
-4. Generate JWT token (24h expiry)
-5. Add rate limiting (5 req/min per IP)
-6. Write tests: valid login, invalid password, rate limit
-7. Run: `npm test`
+**Goal:** Enable users to authenticate securely via API endpoint
+
+**Constraints:**
+- Must integrate with existing session middleware
+- Response time <100ms
+- Rate limiting: 5 requests/min per IP
+- Token expiry: 24h
+
+**Implementation Guidance:**
+- Review **src/middleware/auth.ts** for established patterns
+- Consider session vs. token-based auth - choose based on existing architecture
+- Error handling should cover: invalid credentials, rate limits, expired tokens
+- Test coverage should include: valid login, invalid password, rate limiting behavior
+
+**Validation:**
+- Users can successfully authenticate via POST /api/login
+- Invalid credentials return appropriate error
+- Rate limiting prevents brute force attempts
+- Run: `npm test`
 </prompt>
 
 ## Notes

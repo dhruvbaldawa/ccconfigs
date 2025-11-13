@@ -22,18 +22,23 @@
 ## LLM Prompt
 
 <prompt>
-{{Step-by-step instructions for implementation agent:
+**Goal:** {{What needs to be achieved - focus on outcome, not implementation}}
 
-1. Read **{{existing-file.ts}}** to understand patterns
-2. Create **{{new-file.ts}}** with {{functionality}}
-3. Implement {{core logic}}
-4. Add {{error handling, validation, etc.}}
-5. Write tests in **{{test-file.test.ts}}**:
-   - {{Test case 1}}
-   - {{Test case 2}}
-   - {{Edge cases}}
-6. Run full test suite: {{test command}}
-}}
+**Constraints:**
+- {{Technical requirements (e.g., "Must integrate with existing session middleware")}}
+- {{Performance requirements (e.g., "<100ms response time")}}
+- {{Integration requirements (e.g., "Follow patterns in src/middleware/")}}
+
+**Implementation Guidance:**
+- Review **{{existing-file.ts}}** for established patterns
+- Consider {{key design decisions to be made}} - choose based on what you learn
+- Handle {{specific error cases or edge cases}}
+- Test coverage should include: {{main scenarios to validate}}
+
+**Validation:**
+- {{How to verify the implementation works}}
+- {{Test command to run}}
+- All existing tests continue to pass
 </prompt>
 
 ## Notes
