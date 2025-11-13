@@ -30,13 +30,22 @@ This file MUST exist before creating any task files.
 
 Use template: `experimental/templates/plan-single-milestone.md` or `plan-multi-milestone.md`
 
-Required sections:
+Required sections (outcome-based tracking):
 - **Overview**: 1-2 sentence project description
-- **Requirements**: Core requirements list
+- **Success Criteria**: Project-level outcomes (checkboxes) - when ALL checked, project complete
+- **Milestones**: Major outcomes with completion status (✅/🔄/📋) and percentage
+  - Each milestone has an **Outcome** statement (what's achieved, not how)
+  - List expected deliverables as checkboxes under each milestone
+  - Track milestone progress as deliverables complete
 - **Risk Analysis**: Critical+Unknown (Foundation), Critical+Known (Integration), Non-Critical (Polish)
-- **Architecture**: Key architectural decisions
-- **Tasks by Iteration**: List of task files with one-line descriptions and dependencies
+- **Architecture**: Key architectural decisions (updated as implementation progresses)
+- **Task History**: Track completed, in-flight, and pending tasks
+- **Next Planning Cycle**: Trigger and expected learnings before generating next batch
 - **Deferred Items**: What's being deferred and when/why
+
+**Two-Level Tracking:**
+- **Strategic Level** (known upfront): Success criteria and milestone outcomes - stable, outcome-focused
+- **Tactical Level** (just-in-time): Specific tasks to achieve milestones - emergent, implementation-focused
 
 **Step 3: Create initial task files ONLY**
 
@@ -71,18 +80,30 @@ Next: /implement-plan <project-name>
 After completing initial tasks, update plan based on learnings:
 
 1. **Complete tasks** → learn about system architecture and constraints
-2. **Update plan.md** with design changes, new risks discovered, architectural decisions
-3. **Generate next batch of tasks** in `pending/` based on updated understanding
-4. **Update deferrals** as decisions get made or context changes
-5. **Repeat** until project complete
+2. **Update milestone progress** in plan.md:
+   - Check off completed deliverables
+   - Update milestone status (✅/🔄/📋) and percentage
+   - Check success criteria as they're achieved
+3. **Update plan.md** with design changes, new risks discovered, architectural decisions
+4. **Update task history**: Move completed tasks to history, update in-flight status
+5. **Generate next batch of tasks** in `pending/` based on updated understanding
+6. **Update deferrals** as decisions get made or context changes
+7. **Repeat** until all success criteria checked
 
-Plan.md is a **living document** that tracks architectural evolution, not a static waterfall plan.
+Plan.md is a **living document** that tracks:
+- **Outcome progress**: What's achieved (milestones, success criteria)
+- **Architectural evolution**: How design changed as implementation progressed
+- **Decision rationale**: Why choices were made or deferred
 
 **VERIFICATION**: Before marking planning complete, confirm:
 - [ ] plan.md exists with all required sections
+- [ ] Success criteria defined (project-level outcomes)
+- [ ] Milestones defined with outcome statements
+- [ ] Task History section present
+- [ ] Next Planning Cycle trigger documented
 - [ ] Initial task files (1-2 iterations) created in pending/
-- [ ] Task files reference architecture decisions from plan.md
-- [ ] Status tracking mechanism documented in plan.md
+- [ ] Tasks reference architecture decisions from plan.md
+- [ ] Status tracking mechanism documented
 
 ## Task File Template
 
