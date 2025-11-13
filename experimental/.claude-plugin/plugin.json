@@ -4,5 +4,15 @@
   "description": "Experimental multi-agent development workflows with planning, implementation, review, and testing agents",
   "author": {
     "name": "Dhruv Baldawa"
-  }
+  },
+  "agents": [
+    "./agents/exploration/architecture-explorer.md",
+    "./agents/exploration/codebase-analyzer.md",
+    "./agents/research/research-breadth.md",
+    "./agents/research/research-depth.md",
+    "./agents/research/research-technical.md",
+    "./agents/review/test-coverage-analyzer.md",
+    "./agents/review/error-handling-reviewer.md",
+    "./agents/review/security-reviewer.md"
+  ]
 }
