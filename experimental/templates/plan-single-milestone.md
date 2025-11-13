@@ -61,6 +61,22 @@ Deliverables:
 - {{Key decision 1}}
 - {{Key decision 2}}
 
+## Research Findings
+
+{{Document research that validates specific approaches - tasks can reference these instead of duplicating}}
+
+### {{Research Topic 1}} (e.g., "TypeScript Testing Framework")
+**Decision**: {{What was chosen and why}}
+**Research**: {{Brief summary of what was evaluated}}
+**Validated Approach**:
+```{{language}}
+{{Proven code/config to use as-is - referenced by tasks}}
+```
+**References**: {{Links to docs, articles, or internal files}}
+
+### {{Research Topic 2}}
+...
+
 ---
 
 ## Task History

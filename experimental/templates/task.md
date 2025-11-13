@@ -22,18 +22,41 @@
 ## LLM Prompt
 
 <prompt>
-{{Step-by-step instructions for implementation agent:
+**Goal:** {{What needs to be achieved - focus on outcome, not implementation}}
 
-1. Read **{{existing-file.ts}}** to understand patterns
-2. Create **{{new-file.ts}}** with {{functionality}}
-3. Implement {{core logic}}
-4. Add {{error handling, validation, etc.}}
-5. Write tests in **{{test-file.test.ts}}**:
-   - {{Test case 1}}
-   - {{Test case 2}}
-   - {{Edge cases}}
-6. Run full test suite: {{test command}}
-}}
+**Constraints:**
+- {{Technical requirements (e.g., "Must integrate with existing session middleware")}}
+- {{Performance requirements (e.g., "<100ms response time")}}
+- {{Integration requirements (e.g., "Follow patterns in src/middleware/")}}
+
+**Implementation Guidance:**
+- Review **{{existing-file.ts}}** for established patterns
+- Consider {{key design decisions to be made}} - choose based on what you learn
+- Handle {{specific error cases or edge cases}}
+- Test coverage should include: {{main scenarios to validate}}
+
+**Established Patterns** *(optional - include when prior research validates specific approach)*:
+{{Option 1: Reference research from plan.md (preferred for larger context):
+- See plan.md § Research Findings > "{{Research Topic}}" for validated approach
+- Use the configuration/code documented there as-is
+
+Option 2: Inline small prescriptive details here:
+- Reference files to copy/adapt (e.g., "Use config/eslint-base.json as template")
+- Specific commands or steps when consistency is critical
+- Brief code snippets for simple established patterns
+
+Only use this section when:
+1. You've validated the approach through prior research (documented in plan.md)
+2. There's an established pattern in the codebase to replicate
+3. Consistency across similar implementations is required
+4. The solution is proven and shouldn't be re-invented
+
+Otherwise, prefer outcome-focused guidance above.}}
+
+**Validation:**
+- {{How to verify the implementation works}}
+- {{Test command to run}}
+- All existing tests continue to pass
 </prompt>
 
 ## Notes
