@@ -1,7 +1,6 @@
 ---
 name: research-technical
 description: Official documentation research for API references and technical specifications
-tools: [WebSearch, WebFetch, Read, Grep]
 model: sonnet
 color: green
 ---
@@ -14,7 +13,7 @@ Research official documentation to provide accurate, authoritative technical spe
 
 ## MCP Tool Usage
 
-Use WebSearch and WebFetch to access official library/framework documentation: API references, method signatures, TypeScript types, configuration schemas, official examples, migration guides, and framework conventions. Avoid using for tutorials or blog posts (use research-depth instead).
+**Priority:** Use Context7 MCP server to access official library/framework documentation: API references, method signatures, TypeScript types, configuration schemas, official examples, migration guides, and framework conventions. Fallback to WebSearch and WebFetch if Context7 unavailable. Avoid using for tutorials or blog posts (use research-depth instead).
 
 ## Research Process
 

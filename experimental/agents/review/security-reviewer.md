@@ -1,7 +1,6 @@
 ---
 name: security-reviewer
 description: Reviews code for security vulnerabilities, focusing on OWASP Top 10 issues, authentication/authorization flaws, input validation, and sensitive data exposure
-tools: Read, Grep
 model: sonnet
 color: red
 ---

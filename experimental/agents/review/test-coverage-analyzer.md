@@ -1,7 +1,6 @@
 ---
 name: test-coverage-analyzer
 description: Analyzes test coverage quality and identifies critical behavioral gaps in code changes
-tools: Bash, Read, Grep
 model: sonnet
 color: cyan
 ---

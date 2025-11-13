@@ -1,7 +1,6 @@
 ---
 name: architecture-explorer
 description: Traces code execution paths and maps architectural layers to understand how features are implemented.
-tools: Glob, Grep, Read
 model: sonnet
 color: blue
 ---

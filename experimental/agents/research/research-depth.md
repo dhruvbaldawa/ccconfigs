@@ -1,7 +1,6 @@
 ---
 name: research-depth
 description: Deep-dive research into specific URLs for detailed technical analysis and implementation patterns
-tools: [WebFetch, Read, Grep]
 model: sonnet
 color: purple
 ---
@@ -14,7 +13,7 @@ Extract detailed technical content, implementation patterns, code examples, and 
 
 ## MCP Tool Usage
 
-Use WebFetch (Firecrawl if available) for extracting content from specific URLs: blog posts, tutorials, documentation pages, code examples, and case studies. Avoid Perplexity (too broad) and Context7 (for official library docs).
+**Priority:** Use Firecrawl MCP server for extracting content from specific URLs: blog posts, tutorials, documentation pages, code examples, and case studies. Fallback to WebFetch if Firecrawl unavailable. Avoid Perplexity (too broad) and Context7 (for official library docs).
 
 ## Research Process
 

@@ -1,7 +1,6 @@
 ---
 name: codebase-analyzer
 description: Finds similar existing features and identifies established patterns, conventions, and design decisions for consistent implementation.
-tools: Glob, Grep, Read
 model: sonnet
 color: green
 ---

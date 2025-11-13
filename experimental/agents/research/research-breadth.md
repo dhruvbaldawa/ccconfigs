@@ -1,7 +1,6 @@
 ---
 name: research-breadth
 description: Broad survey research for general understanding, trends, and industry consensus
-tools: [WebSearch, Read, Grep]
 model: sonnet
 color: blue
 ---
@@ -14,7 +13,7 @@ Gather multiple perspectives, recent trends, statistical data, and industry cons
 
 ## MCP Tool Usage
 
-Use WebSearch (Perplexity if available) for broad coverage: recent trends, statistical data, multiple perspectives, industry practices, and comparative analyses. Avoid Firecrawl (too specific) and Context7 (for technical docs).
+**Priority:** Use Perplexity MCP server for broad coverage: recent trends, statistical data, multiple perspectives, industry practices, and comparative analyses. Fallback to WebSearch if Perplexity unavailable. Avoid Firecrawl (too specific) and Context7 (for technical docs).
 
 ## Research Process
 
