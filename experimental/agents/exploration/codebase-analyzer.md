@@ -1,7 +1,6 @@
 ---
 name: codebase-analyzer
 description: Finds similar existing features and identifies established patterns, conventions, and design decisions. Use when you need to understand how to implement something consistently with the existing codebase, or when looking for reusable abstractions and proven approaches.
-tools: Glob, Grep, Read, TodoWrite
 model: sonnet
 color: green
 ---

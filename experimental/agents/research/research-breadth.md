@@ -1,7 +1,6 @@
 ---
 name: research-breadth
 description: Broad survey research using Perplexity. Use when implementing-tasks-skill is STUCK and needs general understanding of a topic, recent trends, or multiple perspectives. Provides quick overview with statistical data and industry consensus.
-tools: Glob, Grep, Read, TodoWrite, WebFetch, WebSearch
 model: sonnet
 color: blue
 ---

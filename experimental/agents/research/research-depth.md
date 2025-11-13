@@ -1,7 +1,6 @@
 ---
 name: research-depth
 description: Deep-dive research using Firecrawl for specific URLs. Use when implementing-tasks-skill is STUCK and needs detailed technical analysis of particular solutions, blog posts, or documentation. Provides thorough examination of specific approaches with implementation details.
-tools: Glob, Grep, Read, TodoWrite, WebFetch, WebSearch
 model: sonnet
 color: purple
 ---

@@ -28,7 +28,6 @@ assistant: "I'll use the test-coverage-analyzer agent to perform a thorough beha
 Critical pre-deployment checkpoint - use test-coverage-analyzer to identify any gaps that could cause production issues.
 </commentary>
 </example>
-tools: Glob, Grep, Read, Bash, TodoWrite
 model: sonnet
 color: cyan
 ---

@@ -1,7 +1,6 @@
 ---
 name: architecture-explorer
 description: Traces code execution paths and maps architecture layers to understand how features are implemented. Use when you need to understand flow from entry points through business logic to data storage, or when analyzing how components interact across architectural boundaries.
-tools: Glob, Grep, Read, TodoWrite
 model: sonnet
 color: blue
 ---

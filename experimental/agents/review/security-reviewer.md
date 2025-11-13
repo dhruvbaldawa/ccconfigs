@@ -28,7 +28,6 @@ assistant: "I'll use the security-reviewer agent to review the search implementa
 User input + database queries = potential injection attacks. Use security-reviewer to verify proper input sanitization.
 </commentary>
 </example>
-tools: Glob, Grep, Read, Bash, TodoWrite
 model: sonnet
 color: red
 ---

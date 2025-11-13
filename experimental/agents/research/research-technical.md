@@ -1,7 +1,6 @@
 ---
 name: research-technical
 description: Technical documentation research using Context7. Use when implementing-tasks-skill is STUCK and needs official library/framework docs, API references, or specific implementation patterns from authoritative sources. Provides accurate technical specifications.
-tools: Glob, Grep, Read, TodoWrite, WebFetch, WebSearch
 model: sonnet
 color: green
 ---

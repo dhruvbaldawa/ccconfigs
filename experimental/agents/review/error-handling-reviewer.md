@@ -28,7 +28,6 @@ assistant: "I'll use the error-handling-reviewer agent to analyze error handling
 Production debugging issues often stem from poor error handling. Use error-handling-reviewer to find logging gaps.
 </commentary>
 </example>
-tools: Glob, Grep, Read, Bash, TodoWrite
 model: sonnet
 color: yellow
 ---

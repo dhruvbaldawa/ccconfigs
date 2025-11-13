@@ -9,14 +9,36 @@ Given task file path `.plans/<project>/review/NNN-task.md`:
 
 ## Process
 
-1. Review outputs:
+1. **Initial Review**:
    - Run `git diff` on Files listed
    - Read test files
    - Run tests to verify passing
    - Check Validation checkboxes marked [x]
-2. Score (0-100 each): Security, Quality, Performance, Tests
-3. Decide - APPROVE (security ≥80, no critical issues) or REJECT
-4. Update task file using `scripts/task-helpers.sh`:
+   - Score (0-100 each): Security, Quality, Performance, Tests
+
+2. **Specialized Review (Parallel Agents)**:
+   Launch 3 review agents in parallel for deep analysis:
+   - **test-coverage-analyzer**: Identifies critical test gaps (1-10 criticality ratings)
+   - **error-handling-reviewer**: Finds silent failures and poor error handling (CRITICAL/HIGH/MEDIUM severity)
+   - **security-reviewer**: Checks for OWASP Top 10 vulnerabilities (0-100 confidence scores)
+
+   Agents run in separate contexts and return scored findings.
+
+3. **Consolidate Findings**:
+   - Combine initial review with agent findings
+   - Filter by confidence/severity:
+     - **CRITICAL**: Security 90-100 confidence, Error handling CRITICAL, Test gaps 9-10
+     - **HIGH**: Security 70-89, Error handling HIGH, Test gaps 7-8
+     - **MEDIUM**: Security 50-69, Error handling MEDIUM, Test gaps 5-6
+   - Drop low-confidence issues (<50)
+   - Prioritize by severity
+
+4. **Decide** - APPROVE or REJECT:
+   - APPROVE: Security ≥80, no CRITICAL findings from agents
+   - REJECT: Security <80 OR any CRITICAL findings
+   - HIGH findings acceptable with justification
+
+5. **Update task file** using `scripts/task-helpers.sh`:
    ```bash
    # Approve
    ./scripts/task-helpers.sh update_status "$task_file" "APPROVED"
@@ -24,8 +46,9 @@ Given task file path `.plans/<project>/review/NNN-task.md`:
    # Or reject
    ./scripts/task-helpers.sh update_status "$task_file" "REJECTED"
    ```
-5. Append notes (see formats below)
-6. Report completion
+
+6. **Append notes** (see formats below) - include agent findings
+7. **Report completion**
 
 ## Review Focus
 
@@ -35,6 +58,36 @@ Given task file path `.plans/<project>/review/NNN-task.md`:
 | **Quality** | Readable, no duplication, error handling, follows patterns, diff <500 lines |
 | **Performance** | No N+1 queries, efficient algorithms, proper indexing |
 | **Tests** | Covers Validation, behavior-focused, edge cases, error paths, suite passing |
+
+## Invoking Specialized Agents
+
+After initial review, invoke agents in parallel using the Agent tool:
+
+```python
+# Launch all three agents simultaneously
+Agent("test-coverage-analyzer", context={
+    "task_file": task_file_path,
+    "test_files": [...],
+    "implementation_files": [...]
+})
+
+Agent("error-handling-reviewer", context={
+    "task_file": task_file_path,
+    "implementation_files": [...]
+})
+
+Agent("security-reviewer", context={
+    "task_file": task_file_path,
+    "implementation_files": [...]
+})
+```
+
+Each agent returns:
+- **test-coverage-analyzer**: List of test gaps with 1-10 criticality scores
+- **error-handling-reviewer**: List of error handling issues with CRITICAL/HIGH/MEDIUM severity
+- **security-reviewer**: List of vulnerabilities with 0-100 confidence scores and OWASP categories
+
+Consolidate findings using the confidence/severity mappings from Process step 3.
 
 ## Approval Format
 
@@ -47,6 +100,11 @@ Validation: 4/4 passing
 Full test suite: [M]/[M] passing
 Diff: [N] lines
 
+**Specialized Review Findings:**
+- Test Coverage: No CRITICAL gaps (0 gaps rated 9-10)
+- Error Handling: 1 HIGH finding - [description with justification why acceptable]
+- Security: No vulnerabilities detected (0 findings >70 confidence)
+
 APPROVED → testing
 ```
 
@@ -56,17 +114,40 @@ APPROVED → testing
 **review:**
 Security: 65/100 | Quality: 85/100 | Performance: 90/100 | Tests: 75/100
 
+**Specialized Review Findings:**
+
+CRITICAL Issues (must fix):
+1. [Security/Test/Error] - [Description from agent] - [Confidence/Severity/Criticality score]
+2. [Security/Test/Error] - [Description from agent] - [Confidence/Severity/Criticality score]
+
+HIGH Issues (review recommended):
+1. [Security/Test/Error] - [Description from agent] - [Confidence/Severity/Criticality score]
+
 REJECTED - Blocking issues:
 1. [Specific issue + fix needed]
 2. [Specific issue + fix needed]
 
 Required actions:
-- [Action 1]
-- [Action 2]
+- [Action 1 - address CRITICAL findings]
+- [Action 2 - address blocking issues]
+- [Action 3 - consider HIGH findings]
 
 REJECTED → implementation
 ```
 
 ## Blocking Thresholds
 
-Security <80 | Critical vulnerability | Tests failing | Validation incomplete | Working Result not achieved → REJECT
+**Must REJECT if any:**
+- Security score <80
+- Critical vulnerability from initial review
+- Any CRITICAL findings from specialized agents (Security 90-100 confidence, Error handling CRITICAL, Test gaps 9-10)
+- Tests failing
+- Validation incomplete
+- Working Result not achieved
+
+**Can APPROVE with HIGH findings** if:
+- Security score ≥80
+- No CRITICAL findings
+- HIGH findings include justification why acceptable
+- All tests passing
+- Validation complete
