@@ -95,8 +95,29 @@ Configuration files only (JSON and Markdown). No build, test, or lint commands.
 **MCP servers**: Add to `essentials/.mcp.json` using `pnpx` command pattern
 
 **Slash commands**: Add `.md` files to `[plugin]/commands/` with YAML frontmatter
+- Official documentation: https://code.claude.com/docs/en/slash-commands
+- Best for: Quick, frequently-used prompts and workflows that require explicit user invocation
+- Format: Markdown file with optional YAML frontmatter (description, model)
+- Keep concise - for complex multi-step capabilities, use Skills instead
 
 **Skills**: Create directory in `[plugin]/skills/` with `SKILL.md` and optional `reference/` subdirectory for examples and supporting materials
+- Official documentation: https://code.claude.com/docs/en/skills
+- Best for: Reusable methodologies that Claude can invoke proactively based on context
+- Key feature: **Model-invoked** - Claude decides when to use them (unlike commands)
+- Structure: Main SKILL.md (<500 lines) + reference/ for examples and detailed patterns
+- Include clear description in frontmatter for discoverability
+
+**Agents**: Create `.md` files in `[plugin]/agents/` with YAML frontmatter
+- Official documentation: https://code.claude.com/docs/en/sub-agents
+- Best practices: https://code.claude.com/docs/en/sub-agents#best-practices
+- Best for: Specialized analysis with isolated context (research, code review, exploration)
+- Design principles:
+  - **Single, clear responsibility** - focused agents over multi-purpose ones
+  - **Detailed prompts** - include specific instructions, examples, constraints
+  - **Parallel invocation** - design agents to work together (2-3 research, 3 review)
+  - **Model optimization** - use haiku for cost-efficient tasks, sonnet for quality-critical
+- Required frontmatter: name, description, model (optional: color for UX)
+- Agents vs Skills: Use agents for specialized subprocess analysis, skills for methodologies
 
 ## The Essentials Plugin
 
