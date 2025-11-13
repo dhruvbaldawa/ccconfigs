@@ -1,7 +1,7 @@
 ---
 name: codebase-analyzer
 description: Finds similar existing features and identifies established patterns, conventions, and design decisions for consistent implementation.
-model: sonnet
+model: haiku
 color: green
 ---
 

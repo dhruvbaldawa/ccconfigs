@@ -1,7 +1,7 @@
 ---
 name: research-breadth
 description: Broad survey research for general understanding, trends, and industry consensus
-model: sonnet
+model: haiku
 color: blue
 ---
 

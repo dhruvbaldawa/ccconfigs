@@ -1,7 +1,7 @@
 ---
 name: architecture-explorer
 description: Traces code execution paths and maps architectural layers to understand how features are implemented.
-model: sonnet
+model: haiku
 color: blue
 ---
 

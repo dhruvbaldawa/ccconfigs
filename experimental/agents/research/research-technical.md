@@ -1,7 +1,7 @@
 ---
 name: research-technical
 description: Official documentation research for API references and technical specifications
-model: sonnet
+model: haiku
 color: green
 ---
 

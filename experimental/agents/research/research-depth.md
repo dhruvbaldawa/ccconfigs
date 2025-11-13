@@ -1,7 +1,7 @@
 ---
 name: research-depth
 description: Deep-dive research into specific URLs for detailed technical analysis and implementation patterns
-model: sonnet
+model: haiku
 color: purple
 ---
 
