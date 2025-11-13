@@ -102,7 +102,9 @@ If you catch yourself writing "new", "old", "legacy", "wrapper", "unified", or i
 - STOP and ask how to handle uncommitted changes or untracked files when starting work. Suggest committing existing work first.
 - When starting work without a clear branch for the current task, create a WIP branch
 - Track all non-trivial changes in git
-- Commit frequently throughout the development process, even if high-level tasks are not yet done. Commit journal entries.
+- Only commit when explicitly requested by the user
+- Exception: Within a single task/implementation session where you have been given explicit permission (e.g., "implement feature X"), commit incrementally as you go
+- Always ask before committing between different tasks or when the work is complete
 - NEVER SKIP, EVADE OR DISABLE A PRE-COMMIT HOOK
 - NEVER use `git add -A` unless you've just done a `git status`
 
