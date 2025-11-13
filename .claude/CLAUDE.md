@@ -102,6 +102,7 @@ Configuration files only (JSON and Markdown). No build, test, or lint commands.
 
 **Skills**: Create directory in `[plugin]/skills/` with `SKILL.md` and optional `reference/` subdirectory for examples and supporting materials
 - Official documentation: https://code.claude.com/docs/en/skills
+- Best practices: https://docs.claude.com/en/docs/agents-and-tools/agent-skills/best-practices
 - Best for: Reusable methodologies that Claude can invoke proactively based on context
 - Key feature: **Model-invoked** - Claude decides when to use them (unlike commands)
 - Structure: Main SKILL.md (<500 lines) + reference/ for examples and detailed patterns
