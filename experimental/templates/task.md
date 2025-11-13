@@ -35,6 +35,24 @@
 - Handle {{specific error cases or edge cases}}
 - Test coverage should include: {{main scenarios to validate}}
 
+**Established Patterns** *(optional - include when prior research validates specific approach)*:
+{{Option 1: Reference research from plan.md (preferred for larger context):
+- See plan.md § Research Findings > "{{Research Topic}}" for validated approach
+- Use the configuration/code documented there as-is
+
+Option 2: Inline small prescriptive details here:
+- Reference files to copy/adapt (e.g., "Use config/eslint-base.json as template")
+- Specific commands or steps when consistency is critical
+- Brief code snippets for simple established patterns
+
+Only use this section when:
+1. You've validated the approach through prior research (documented in plan.md)
+2. There's an established pattern in the codebase to replicate
+3. Consistency across similar implementations is required
+4. The solution is proven and shouldn't be re-invented
+
+Otherwise, prefer outcome-focused guidance above.}}
+
 **Validation:**
 - {{How to verify the implementation works}}
 - {{Test command to run}}
