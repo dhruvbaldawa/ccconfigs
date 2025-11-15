@@ -18,7 +18,7 @@ Personal configuration repository for Claude Code - a plugin marketplace contain
 3. Install plugins:
    ```bash
    /plugin
-   # Install "essentials" and "writing" from ccconfigs
+   # Install "essentials", "writing", and optionally "experimental" from ccconfigs
    ```
 
 ## Installation
@@ -90,17 +90,19 @@ Once the marketplace is added:
 1. Open the plugin menu: `/plugin`
 2. Browse available plugins from the ccconfigs marketplace
 3. Select and install plugins:
-   - **essentials**: For development workflows (MCP servers, task management, debugging/planning)
+   - **essentials**: For development workflows (MCP servers, task management, research, debugging/planning)
    - **writing**: For blog post writing in Dhruv's style
+   - **experimental**: For complex development workflows with specialized agents (research, exploration, review)
 
-Plugins automatically configure all MCP servers, slash commands, and skills.
+Plugins automatically configure all MCP servers, slash commands, skills, and agents.
 
 ## Overview
 
-This repository provides a structured plugin marketplace for Claude Code with two plugins:
+This repository provides a structured plugin marketplace for Claude Code with three plugins:
 
-- **essentials**: Systematic development workflows including MCP servers, task management commands, and debugging/planning skills
+- **essentials**: Systematic development workflows including MCP servers, task management commands, research capabilities, and debugging/planning skills
 - **writing**: Conversation-driven blog writing workflow in Dhruv Baldawa's distinctive style
+- **experimental**: Multi-skill workflow system with 8 specialized agents for complex development tasks (research, codebase exploration, code review)
 
 ## Plugins
 
@@ -124,6 +126,8 @@ Pre-configured integrations with Model Context Protocol servers:
 - **`/do [SPEC DOCUMENT] [TASK NUMBER | --resume] [CONTEXT] [--auto]`**: Executes tasks from spec documents. Updates task status to "In Progress", follows LLM prompts, validates completion. With `--auto` flag, automatically commits after each task and continues.
 
 - **`/optimize-doc [DOCUMENT]`**: Optimizes documentation for conciseness and clarity. Strengthens vague instructions, removes redundancy while preserving correctness. Can run idempotently across multiple passes.
+
+- **`/research [TASK FILE | QUESTION]`**: Research blockers or questions using specialized research agents. Analyzes question type and launches 2-3 agents in parallel (research-breadth for industry patterns, research-depth for specific solutions, research-technical for official docs). Uses research-synthesis skill to consolidate findings. For stuck tasks, updates task file with findings. For general questions, provides summary with sources.
 
 #### Utility Scripts
 
@@ -176,7 +180,42 @@ Every blog post uses two files:
 
 **Design philosophy**: Conversation-first workflow. Skills guide natural conversation, commands are utilities. Most operations happen through chat. MCP tools used proactively during conversation. Flow: Brainstorming → Research → Drafting → Polishing.
 
+### Experimental Plugin
 
+Multi-skill workflow system using kanban file movement for complex, high-value development tasks. Features 8 specialized agents organized in 3 categories (research, exploration, review), all optimized for parallel invocation.
+
+#### Specialized Agents (8 total)
+
+**Research Agents** (3 agents - all haiku):
+- **research-breadth**: Broad surveys via Perplexity (industry trends, consensus, multiple perspectives)
+- **research-depth**: Deep-dive via Firecrawl (specific URLs, implementation details, case studies)
+- **research-technical**: Official docs via Context7 (API references, method signatures, configurations)
+
+**Exploration Agents** (2 agents - all haiku):
+- **architecture-explorer**: Traces execution paths, maps architectural layers, identifies patterns
+- **codebase-analyzer**: Finds similar features, extracts conventions, identifies reusable components
+
+**Review Agents** (3 agents - all sonnet):
+- **test-coverage-analyzer**: Behavioral test gaps with 1-10 criticality ratings
+- **error-handling-reviewer**: Silent failures and poor error handling with severity levels
+- **security-reviewer**: OWASP Top 10 vulnerabilities with 0-100 confidence scores
+
+#### Slash Commands
+
+- **`/plan-feature [REQUEST]`**: Creates `.plans/<project>/` with risk-prioritized tasks. Launches exploration agents (architecture-explorer + codebase-analyzer) in parallel to understand existing patterns. Generates task files in pending/ following Last Responsible Moment principle.
+
+- **`/implement-plan [PROJECT]`**: Executes tasks through kanban workflow (pending → implementation → review → testing → completed). Launches research agents when stuck, review agents (all 3) in parallel for comprehensive analysis.
+
+- **`/orchestrate [REQUEST]`**: End-to-end workflow from planning through completion. Combines `/plan-feature` and `/implement-plan` in single command with user confirmation between phases.
+
+#### Skills
+
+- **planning**: Risk-first analysis using technical-planning skill, launches exploration agents in parallel, creates .plans/ structure
+- **implementing-tasks**: Launches 2-3 research agents in parallel when stuck based on blocker type, consolidates findings using research-synthesis skill
+- **reviewing-code**: Launches all 3 review agents in parallel, consolidates findings by confidence/severity, decides APPROVE or REJECT
+- **testing**: Test suite execution and validation
+
+**Design philosophy**: Agents for specialized analysis with single, clear responsibilities. Skills orchestrate agents and consolidate findings. Parallel invocation reduces latency (2-3 research, 2 exploration, 3 review agents together). Model optimization: Haiku for research/exploration (cost-efficient), Sonnet for review (quality-critical).
 
 ## Repository Structure
 
@@ -197,25 +236,54 @@ ccconfigs/
 │   ├── commands/                  # Slash command definitions
 │   │   ├── breakdown.md
 │   │   ├── do.md
-│   │   └── optimize-doc.md
+│   │   ├── optimize-doc.md
+│   │   └── research.md            # Research using specialized agents
 │   └── skills/                    # Development skills
+│       ├── brainstorming/         # Collaborative ideation
+│       │   ├── SKILL.md
+│       │   └── reference/
 │       ├── debugging/             # UNDERSTAND methodology
 │       │   ├── SKILL.md
-│       │   └── reference/         # Root cause framework, antipatterns
-│       └── technical-planning/    # Risk-first planning
+│       │   └── reference/
+│       ├── engineering-prompts/   # Prompt engineering methodology
+│       │   └── SKILL.md
+│       ├── research-synthesis/    # MCP tool integration
+│       │   ├── SKILL.md
+│       │   └── reference/
+│       │       └── multi-agent-invocation.md  # Multi-agent patterns
+│       ├── technical-planning/    # Risk-first planning
+│       │   └── SKILL.md
+│       └── writing-documentation/ # Documentation best practices
 │           └── SKILL.md
-└── writing/                        # The writing plugin
+├── writing/                        # The writing plugin
+│   ├── .claude-plugin/plugin.json # Plugin metadata
+│   ├── commands/                  # Slash command definitions
+│   │   ├── new-post.md            # Initialize blog post
+│   │   └── polish.md              # Hybrid refinement
+│   └── skills/                    # Writing skills
+│       └── blog-writing/          # Dhruv's voice and style
+│           └── SKILL.md
+└── experimental/                   # The experimental plugin
     ├── .claude-plugin/plugin.json # Plugin metadata
-    ├── commands/                  # Slash command definitions
-    │   ├── new-post.md            # Initialize blog post
-    │   └── polish.md              # Hybrid refinement
-    └── skills/                    # Writing skills
-        ├── blog-writing/          # Dhruv's voice and style
-        │   └── SKILL.md
-        ├── brainstorming/         # Collaborative ideation
-        │   ├── SKILL.md
-        │   └── reference/         # Conversation examples
-        └── research-synthesis/    # MCP tool integration
-            ├── SKILL.md
-            └── reference/         # Research examples
+    ├── agents/                    # Specialized agents (8 total)
+    │   ├── research/              # Research agents (parallel invocation)
+    │   │   ├── research-breadth.md
+    │   │   ├── research-depth.md
+    │   │   └── research-technical.md
+    │   ├── exploration/           # Codebase exploration agents
+    │   │   ├── architecture-explorer.md
+    │   │   └── codebase-analyzer.md
+    │   └── review/                # Code review agents
+    │       ├── test-coverage-analyzer.md
+    │       ├── error-handling-reviewer.md
+    │       └── security-reviewer.md
+    ├── commands/                  # Workflow commands
+    │   ├── plan-feature.md
+    │   ├── implement-plan.md
+    │   └── orchestrate.md
+    └── skills/                    # Workflow skills
+        ├── planning/
+        ├── implementing-tasks/
+        ├── reviewing-code/
+        └── testing/
 ```

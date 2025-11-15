@@ -1,96 +1,145 @@
 ---
-description: Research blockers or questions using discovery-agent
+description: Research blockers or questions using specialized research agents
 ---
 
 # Research
 
-Research specific blocker or question using MCP tools and discovery-agent.
+Research specific blocker or question using specialized research agents and MCP tools.
 
 ## Usage
 
-```
-# Research stuck task
-/research experimental/.plans/user-auth/implementation/003-jwt.md
-
-# Research general question
-/research "How to implement rate limiting with Redis?"
-
-# Research for writing topic
-/research "Best practices for writing technical blog posts"
+```bash
+/research experimental/.plans/user-auth/implementation/003-jwt.md  # Stuck task
+/research "How to implement rate limiting with Redis?"            # General question
+/research "Best practices for writing technical blog posts"       # Writing research
 ```
 
 ## Your Task
 
+Research: "${{{ARGS}}}"
+
+### Step 1: Analyze & Select Agents
+
+${isTaskFile ? 'Read task file to understand blocker context.' : 'Analyze question to determine approach.'}
+
+| Research Need | Agent Combination |
+|--------------|-------------------|
+| **New technology/patterns** | breadth + technical |
+| **Specific error/issue** | depth + technical |
+| **API/library integration** | technical + depth |
+| **Best practices comparison** | breadth + depth |
+
+**Agents available:**
+- **research-breadth** (haiku) - Perplexity: industry trends, consensus, multiple perspectives
+- **research-depth** (haiku) - Firecrawl: specific URLs, implementations, case studies, gotchas
+- **research-technical** (haiku) - Context7: official docs, API signatures, types, configs
+
+### Step 2: Launch Agents in Parallel
+
+Use Promise.all to launch 2-3 agents:
+
 ```typescript
-await Task({
-  subagent_type: 'discovery-agent',
-  model: 'sonnet',
-  description: 'Research blocker or question',
-  prompt: `Research: "${{{ARGS}}}"
+await Promise.all([
+  Task({
+    subagent_type: 'research-breadth',  // or 'research-depth' or 'research-technical'
+    model: 'haiku',
+    description: 'Brief agent description',
+    prompt: `Research: "${{{ARGS}}}"
 
-  ${isTaskFile ? 'Read task file for context. Update task with findings.' : 'Research question and provide summary with sources.'}
+    Focus areas and guidance for this agent.
+    Specify which MCP tool to use.
+    Expected output format.`
+  }),
 
-  Use research-synthesis skill to investigate using MCP tools:
-  - Perplexity for broad research and best practices
-  - Firecrawl for specific URLs
-  - Context7 for library documentation
+  Task({
+    subagent_type: 'research-technical',
+    model: 'haiku',
+    description: 'Brief agent description',
+    prompt: `Research official docs for: "${{{ARGS}}}"
 
-  Synthesize findings into actionable insights.`
-});
+    Focus areas and guidance for this agent.`
+  })
+]);
 ```
 
-Discovery agent will:
-- Read task file if provided (understand blocker context)
-- Use appropriate MCP tools for research (Perplexity, Firecrawl, Context7)
-- Synthesize findings using research-synthesis skill
-- Update task file with findings in Notes section (if task file)
-- Provide summary with sources (if general question)
+### Step 3: Synthesize Findings
 
-## Output
+Use **research-synthesis skill** to:
+- Consolidate findings by theme, identify consensus, note contradictions
+- Narrativize into story (not bullet dumps): "Industry uses X (breadth), via Y API (technical), as shown by Z (depth)"
+- Maintain source attribution (note which agent provided insights)
+- Identify gaps (unanswered questions, disagreements)
+- Extract actions (implementation path, code/configs, risks)
 
-**For stuck tasks:**
+${isTaskFile ? `
+### Step 4: Update Task File
+
+Append research findings to task file:
+
+\`\`\`bash
+cat >> "$task_file" <<EOF
+
+**research findings:**
+- [Agent]: [key insights with sources]
+- [Agent]: [key insights with sources]
+
+**resolution:**
+[Concrete path forward]
+
+**next steps:**
+[Specific actions]
+EOF
+\`\`\`
+
+Update status from STUCK to Pending if blocker resolved.
+` : ''}
+
+## Output Format
+
+### For Stuck Tasks
+
 ```markdown
 ✅ Research Complete
 
 Task: 003-jwt.md
-Blocker: Rate limiting implementation unclear
+Blocker: [Description]
 
-Findings:
-- express-rate-limit supports Redis store for distributed systems
-- Token bucket algorithm with sliding window recommended
-- Context7 lookup: express-rate-limit API documentation
+Agents Used: breadth (industry patterns), technical (official docs)
 
-Updated task with:
-- Research findings in Notes section
-- Updated LLM Prompt with implementation details
-- Status changed from Stuck to Pending
+Key Findings:
+1. **Agent 1**: [Key insight with source]
+2. **Agent 2**: [Key insight with source]
 
-Next: Resume implementation with /implement-plan user-auth
+Resolution: [Concrete recommendation]
+
+Updated task: Findings in Notes, LLM Prompt updated, Status: STUCK → Pending
+
+Next: Resume implementation with /implement-plan <project>
 ```
 
-**For general questions:**
+### For General Questions
+
 ```markdown
 ✅ Research Complete
 
-Question: How to implement rate limiting with Redis?
+Question: [Original question]
 
-Key Findings:
-1. express-rate-limit + redis store (most common Node.js pattern)
-   - Token bucket algorithm
-   - Distributed rate limiting across instances
-   - Source: [Perplexity research]
+Agents Used: [List with focus areas]
 
-2. nginx rate limiting (alternative approach)
-   - Handles at reverse proxy level
-   - limit_req_zone directive
-   - Source: [Context7: nginx docs]
+Synthesis:
+[Narrative combining insights from all agents with source attribution]
 
-3. Implementation pattern:
-   - Redis sorted sets for sliding window
-   - Atomic operations (ZADD, ZREMRANGEBYSCORE, ZCARD)
-   - Source: [Firecrawl: Redis rate limiting blog]
+Recommendation: [What to do with rationale]
 
-Recommendation: Use express-rate-limit with Redis store for application-level rate limiting.
+Alternative: [If applicable]
 
-Sources attached in findings.
+Sources: [Links with descriptions]
 ```
+
+## Key Points
+
+- Launch agents **in parallel** (Promise.all) for speed
+- Use **research-synthesis skill** to consolidate (narrative, not lists)
+- Maintain **source attribution** (link claims to agents/sources)
+- For tasks: update file with findings and change status if resolved
+- See `essentials/skills/research-synthesis/reference/multi-agent-invocation.md` for detailed patterns
