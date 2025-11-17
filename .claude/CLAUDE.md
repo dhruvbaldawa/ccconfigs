@@ -237,7 +237,7 @@ See `essentials/skills/research-synthesis/reference/multi-agent-invocation.md` f
 
 **`/plan-feature [REQUEST]`**: Creates `.plans/<project>/` with risk-prioritized tasks. Invokes planning skill which uses technical-planning skill for risk analysis and launches exploration agents (architecture-explorer + codebase-analyzer) in parallel to understand existing patterns. Generates task files in pending/ following Last Responsible Moment principle.
 
-**`/implement-plan [PROJECT]`**: Executes tasks through kanban workflow (pending → implementation → review → testing → completed). Invokes implementing-tasks skill which launches research agents when stuck, reviewing-code skill which launches all 3 review agents in parallel, and testing skill for validation.
+**`/implement-plan [PROJECT] [--auto]`**: Executes tasks through kanban workflow with end-to-end completion per task (implementation → review → fix issues → commit → next task). Creates granular sub-todos for each task (read requirements, implement, test, review, address issues, commit). With `--auto` flag, automatically commits and continues to next task; without flag, stops after each task for human review. Uses smart commit strategy (commits after testing, or before review for complex changes > 200 lines). Commit messages describe what was accomplished (not task numbers). Invokes implementing-tasks skill which launches research agents when stuck, reviewing-code skill which launches all 3 review agents in parallel, and testing skill for validation.
 
 **`/orchestrate [REQUEST]`**: End-to-end workflow from planning through completion. Combines `/plan-feature` and `/implement-plan` in single command with user confirmation between phases.
 
@@ -258,6 +258,7 @@ See `essentials/skills/research-synthesis/reference/multi-agent-invocation.md` f
 - **Skills orchestrate agents**: Skills determine which agents to launch and consolidate findings
 - **Model optimization**: Haiku for research/exploration (cost-efficient), Sonnet for review (quality-critical)
 - **Stateful kanban**: Tasks move through directories based on status (pending → implementation → review → testing → completed)
+- **End-to-end per task**: Each task completes fully (implement → review → fix → commit) before moving to next, with granular sub-todos for visibility. Smart commits per task with descriptive messages (not task numbers).
 
 ## Utility Scripts
 
