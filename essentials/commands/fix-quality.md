@@ -5,210 +5,96 @@ argument-hint: [FILES OR PATTERN]
 
 # Fix Quality Issues
 
-Systematically fix linting, type errors, and quality issues following a principled approach.
+Fix quality issues in `{{ARGS}}` (files, pattern like `src/**/*.ts`, or `.` for project).
 
-## Your Task
+## Priority Order
 
-Fix quality issues in the specified files or pattern (e.g., `src/**/*.ts`, `nanoagent/models/`, or `.` for entire project).
+**1. Fix Root Cause** (ALWAYS first)
+- Remove unused imports/variables (don't ignore)
+- Fix type errors properly (don't cast to `any`)
+- Add missing return types, fix naming violations
 
-## Philosophy: Root Cause First
-
-Follow this priority order:
-
-**1. Fix Root Cause (ALWAYS try this first)**
-- Understand WHY the issue exists
-- Fix the underlying problem, not just the symptom
-- Examples:
-  - Unused import → Remove it (don't ignore)
-  - Type mismatch → Fix the type (don't cast to `any`)
-  - Unassigned variable → Use it or remove it (don't prefix with `_`)
-
-**2. Safety & Reliability (If root cause fix complicates solution)**
-- Add proper error handling instead of ignoring errors
+**2. Safety & Reliability** (if #1 complicates solution)
 - Add type guards instead of `any`
+- Add error handling instead of ignoring errors
 - Refactor to simpler, safer patterns
-- Examples:
-  - Complex type inference → Add explicit type annotations
-  - Unsafe access → Add null checks or optional chaining
-  - Side effects → Refactor to pure functions
 
-**3. Local Ignores (ONLY when #1 and #2 complicate the solution)**
-- Impact should be as LOCAL as possible
-- Priority order (most local → least local):
-  1. **Inline ignore** (single line): `// eslint-disable-next-line rule-name`
-  2. **Block ignore** (section): `/* eslint-disable rule-name */` ... `/* eslint-enable rule-name */`
-  3. **File-level ignore** (entire file): `/* eslint-disable rule-name */` at top
-  4. **Pattern ignore** (glob): `.eslintignore` or config with `ignorePatterns: ['test/**']`
-  5. **Global disable** (LAST RESORT): Modify config to disable rule globally
+**3. Local Ignores** (ONLY when #1 and #2 complicate)
+- Use most LOCAL scope: inline > file > pattern > global
+- Document WHY (comment above ignore)
+- Use specific rule name (not blanket disable)
 
 ## Process
 
-**Step 1: Gather All Issues**
+**1. Gather & Categorize**
 ```bash
-# Run all quality checks and collect issues
-npm run lint 2>&1 | tee /tmp/lint-issues.txt
-# Or: ruff check . (Python)
-# Or: mypy . (Python types)
-# Or: tsc --noEmit (TypeScript)
+npm run lint 2>&1 | tee /tmp/lint.txt  # Or: ruff check . | mypy .
 ```
+Group by: root cause fixable, requires refactor, legitimate ignore
 
-**Step 2: Categorize Issues**
-Group by:
-- Root cause fixable (unused imports, simple type fixes)
-- Requires refactoring (complex types, architectural)
-- Legitimate ignores (test files, generated code)
+**2. Fix in Priority Order**
+- Root causes: Remove unused, fix types, add return types
+- Safety: Add type guards, error handling, refactor patterns
+- Ignores: Document reason, choose local scope, specific rule
 
-**Step 3: Fix in Priority Order**
-
-**3a. Fix Root Causes**
-- Remove unused imports/variables
-- Fix simple type errors
-- Add missing return types
-- Fix naming violations
-- Document blockers encountered
-
-**3b. Apply Safety/Reliability Fixes**
-- Add type guards for complex types
-- Add error handling for unsafe operations
-- Refactor complex patterns to simpler ones
-- Document why refactoring was needed
-
-**3c. Apply Local Ignores (if necessary)**
-For each ignore:
-1. Document WHY it's being ignored (comment above ignore)
-2. Choose most local scope possible
-3. Use specific rule name (not blanket disable)
-4. Examples of valid reasons:
-   - Test files need `any` for mocking
-   - Generated code shouldn't be modified
-   - Third-party API requires unsafe type
-   - Performance-critical code needs optimization
-
-**Step 4: Validate**
+**3. Validate**
 ```bash
-# Verify all issues resolved
-npm run lint
-# Or: ruff check . && mypy .
-
-# Run tests to ensure nothing broken
-npm test
-# Or: pytest
+npm run lint && npm test  # Or: ruff check . && mypy . && pytest
 ```
+All checks + tests must pass
 
-**Step 5: Report**
-Summarize what was done:
+**4. Report**
 ```
-✅ Quality Issues Fixed
-
-Root Cause Fixes: X issues
-- Removed Y unused imports
-- Fixed Z type errors
-- Added N return types
-
-Safety/Reliability Improvements: X issues
-- Added Y type guards
-- Refactored Z complex patterns
-
-Local Ignores Applied: X issues (with justification)
-- test/foo.ts:42 - Mock requires 'any' type
-- generated/api.ts - Third-party generated code
-
-All checks passing ✓
-Tests passing: X/X ✓
+✅ Quality Fixed: X root cause, Y safety, Z ignores
+All checks ✓ | Tests X/X ✓
 ```
 
 ## Examples
 
-**Example 1: Unused Import (Root Cause)**
+**Root Cause Fix:**
 ```typescript
-// ❌ Before
-import { foo, bar } from './utils'  // bar unused
-export const result = foo()
-
-// ✅ After - Remove unused import
-import { foo } from './utils'
-export const result = foo()
+// ❌ import { foo, bar } from './utils'  // bar unused
+// ✅ import { foo } from './utils'
 ```
 
-**Example 2: Type Error (Safety)**
+**Safety Fix:**
 ```typescript
-// ❌ Before - Any cast
-const data = JSON.parse(input) as any
-
-// ✅ After - Type guard
-interface Data { id: string; value: number }
-function isData(obj: unknown): obj is Data {
-  return typeof obj === 'object' && obj !== null &&
-         'id' in obj && 'value' in obj
-}
-const parsed = JSON.parse(input)
-const data = isData(parsed) ? parsed : null
+// ❌ const data = JSON.parse(input) as any
+// ✅ const data = isValidData(JSON.parse(input)) ? parsed : null
 ```
 
-**Example 3: Legitimate Ignore (Most Local)**
+**Local Ignore (when necessary):**
 ```typescript
-// ✅ Inline ignore with justification
-test('mock API call', () => {
-  // Mock requires 'any' to match third-party API signature
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const mockFn = jest.fn<any, any>()
-})
+// Mock requires 'any' to match third-party API
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mockFn = jest.fn<any, any>()
 ```
 
-**Example 4: Pattern Ignore (When Necessary)**
-```json
-// .eslintrc.json - Only for generated code
-{
-  "ignorePatterns": [
-    "**/*.generated.ts",
-    "dist/**"
-  ]
-}
-```
+## Anti-Patterns
 
-## Anti-Patterns to Avoid
+❌ Blanket disable: `/* eslint-disable */` (no justification)
+❌ Global disable for local issue (config file for one test)
+❌ Ignoring without understanding (`@ts-ignore` without comment)
+❌ Symptom fix: `const _unused = getValue()` (should remove or use)
 
-❌ **Blanket Disables**
-```typescript
-// BAD - No justification, too broad
-/* eslint-disable */
-```
+## Valid Ignore Reasons
 
-❌ **Global Disables for Local Issues**
-```json
-// BAD - Disabling globally for one test file
-{
-  "rules": {
-    "@typescript-eslint/no-explicit-any": "off"
-  }
-}
-```
+- Test mocks need `any` for third-party API signatures
+- Generated code shouldn't be modified
+- Performance-critical code needs specific optimization
+- Third-party API contract requires unsafe type
 
-❌ **Ignoring Without Understanding**
-```typescript
-// BAD - Just suppressing without fixing
-// @ts-ignore
-const result = dangerousOperation()
-```
+## Locality Hierarchy
 
-❌ **Fixing Symptoms Not Root Cause**
-```typescript
-// BAD - Unused variable prefixed instead of removed
-const _unused = getValue()
-
-// GOOD - Remove if truly unused
-// (or fix code to actually use it)
-```
+1. **Inline**: `// eslint-disable-next-line rule-name` (1 line)
+2. **Block**: `/* eslint-disable rule */` ... `/* eslint-enable */`
+3. **File**: `/* eslint-disable rule */` (top of file)
+4. **Pattern**: `.eslintignore` or `ignorePatterns: ['test/**']`
+5. **Global**: Config rule disable (LAST RESORT)
 
 ## Notes
 
-- Always run full test suite after quality fixes
-- Document WHY ignores are necessary (comment above)
-- Use most specific rule name possible (not blanket disable)
-- Review ignore list periodically - some may become fixable
-- If >10% of codebase needs ignores, reconsider the rule
-- Use TodoWrite to track progress through large codebases
-
-## Arguments
-
-`{{ARGS}}` - Files, glob pattern, or `.` for entire project
+- Run full test suite after fixes
+- Review ignores periodically (some may become fixable)
+- If >10% needs ignores, reconsider the rule
+- Use TodoWrite for large codebases
