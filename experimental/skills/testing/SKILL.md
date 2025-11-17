@@ -1,6 +1,6 @@
 ---
 name: testing
-description: Invoked by /implement-plan when task moves to testing/ directory. Validates tests and adds missing edge cases.
+description: Validates test coverage and quality by checking behavior focus, identifying gaps, and ensuring >80% statement coverage. Use when task file is in testing/ directory and requires test validation before marking complete. Adds minimal tests for genuinely missing edge cases.
 ---
 
 # Testing

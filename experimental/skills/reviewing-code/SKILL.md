@@ -1,6 +1,6 @@
 ---
 name: reviewing-code
-description: Invoked by /implement-plan when task moves to review/ directory. Checks security, quality, performance.
+description: Reviews implemented code for security, quality, performance, and test coverage using specialized review agents. Use when task file is in review/ directory and requires comprehensive code review before approval. Launches test-coverage-analyzer, error-handling-reviewer, and security-reviewer in parallel.
 ---
 
 # Review

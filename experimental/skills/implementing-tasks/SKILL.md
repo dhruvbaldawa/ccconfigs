@@ -1,6 +1,6 @@
 ---
 name: implementing-tasks
-description: Invoked by /implement-plan when task moves to implementation/ directory. Updates task file with status and notes.
+description: Implements tasks from .plans/ directories by following implementation guidance, writing code and tests, and updating task status. Use when task file is in implementation/ directory and requires code implementation with comprehensive testing. Launches research agents when stuck.
 ---
 
 # Implementation
