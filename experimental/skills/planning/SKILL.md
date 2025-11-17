@@ -1,6 +1,6 @@
 ---
 name: planning
-description: Invoked by /plan-feature and /orchestrate. Creates .plans/ with risk-prioritized tasks. Skip for simple 1-2 file changes.
+description: Creates risk-prioritized task plans using technical-planning methodology and exploration agents. Use when starting complex features requiring structured planning; skip for simple 1-2 file changes. Launches architecture-explorer and codebase-analyzer in parallel to understand existing patterns.
 ---
 
 # Planning
