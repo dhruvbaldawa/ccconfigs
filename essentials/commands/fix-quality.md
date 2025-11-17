@@ -5,13 +5,13 @@ argument-hint: [FILES OR PATTERN]
 
 # Fix Quality Issues
 
-Fix quality issues in `{{ARGS}}` (files, pattern like `src/**/*.ts`, or `.` for project).
+Fix quality issues in `{{ARGS}}` (files, glob pattern, or `.` for entire project).
 
 ## Priority Order
 
 **1. Fix Root Cause** (ALWAYS first)
 - Remove unused imports/variables
-- Fix type errors properly (not cast to `any`)
+- Fix type errors properly
 - Add missing return types
 - Fix naming violations
 
@@ -29,10 +29,7 @@ Fix quality issues in `{{ARGS}}` (files, pattern like `src/**/*.ts`, or `.` for 
 ## Process
 
 **1. Gather & Categorize**
-```bash
-npm run lint 2>&1 | tee /tmp/lint.txt  # Or: ruff check . | mypy .
-```
-Group by: root cause fixable, needs alternative approach, legitimate ignore
+Run linting and type checking tools to collect all issues. Group by: root cause fixable, needs alternative approach, legitimate ignore.
 
 **2. Fix in Priority Order**
 - Root causes: Remove unused, fix types, add return types
@@ -40,10 +37,7 @@ Group by: root cause fixable, needs alternative approach, legitimate ignore
 - Ignores: Document reason, choose local scope, specific rule
 
 **3. Validate**
-```bash
-npm run lint && npm test  # Or: ruff check . && mypy . && pytest
-```
-All checks + tests must pass
+All linting checks + full test suite must pass.
 
 **4. Report**
 ```
@@ -53,26 +47,26 @@ All checks ✓ | Tests X/X ✓
 
 ## Locality Hierarchy (for ignores)
 
-1. **Inline**: `// eslint-disable-next-line rule-name` (1 line)
-2. **Block**: `/* eslint-disable rule */` ... `/* eslint-enable */`
-3. **File**: `/* eslint-disable rule */` (top of file)
-4. **Pattern**: `.eslintignore` or `ignorePatterns: ['test/**']`
-5. **Global**: Config rule disable (LAST RESORT)
+1. **Inline**: Single line ignore
+2. **Block**: Section/function ignore
+3. **File**: Entire file ignore
+4. **Pattern**: Glob pattern ignore (e.g., test files, generated code)
+5. **Global**: Config-level disable (LAST RESORT)
 
 ## Anti-Patterns
 
 ❌ Blanket disable without justification
 ❌ Global disable for local issue
 ❌ Ignoring without understanding why
-❌ Fixing symptoms instead of root cause (e.g., `const _unused = getValue()`)
+❌ Fixing symptoms instead of root cause
 ❌ Making code less safe to silence warnings
 
 ## Valid Ignore Reasons
 
-- Test mocks need `any` for third-party API signatures
+- Test code needs flexibility for mocking third-party APIs
 - Generated code shouldn't be modified
 - Performance-critical code needs specific optimization
-- Third-party API contract requires unsafe type
+- Third-party contract requires specific implementation
 
 ## Notes
 
