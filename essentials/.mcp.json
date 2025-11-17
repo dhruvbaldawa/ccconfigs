@@ -35,6 +35,13 @@
          "@modelcontextprotocol/server-sequential-thinking"
       ],
       "env": {}
+    },
+    "parallel-search": {
+      "type": "http",
+      "url": "https://search-mcp.parallel.ai/mcp",
+      "headers": {
+        "Authorization": "Bearer ${PARALLEL_API_KEY}"
+      }
     }
   }
 }
