@@ -132,6 +132,8 @@ Configuration files only (JSON and Markdown). No build, test, or lint commands.
 
 **`/research [TASK FILE | QUESTION]`**: Research blockers or questions using specialized research agents. Analyzes question type and launches 2-3 agents in parallel (research-breadth for industry patterns, research-depth for specific solutions, research-technical for official docs). Uses research-synthesis skill to consolidate findings. For stuck tasks, updates task file with findings. For general questions, provides summary with sources. See `essentials/skills/research-synthesis/reference/multi-agent-invocation.md` for detailed patterns.
 
+**`/fix-quality [FILES OR PATTERN]`**: Systematically fix linting, type errors, and quality issues following root-cause-first philosophy. Priority order: (1) Fix root cause (remove unused imports, fix types), (2) Apply safety/reliability improvements (type guards, error handling), (3) Use local ignores only when necessary (inline > file > pattern > global). Documents why ignores are needed. Validates all checks pass and tests remain green. Emphasizes fixing problems over suppressing warnings.
+
 **Key pattern**: `/breakdown` and `/do` work with shared state in a spec document. Breakdown creates the plan, do executes tasks one by one while maintaining state in the document.
 
 ### Skills
