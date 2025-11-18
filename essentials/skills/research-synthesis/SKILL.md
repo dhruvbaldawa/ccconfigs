@@ -1,6 +1,6 @@
 ---
 name: research-synthesis
-description: Guide when to use built-in tools (WebFetch, WebSearch) and MCP servers (Parallel Search, Context7) for research. Synthesize findings into narrative for braindump. Use when gathering data, examples, or citations for blog posts.
+description: Guide when to use built-in tools (WebFetch, WebSearch) and MCP servers (Parallel Search, Firecrawl, Perplexity, Context7) for research. Synthesize findings into narrative for braindump. Use when gathering data, examples, or citations for blog posts.
 ---
 
 # Research Synthesis
@@ -48,23 +48,35 @@ Skip when:
 | **WebFetch** | Specific URLs, extracting article content, user-mentioned sources | User: "Check this article: https://..." |
 | **WebSearch** | Recent trends/news, statistical data, multiple perspectives, general knowledge gaps | "Recent research on OKR failures", "Companies that abandoned agile" |
 
-### Priority 2: MCP Servers (If Built-in Tools Can't Find Good Results)
+### Priority 2: Parallel Search (Advanced Synthesis)
 
 | Tool | Use For | Examples |
 |------|---------|----------|
-| **Parallel Search** | Advanced web search with agentic mode, fact-checking, competitive intelligence | Complex queries needing synthesis, multi-source validation |
+| **Parallel Search** | Advanced web search with agentic mode, fact-checking, competitive intelligence, multi-source synthesis | Complex queries needing synthesis, validation across sources |
+
+### Priority 3: Firecrawl/Perplexity (Specialized Extraction)
+
+| Tool | Use For | Examples |
+|------|---------|----------|
+| **Firecrawl** | Deep content extraction from specific URLs when WebFetch insufficient | Extracting full tutorials, code examples from blogs |
+| **Perplexity** | Broad surveys when WebSearch/Parallel insufficient | Industry consensus, statistical data, multiple perspectives |
+
+### Priority 4: Context7 (Technical Docs)
+
+| Tool | Use For | Examples |
+|------|---------|----------|
 | **Context7** | Library/framework docs, API references, technical specifications | "How does React useEffect work?", "Check latest API docs" |
 
 **Decision tree:**
 ```
 Need research?
-├─ Specific URL? → WebFetch → (fallback: Parallel Search)
+├─ Specific URL? → WebFetch → Parallel Search → Firecrawl
 ├─ Technical docs/APIs? → Context7
-├─ General search? → WebSearch → (fallback: Parallel Search)
+├─ General search? → WebSearch → Parallel Search → Perplexity
 └─ Complex synthesis? → Parallel Search
 ```
 
-**Rationale:** Built-in tools (WebFetch, WebSearch) are faster and always available. Use MCP servers when you need advanced capabilities (Parallel Search for agentic synthesis, Context7 for official docs).
+**Rationale:** Built-in tools (WebFetch, WebSearch) are faster and always available. Parallel Search provides advanced agentic mode for synthesis. Firecrawl/Perplexity offer specialized extraction when needed. Context7 for official docs only.
 
 ## Synthesizing Findings
 

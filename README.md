@@ -9,9 +9,11 @@ Personal configuration repository for Claude Code - a plugin marketplace contain
    /plugin marketplace add dhruvbaldawa/ccconfigs
    ```
 
-2. Set required API key (optional - for advanced search):
+2. Set API keys (optional - for MCP servers):
    ```bash
-   export PARALLEL_API_KEY=your_parallel_key
+   export PARALLEL_API_KEY=your_parallel_key       # Optional: Parallel Search
+   export FIRECRAWL_API_KEY=your_firecrawl_key     # Optional: Firecrawl
+   export PERPLEXITY_API_KEY=your_perplexity_key   # Optional: Perplexity
    ```
 
 3. Install plugins:
@@ -24,19 +26,30 @@ Personal configuration repository for Claude Code - a plugin marketplace contain
 
 ### Environment Variables
 
-**Parallel Search** (optional - for advanced web search):
+**All MCP servers are optional.** The essentials plugin uses built-in tools (WebFetch, WebSearch) first, with MCP servers as fallback for advanced capabilities.
 
-The essentials plugin uses built-in tools (WebFetch, WebSearch) first, with Parallel Search MCP server as fallback for advanced capabilities.
-
-To enable Parallel Search:
+**Parallel Search** (advanced web search with agentic mode):
 1. Get API key from [parallel.ai](https://parallel.ai)
 2. Set environment variable:
    ```bash
    export PARALLEL_API_KEY=your_key_here
    ```
-3. Add to your shell profile (.zshrc, .bashrc) for persistence
 
-Without this key, built-in tools (WebFetch, WebSearch) still provide full functionality.
+**Firecrawl** (web scraping and content extraction):
+1. Get API key from [firecrawl.dev](https://firecrawl.dev)
+2. Set environment variable:
+   ```bash
+   export FIRECRAWL_API_KEY=your_key_here
+   ```
+
+**Perplexity** (AI-powered search):
+1. Get API key from [Perplexity API Console](https://www.perplexity.ai/settings/api)
+2. Set environment variable:
+   ```bash
+   export PERPLEXITY_API_KEY=your_key_here
+   ```
+
+Add these variables to your shell profile (.zshrc, .bashrc) for persistence. Without these keys, built-in tools (WebFetch, WebSearch) still provide full functionality.
 
 ### Global Configuration (Optional)
 
@@ -109,14 +122,17 @@ Systematic development workflows including MCP servers, task management commands
 
 Pre-configured integrations with Model Context Protocol servers. Built-in tools (WebFetch, WebSearch) are prioritized, with MCP servers as fallback for advanced capabilities:
 
-- **Parallel Search**: Advanced web search with agentic mode for complex queries, fact-checking, and multi-source synthesis (requires API key)
-- **Context7**: Library documentation lookup for official API references and technical specs
-- **Sequential-thinking**: Structured thinking framework for complex analysis
+- **Parallel Search**: Advanced web search with agentic mode for complex queries, fact-checking, and multi-source synthesis (optional API key)
+- **Firecrawl**: Web scraping and content extraction from specific URLs (optional API key)
+- **Perplexity**: AI-powered search for broad research and multiple perspectives (optional API key)
+- **Context7**: Library documentation lookup for official API references and technical specs (always available)
+- **Sequential-thinking**: Structured thinking framework for complex analysis (always available)
 
 **Research tool priority order:**
-1. WebFetch (specific URLs) / WebSearch (general searches) - always available
-2. Parallel Search (advanced synthesis, fact-checking) - requires API key
-3. Context7 (official technical docs only) - always available
+1. **Built-in tools** (always available): WebFetch (specific URLs) / WebSearch (general searches)
+2. **Parallel Search** (optional): Advanced synthesis, fact-checking, agentic mode
+3. **Firecrawl/Perplexity** (optional): Firecrawl for deep URL extraction, Perplexity for broad surveys
+4. **Context7** (always available): Official technical docs only
 
 #### Slash Commands
 
@@ -186,8 +202,8 @@ Multi-skill workflow system using kanban file movement for complex, high-value d
 #### Specialized Agents (8 total)
 
 **Research Agents** (3 agents - all haiku):
-- **research-breadth**: Broad surveys via WebSearch → Parallel Search (industry trends, consensus, multiple perspectives)
-- **research-depth**: Deep-dive via WebFetch → Parallel Search (specific URLs, implementation details, case studies)
+- **research-breadth**: Broad surveys via WebSearch → Parallel Search → Perplexity (industry trends, consensus, multiple perspectives)
+- **research-depth**: Deep-dive via WebFetch → Parallel Search → Firecrawl (specific URLs, implementation details, case studies)
 - **research-technical**: Official docs via Context7 (API references, method signatures, configurations)
 
 **Exploration Agents** (2 agents - all haiku):

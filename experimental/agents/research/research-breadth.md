@@ -17,6 +17,8 @@ Gather multiple perspectives, recent trends, statistical data, and industry cons
 
 **Priority 2:** Parallel Search MCP server for advanced agentic search when WebSearch can't find good results or when you need deeper synthesis and fact-checking.
 
+**Priority 3:** Perplexity MCP server for broad surveys when WebSearch and Parallel Search are insufficient. Use for industry consensus, statistical data, and multiple perspectives.
+
 **Avoid:** Context7 (use only for official technical docs, not general research).
 
 ## Research Process

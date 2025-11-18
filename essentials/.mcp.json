@@ -42,6 +42,26 @@
       "headers": {
         "Authorization": "Bearer ${PARALLEL_API_KEY}"
       }
+    },
+    "firecrawl": {
+      "type": "stdio",
+      "command": "pnpx",
+      "args": [
+        "firecrawl-mcp"
+      ],
+      "env": {
+        "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
+      }
+    },
+    "perplexity": {
+      "type": "stdio",
+      "command": "pnpx",
+      "args": [
+        "perplexity-mcp"
+      ],
+      "env": {
+        "PERPLEXITY_API_KEY": "${PERPLEXITY_API_KEY}"
+      }
     }
   }
 }

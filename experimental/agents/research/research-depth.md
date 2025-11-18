@@ -17,6 +17,8 @@ Extract detailed technical content, implementation patterns, code examples, and 
 
 **Priority 2:** Parallel Search MCP server for advanced search and content extraction when WebFetch can't find good results or when you need multi-source synthesis.
 
+**Priority 3:** Firecrawl MCP server for deep content extraction when WebFetch and Parallel Search are insufficient. Use for full article content, code examples, and detailed tutorials.
+
 **Avoid:** Context7 (use only for official library docs, not general research).
 
 ## Research Process
