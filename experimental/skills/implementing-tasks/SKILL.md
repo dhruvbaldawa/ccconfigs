@@ -11,12 +11,11 @@ Given task file path `.plans/<project>/implementation/NNN-task.md`:
 
 1. Read task file - LLM Prompt, Working Result, Validation, Files
 2. Follow LLM Prompt step-by-step, write code + tests, run full suite
-3. Update task file using `scripts/task-helpers.sh`:
+3. Update task status using Edit tool:
+   - Find: `**Status:** [current status]`
+   - Replace: `**Status:** READY_FOR_REVIEW`
+4. Append implementation notes using bash:
    ```bash
-   # Update status atomically (use absolute path since working directory may vary)
-   bash "${CCCONFIGS_ROOT:-$HOME/ccconfigs}/experimental/scripts/task-helpers.sh" update_status "$task_file" "READY_FOR_REVIEW"
-
-   # Append notes
    cat >> "$task_file" <<EOF
 
    **implementation:**
@@ -28,25 +27,27 @@ Given task file path `.plans/<project>/implementation/NNN-task.md`:
    - Files: [list with brief descriptions]
    EOF
    ```
-4. Mark validation checkboxes: `[ ]` → `[x]`
-5. Report completion
+5. Mark validation checkboxes: `[ ]` → `[x]` using Edit tool
+6. Report completion
 
 ## Stuck Handling
 
 When blocked during implementation:
 
 ### 1. Mark Task as Stuck
-```bash
-bash "${CCCONFIGS_ROOT:-$HOME/ccconfigs}/experimental/scripts/task-helpers.sh" update_status "$task_file" "STUCK"
+- Update status using Edit tool:
+  - Find: `**Status:** [current status]`
+  - Replace: `**Status:** STUCK`
+- Append notes:
+  ```bash
+  cat >> "$task_file" <<EOF
 
-cat >> "$task_file" <<EOF
-
-**implementation:**
-- Attempted [what tried]
-- BLOCKED: [specific issue]
-- Launching research agents to investigate...
-EOF
-```
+  **implementation:**
+  - Attempted [what tried]
+  - BLOCKED: [specific issue]
+  - Launching research agents to investigate...
+  EOF
+  ```
 
 ### 2. Launch Research Agents
 

@@ -13,11 +13,11 @@ Given task file path `.plans/<project>/testing/NNN-task.md`:
 2. Identify gaps - empty/null inputs, boundaries, errors, race conditions, security
 3. Add minimal tests if genuinely missing
 4. Run coverage - verify >80% statements, >75% branches
-5. Update task file using `scripts/task-helpers.sh`:
+5. Update task status using Edit tool:
+   - Find: `**Status:** [current status]`
+   - Replace: `**Status:** COMPLETED`
+6. Append testing notes:
    ```bash
-   # Use absolute path since working directory may vary
-   bash "${CCCONFIGS_ROOT:-$HOME/ccconfigs}/experimental/scripts/task-helpers.sh" update_status "$task_file" "COMPLETED"
-
    cat >> "$task_file" <<EOF
 
    **testing:**
@@ -35,7 +35,7 @@ Given task file path `.plans/<project>/testing/NNN-task.md`:
    COMPLETED
    EOF
    ```
-6. Report completion
+7. Report completion
 
 ## Test Quality
 
@@ -49,16 +49,16 @@ Granularity: Pure functions → Unit | DB/API → Integration | Critical workflo
 If tests fail or coverage <80%:
 - Fix test scenarios first
 - If code bug found:
-  ```bash
-  bash "${CCCONFIGS_ROOT:-$HOME/ccconfigs}/experimental/scripts/task-helpers.sh" update_status "$task_file" "NEEDS_FIX"
+  - Update status using Edit tool: Find `**Status:** [current status]` → Replace `**Status:** NEEDS_FIX`
+  - Append notes:
+    ```bash
+    cat >> "$task_file" <<EOF
 
-  cat >> "$task_file" <<EOF
+    **testing:**
+    Found issues:
+    - [Specific issue]
+    - [Specific issue]
 
-  **testing:**
-  Found issues:
-  - [Specific issue]
-  - [Specific issue]
-
-  Requires code fixes. Moving back to implementation.
-  EOF
-  ```
+    Requires code fixes. Moving back to implementation.
+    EOF
+    ```
