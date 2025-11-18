@@ -140,9 +140,9 @@ Configuration files only (JSON and Markdown). No build, test, or lint commands.
 
 **brainstorming**: Collaborative ideation for projects and writing. Asks clarifying questions, suggests angles, challenges assumptions, helps refine vague ideas into concrete requirements or topics. Context-aware transitions - guides to technical-planning for projects or blog-writing for posts. Emphasizes drawing out user's ideas (not injecting your own).
 
-**research-synthesis**: Research tool usage patterns and synthesis methodology. Prioritizes built-in tools (WebFetch for URLs, WebSearch for general queries), uses MCP servers as fallback (Parallel Search for advanced synthesis, Firecrawl/Perplexity for specialized extraction, Context7 for technical docs). Synthesizes findings into narrative (not just lists), integrates naturally during conversation, maintains source attribution. Includes decision tree and quality standards.
+**research-synthesis**: Research tool usage patterns and synthesis methodology. Prioritizes built-in tools (WebFetch for URLs, WebSearch for general queries), uses MCP servers as fallback (Parallel Search for advanced synthesis, Perplexity for broad surveys, Context7 for technical docs). Synthesizes findings into narrative (not just lists), integrates naturally during conversation, maintains source attribution. Includes decision tree and quality standards.
 
-**debugging**: Systematic debugging using UNDERSTAND methodology (10-step checklist). Focuses on root cause analysis over symptom treatment. Prioritizes built-in tools (WebSearch) then MCP servers (Parallel Search for advanced research, Firecrawl/Perplexity for specialized research, Context7 for official docs, SequentialThinking for complex analysis). Includes antipattern awareness and decision framework for when to use which tools. Reference materials document common debugging failures.
+**debugging**: Systematic debugging using UNDERSTAND methodology (10-step checklist). Focuses on root cause analysis over symptom treatment. Prioritizes built-in tools (WebSearch) then MCP servers (Parallel Search for advanced research, Perplexity for broad surveys, Context7 for official docs, SequentialThinking for complex analysis). Includes antipattern awareness and decision framework for when to use which tools. Reference materials document common debugging failures.
 
 **technical-planning**: Risk-first development methodology with Last Responsible Moment decision-making. Four-phase approach: Requirements & Risk Analysis, Milestone Planning, Implementation Strategy, Execution Framework. Emphasizes "what" over "how", defers implementation decisions until execution, manages deferral explicitly, and addresses highest-risk challenges first. Includes decision timing framework (what to decide early vs. defer), task breakdown guidelines (outcome-focused vs. prescriptive), and decision framework for handling unclear requirements.
 
@@ -150,19 +150,18 @@ Configuration files only (JSON and Markdown). No build, test, or lint commands.
 
 **Priority:** Built-in tools (WebFetch, WebSearch) are used first, MCP servers as fallback for advanced capabilities.
 
-- **Parallel Search**: Advanced web search with agentic mode for complex queries, fact-checking, and multi-source synthesis (optional API key)
-- **Firecrawl**: Web scraping and content extraction from specific URLs (optional API key)
+- **Parallel Search**: Advanced web search with agentic mode for complex queries, fact-checking, multi-source synthesis, and deep content extraction (optional API key)
 - **Perplexity**: AI-powered search for broad research and multiple perspectives (optional API key)
 - **Context7**: Library documentation lookup for official API references and technical specs (always available)
 - **Sequential-thinking**: Structured thinking framework for complex analysis (always available)
 
 **Research tool priority order:**
 1. WebFetch (specific URLs) / WebSearch (general searches) - always available
-2. Parallel Search (advanced synthesis, fact-checking) - optional
-3. Firecrawl/Perplexity (specialized extraction) - Firecrawl for deep URLs, Perplexity for broad surveys - optional
+2. Parallel Search (advanced synthesis, fact-checking, deep extraction) - optional
+3. Perplexity (broad surveys) - optional
 4. Context7 (official technical docs only) - always available
 
-Skills reference MCP tools by prefixed names (e.g., `Context7:get-library-docs`, `Parallel-Search:web_search_preview`, `Firecrawl:search`, `Perplexity:search`).
+Skills reference MCP tools by prefixed names (e.g., `Context7:get-library-docs`, `Parallel-Search:web_search_preview`, `Perplexity:search`).
 
 ## The Writing Plugin
 
@@ -198,7 +197,7 @@ Conversation-driven workflow for blog writing in Dhruv Baldawa's distinctive sty
 - **brainstorming** (essentials): Collaborative ideation through questions and exploration. Context-aware for writing - updates braindump.md, transitions to drafting when ready.
 - **research-synthesis** (essentials): Research tool usage for research. Synthesizes findings into braindump.md during ideation.
 
-**Key pattern**: Skills guide natural conversation, commands are just utilities. Most operations (add to braindump, revise draft) happen through chat. Research tools (WebFetch, WebSearch, Parallel Search, Firecrawl, Perplexity, Context7) used proactively during conversation, not via separate commands.
+**Key pattern**: Skills guide natural conversation, commands are just utilities. Most operations (add to braindump, revise draft) happen through chat. Research tools (WebFetch, WebSearch, Parallel Search, Perplexity, Context7) used proactively during conversation, not via separate commands.
 
 ### Design Philosophy
 
@@ -218,7 +217,7 @@ Multi-skill workflow system using kanban file movement for complex, high-value t
 
 **Research Agents** (3 agents - all haiku, parallel invocation):
 - **research-breadth**: Broad surveys via WebSearch → Parallel Search → Perplexity (industry trends, consensus, multiple perspectives)
-- **research-depth**: Deep-dive via WebFetch → Parallel Search → Firecrawl (specific URLs, implementation details, case studies)
+- **research-depth**: Deep-dive via WebFetch → Parallel Search (specific URLs, implementation details, case studies)
 - **research-technical**: Official docs via Context7 (API references, method signatures, configurations)
 
 **Exploration Agents** (2 agents - all haiku, parallel invocation):

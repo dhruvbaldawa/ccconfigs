@@ -31,7 +31,7 @@ ${isTaskFile ? 'Read task file to understand blocker context.' : 'Analyze questi
 
 **Agents available:**
 - **research-breadth** (haiku) - WebSearch → Parallel Search → Perplexity: industry trends, consensus, multiple perspectives
-- **research-depth** (haiku) - WebFetch → Parallel Search → Firecrawl: specific URLs, implementations, case studies, gotchas
+- **research-depth** (haiku) - WebFetch → Parallel Search: specific URLs, implementations, case studies, gotchas
 - **research-technical** (haiku) - Context7: official docs, API signatures, types, configs
 
 ### Step 2: Launch Agents in Parallel

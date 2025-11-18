@@ -1,6 +1,6 @@
 ---
 name: research-synthesis
-description: Guide when to use built-in tools (WebFetch, WebSearch) and MCP servers (Parallel Search, Firecrawl, Perplexity, Context7) for research. Synthesize findings into narrative for braindump. Use when gathering data, examples, or citations for blog posts.
+description: Guide when to use built-in tools (WebFetch, WebSearch) and MCP servers (Parallel Search, Perplexity, Context7) for research. Synthesize findings into narrative for braindump. Use when gathering data, examples, or citations for blog posts.
 ---
 
 # Research Synthesis
@@ -52,13 +52,12 @@ Skip when:
 
 | Tool | Use For | Examples |
 |------|---------|----------|
-| **Parallel Search** | Advanced web search with agentic mode, fact-checking, competitive intelligence, multi-source synthesis | Complex queries needing synthesis, validation across sources |
+| **Parallel Search** | Advanced web search with agentic mode, fact-checking, competitive intelligence, multi-source synthesis, deep URL extraction | Complex queries needing synthesis, validation across sources, extracting full content from URLs |
 
-### Priority 3: Firecrawl/Perplexity (Specialized Extraction)
+### Priority 3: Perplexity (Broad Surveys)
 
 | Tool | Use For | Examples |
 |------|---------|----------|
-| **Firecrawl** | Deep content extraction from specific URLs when WebFetch insufficient | Extracting full tutorials, code examples from blogs |
 | **Perplexity** | Broad surveys when WebSearch/Parallel insufficient | Industry consensus, statistical data, multiple perspectives |
 
 ### Priority 4: Context7 (Technical Docs)
@@ -70,13 +69,13 @@ Skip when:
 **Decision tree:**
 ```
 Need research?
-├─ Specific URL? → WebFetch → Parallel Search → Firecrawl
+├─ Specific URL? → WebFetch → Parallel Search
 ├─ Technical docs/APIs? → Context7
 ├─ General search? → WebSearch → Parallel Search → Perplexity
 └─ Complex synthesis? → Parallel Search
 ```
 
-**Rationale:** Built-in tools (WebFetch, WebSearch) are faster and always available. Parallel Search provides advanced agentic mode for synthesis. Firecrawl/Perplexity offer specialized extraction when needed. Context7 for official docs only.
+**Rationale:** Built-in tools (WebFetch, WebSearch) are faster and always available. Parallel Search provides advanced agentic mode for synthesis and deep content extraction. Perplexity offers broad surveys when needed. Context7 for official docs only.
 
 ## Synthesizing Findings
 

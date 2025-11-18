@@ -12,7 +12,6 @@ Personal configuration repository for Claude Code - a plugin marketplace contain
 2. Set API keys (optional - for MCP servers):
    ```bash
    export PARALLEL_API_KEY=your_parallel_key       # Optional: Parallel Search
-   export FIRECRAWL_API_KEY=your_firecrawl_key     # Optional: Firecrawl
    export PERPLEXITY_API_KEY=your_perplexity_key   # Optional: Perplexity
    ```
 
@@ -33,13 +32,6 @@ Personal configuration repository for Claude Code - a plugin marketplace contain
 2. Set environment variable:
    ```bash
    export PARALLEL_API_KEY=your_key_here
-   ```
-
-**Firecrawl** (web scraping and content extraction):
-1. Get API key from [firecrawl.dev](https://firecrawl.dev)
-2. Set environment variable:
-   ```bash
-   export FIRECRAWL_API_KEY=your_key_here
    ```
 
 **Perplexity** (AI-powered search):
@@ -122,16 +114,15 @@ Systematic development workflows including MCP servers, task management commands
 
 Pre-configured integrations with Model Context Protocol servers. Built-in tools (WebFetch, WebSearch) are prioritized, with MCP servers as fallback for advanced capabilities:
 
-- **Parallel Search**: Advanced web search with agentic mode for complex queries, fact-checking, and multi-source synthesis (optional API key)
-- **Firecrawl**: Web scraping and content extraction from specific URLs (optional API key)
+- **Parallel Search**: Advanced web search with agentic mode for complex queries, fact-checking, multi-source synthesis, and deep content extraction (optional API key)
 - **Perplexity**: AI-powered search for broad research and multiple perspectives (optional API key)
 - **Context7**: Library documentation lookup for official API references and technical specs (always available)
 - **Sequential-thinking**: Structured thinking framework for complex analysis (always available)
 
 **Research tool priority order:**
 1. **Built-in tools** (always available): WebFetch (specific URLs) / WebSearch (general searches)
-2. **Parallel Search** (optional): Advanced synthesis, fact-checking, agentic mode
-3. **Firecrawl/Perplexity** (optional): Firecrawl for deep URL extraction, Perplexity for broad surveys
+2. **Parallel Search** (optional): Advanced synthesis, fact-checking, agentic mode, deep extraction
+3. **Perplexity** (optional): Broad surveys
 4. **Context7** (always available): Official technical docs only
 
 #### Slash Commands
@@ -203,7 +194,7 @@ Multi-skill workflow system using kanban file movement for complex, high-value d
 
 **Research Agents** (3 agents - all haiku):
 - **research-breadth**: Broad surveys via WebSearch → Parallel Search → Perplexity (industry trends, consensus, multiple perspectives)
-- **research-depth**: Deep-dive via WebFetch → Parallel Search → Firecrawl (specific URLs, implementation details, case studies)
+- **research-depth**: Deep-dive via WebFetch → Parallel Search (specific URLs, implementation details, case studies)
 - **research-technical**: Official docs via Context7 (API references, method signatures, configurations)
 
 **Exploration Agents** (2 agents - all haiku):
