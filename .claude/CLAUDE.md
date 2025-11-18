@@ -140,20 +140,26 @@ Configuration files only (JSON and Markdown). No build, test, or lint commands.
 
 **brainstorming**: Collaborative ideation for projects and writing. Asks clarifying questions, suggests angles, challenges assumptions, helps refine vague ideas into concrete requirements or topics. Context-aware transitions - guides to technical-planning for projects or blog-writing for posts. Emphasizes drawing out user's ideas (not injecting your own).
 
-**research-synthesis**: MCP tool usage patterns and synthesis methodology. Guides when to use Perplexity (broad research), Firecrawl (specific URLs), or Context7 (technical docs). Synthesizes findings into narrative (not just lists), integrates naturally during conversation, maintains source attribution. Includes decision tree and quality standards.
+**research-synthesis**: Research tool usage patterns and synthesis methodology. Prioritizes built-in tools (WebFetch for URLs, WebSearch for general queries), uses MCP servers as fallback (Parallel Search for advanced synthesis, Context7 for technical docs). Synthesizes findings into narrative (not just lists), integrates naturally during conversation, maintains source attribution. Includes decision tree and quality standards.
 
-**debugging**: Systematic debugging using UNDERSTAND methodology (10-step checklist). Focuses on root cause analysis over symptom treatment. Integrates with MCP tools (Context7 for docs, Firecrawl for research, SequentialThinking for complex analysis). Includes antipattern awareness and decision framework for when to use which tools. Reference materials document common debugging failures.
+**debugging**: Systematic debugging using UNDERSTAND methodology (10-step checklist). Focuses on root cause analysis over symptom treatment. Prioritizes built-in tools (WebSearch) then MCP servers (Parallel Search for advanced research, Context7 for official docs, SequentialThinking for complex analysis). Includes antipattern awareness and decision framework for when to use which tools. Reference materials document common debugging failures.
 
 **technical-planning**: Risk-first development methodology with Last Responsible Moment decision-making. Four-phase approach: Requirements & Risk Analysis, Milestone Planning, Implementation Strategy, Execution Framework. Emphasizes "what" over "how", defers implementation decisions until execution, manages deferral explicitly, and addresses highest-risk challenges first. Includes decision timing framework (what to decide early vs. defer), task breakdown guidelines (outcome-focused vs. prescriptive), and decision framework for handling unclear requirements.
 
 ### MCP Servers
 
-- **Firecrawl**: Web scraping and content extraction
-- **Perplexity**: AI-powered search
-- **Context7**: Library documentation lookup
-- **Sequential-thinking**: Structured thinking framework
+**Priority:** Built-in tools (WebFetch, WebSearch) are used first, MCP servers as fallback for advanced capabilities.
 
-Skills reference MCP tools by prefixed names (e.g., `Context7:get-library-docs`, `Firecrawl:search`).
+- **Parallel Search**: Advanced web search with agentic mode for complex queries, fact-checking, and multi-source synthesis
+- **Context7**: Library documentation lookup for official API references and technical specs
+- **Sequential-thinking**: Structured thinking framework for complex analysis
+
+**Research tool priority order:**
+1. WebFetch (specific URLs) / WebSearch (general searches)
+2. Parallel Search (advanced synthesis, fact-checking)
+3. Context7 (official technical docs only)
+
+Skills reference MCP tools by prefixed names (e.g., `Context7:get-library-docs`, `Parallel-Search:web_search_preview`).
 
 ## The Writing Plugin
 
@@ -187,9 +193,9 @@ Conversation-driven workflow for blog writing in Dhruv Baldawa's distinctive sty
 
 **Uses skills from essentials plugin:**
 - **brainstorming** (essentials): Collaborative ideation through questions and exploration. Context-aware for writing - updates braindump.md, transitions to drafting when ready.
-- **research-synthesis** (essentials): MCP tool usage for research. Synthesizes findings into braindump.md during ideation.
+- **research-synthesis** (essentials): Research tool usage for research. Synthesizes findings into braindump.md during ideation.
 
-**Key pattern**: Skills guide natural conversation, commands are just utilities. Most operations (add to braindump, revise draft) happen through chat. MCP tools (Perplexity, Firecrawl, Context7) used proactively during conversation, not via separate commands.
+**Key pattern**: Skills guide natural conversation, commands are just utilities. Most operations (add to braindump, revise draft) happen through chat. Research tools (WebFetch, WebSearch, Parallel Search, Context7) used proactively during conversation, not via separate commands.
 
 ### Design Philosophy
 
@@ -208,8 +214,8 @@ Multi-skill workflow system using kanban file movement for complex, high-value t
 ### Specialized Agents
 
 **Research Agents** (3 agents - all haiku, parallel invocation):
-- **research-breadth**: Broad surveys via Perplexity (industry trends, consensus, multiple perspectives)
-- **research-depth**: Deep-dive via Firecrawl (specific URLs, implementation details, case studies)
+- **research-breadth**: Broad surveys via WebSearch → Parallel Search (industry trends, consensus, multiple perspectives)
+- **research-depth**: Deep-dive via WebFetch → Parallel Search (specific URLs, implementation details, case studies)
 - **research-technical**: Official docs via Context7 (API references, method signatures, configurations)
 
 **Exploration Agents** (2 agents - all haiku, parallel invocation):

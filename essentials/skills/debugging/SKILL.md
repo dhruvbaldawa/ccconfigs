@@ -42,7 +42,7 @@ Based on documented failures in AI debugging, explicitly avoid:
 
 - Understand: capture exact repro, scope, and recent changes
 - Narrow: isolate components/files; trace path to failure
-- Discover: research exact error (Firecrawl:search, Context7:get-library-docs)
+- Discover: research exact error (WebSearch → Parallel Search, Context7:get-library-docs)
 - Examine: compare against known-good patterns in the codebase
 - Reason: use SequentialThinking:process_thought and 5 Whys to reach root cause
 - Synthesize: write a falsifiable hypothesis with predictions
@@ -56,7 +56,7 @@ Based on documented failures in AI debugging, explicitly avoid:
 - Know exact text/symbol? → grep
 - Need conceptual/semantic location? → codebase_search
 - Need full file context? → read_file
-- Unfamiliar error/behavior? → Context7:get-library-docs, then Firecrawl:search or Perplexity:search
+- Unfamiliar error/behavior? → Context7:get-library-docs, then WebSearch → Parallel Search
 - Complex multi-hypothesis analysis? → SequentialThinking:process_thought
 
 ## Context Management
@@ -68,7 +68,7 @@ Based on documented failures in AI debugging, explicitly avoid:
 ## Decision Framework
 
 **IF** same fix proposed twice → Stop; use SequentialThinking:process_thought
-**IF** error is unclear → Research via Firecrawl:search; verify with docs
+**IF** error is unclear → Research via WebSearch → Parallel Search; verify with docs
 **IF** area is unfamiliar → Explore with codebase_search; don't guess
 **IF** fix seems too easy → Confirm it addresses root cause (not symptom)
 **IF** context is cluttered → Restart at 50% with summary
