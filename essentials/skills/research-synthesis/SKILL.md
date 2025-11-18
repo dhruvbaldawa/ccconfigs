@@ -1,6 +1,6 @@
 ---
 name: research-synthesis
-description: Guide when to use Perplexity, Firecrawl, or Context7 for research. Synthesize findings into narrative for braindump. Use when gathering data, examples, or citations for blog posts.
+description: Guide when to use built-in tools (WebFetch, WebSearch) and MCP servers (Parallel Search, Perplexity, Context7) for research. Synthesize findings into narrative for braindump. Use when gathering data, examples, or citations for blog posts.
 ---
 
 # Research Synthesis
@@ -39,21 +39,43 @@ Skip when:
 - If uncertain, say so
 - Don't fill in missing details with assumptions
 
-## MCP Tool Selection
+## Research Tool Selection (Priority Order)
+
+### Priority 1: Built-in Tools (Always Try First)
 
 | Tool | Use For | Examples |
 |------|---------|----------|
-| **Perplexity** | Recent trends/news, statistical data, multiple perspectives, general knowledge gaps | "Recent research on OKR failures", "Companies that abandoned agile" |
-| **Firecrawl** | Specific URLs, extracting article content, user-mentioned sources | User: "Check this article: https://..." |
+| **WebFetch** | Specific URLs, extracting article content, user-mentioned sources | User: "Check this article: https://..." |
+| **WebSearch** | Recent trends/news, statistical data, multiple perspectives, general knowledge gaps | "Recent research on OKR failures", "Companies that abandoned agile" |
+
+### Priority 2: Parallel Search (Advanced Synthesis)
+
+| Tool | Use For | Examples |
+|------|---------|----------|
+| **Parallel Search** | Advanced web search with agentic mode, fact-checking, competitive intelligence, multi-source synthesis, deep URL extraction | Complex queries needing synthesis, validation across sources, extracting full content from URLs |
+
+### Priority 3: Perplexity (Broad Surveys)
+
+| Tool | Use For | Examples |
+|------|---------|----------|
+| **Perplexity** | Broad surveys when WebSearch/Parallel insufficient | Industry consensus, statistical data, multiple perspectives |
+
+### Priority 4: Context7 (Technical Docs)
+
+| Tool | Use For | Examples |
+|------|---------|----------|
 | **Context7** | Library/framework docs, API references, technical specifications | "How does React useEffect work?", "Check latest API docs" |
 
 **Decision tree:**
 ```
 Need research?
-├─ Specific URL? → Firecrawl
+├─ Specific URL? → WebFetch → Parallel Search
 ├─ Technical docs/APIs? → Context7
-└─ Everything else → Perplexity
+├─ General search? → WebSearch → Parallel Search → Perplexity
+└─ Complex synthesis? → Parallel Search
 ```
+
+**Rationale:** Built-in tools (WebFetch, WebSearch) are faster and always available. Parallel Search provides advanced agentic mode for synthesis and deep content extraction. Perplexity offers broad surveys when needed. Context7 for official docs only.
 
 ## Synthesizing Findings
 
