@@ -38,14 +38,9 @@ Given task file path `.plans/<project>/review/NNN-task.md`:
    - REJECT: Security <80 OR any CRITICAL findings
    - HIGH findings acceptable with justification
 
-5. **Update task file** using `scripts/task-helpers.sh`:
-   ```bash
-   # Approve
-   ./scripts/task-helpers.sh update_status "$task_file" "APPROVED"
-
-   # Or reject
-   ./scripts/task-helpers.sh update_status "$task_file" "REJECTED"
-   ```
+5. **Update task status** using Edit tool:
+   - If approved: Find `**Status:** [current status]` → Replace `**Status:** APPROVED`
+   - If rejected: Find `**Status:** [current status]` → Replace `**Status:** REJECTED`
 
 6. **Append notes** (see formats below) - include agent findings
 7. **Report completion**
