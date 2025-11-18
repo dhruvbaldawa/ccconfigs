@@ -15,9 +15,9 @@ update_status() {
   # Create backup
   cp "$task_file" "${task_file}.bak"
 
-  # Update status atomically using sed
+  # Update status atomically using sed (cross-platform: macOS and Linux)
   if grep -q "^\*\*Status:\*\* " "$task_file"; then
-    sed -i "s/^\*\*Status:\*\* .*/\*\*Status:\*\* $new_status/" "$task_file"
+    sed "s/^\*\*Status:\*\* .*/\*\*Status:\*\* $new_status/" "$task_file" > "${task_file}.tmp" && mv "${task_file}.tmp" "$task_file"
   else
     echo "✗ No Status field found in $task_file" >&2
     mv "${task_file}.bak" "$task_file"
