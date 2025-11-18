@@ -27,9 +27,6 @@
       "Bash(uv sync:*)",
       "WebFetch(domain:*)",
       "WebSearch",
-      "mcp__plugin_essentials_firecrawl",
-      "mcp__plugin_essentials_perplexity",
-      "mcp__plugin_essentials_sequential-thinking",
       "Skill"
     ],
     "ask": [

@@ -1,25 +1,5 @@
 {
   "mcpServers": {
-    "firecrawl": {
-      "type": "stdio",
-      "command": "pnpx",
-      "args": [
-        "firecrawl-mcp"
-      ],
-      "env": {
-        "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
-      }
-    },
-    "perplexity": {
-      "type": "stdio",
-      "command": "pnpx",
-      "args": [
-        "perplexity-mcp"
-      ],
-      "env": {
-        "PERPLEXITY_API_KEY": "${PERPLEXITY_API_KEY}"
-      }
-    },
     "context7": {
       "type": "stdio",
       "command": "pnpx",
@@ -38,10 +18,7 @@
     },
     "parallel-search": {
       "type": "http",
-      "url": "https://search-mcp.parallel.ai/mcp",
-      "headers": {
-        "Authorization": "Bearer ${PARALLEL_API_KEY}"
-      }
+      "url": "https://search-mcp.parallel.ai/mcp"
     },
     "perplexity": {
       "type": "stdio",
