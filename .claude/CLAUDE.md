@@ -88,6 +88,19 @@ Configuration files only (JSON and Markdown). No build, test, or lint commands.
 - Global configuration in `config/` is version controlled and symlinked to `~/.claude/`
 - Run `./setup-symlinks.sh` after cloning to set up global config symlinks
 
+### Installation Location
+
+The experimental plugin's helper scripts expect the repository to be located at `~/ccconfigs` by default. If you've cloned it to a different location, set the `CCCONFIGS_ROOT` environment variable:
+
+```bash
+export CCCONFIGS_ROOT="$HOME/your/custom/path/ccconfigs"
+```
+
+Add this to your shell configuration (`~/.bashrc`, `~/.zshrc`, etc.) to make it persistent.
+
+**Helper scripts that use this:**
+- `experimental/scripts/task-helpers.sh` - Atomic task file operations for the experimental workflow
+
 ### Adding to This Repository
 
 **New plugins**: Create sibling directory to `essentials/` or `writing/`, then register in `.claude-plugin/marketplace.json`

@@ -61,7 +61,7 @@ Find task in `pending/` with met dependencies (check Dependencies field, verify 
 - **Invoke implementing-tasks skill** - follow its complete process
   - Critical: ALL tests must pass (no exceptions, no "tests not part of task" rationalizations)
   - Critical: ALL linting/quality checks must pass (fix ALL issues, not just task-specific ones)
-  - Critical: Use `bash experimental/scripts/task-helpers.sh update_status` (not Edit tool)
+  - Critical: Use `bash "${CCCONFIGS_ROOT:-$HOME/ccconfigs}/experimental/scripts/task-helpers.sh" update_status` (not Edit tool)
   - If STUCK: Launch research agents per skill guidance
 - Read Status from task file after update
 - If `READY_FOR_REVIEW`: Move to `review/`, report "Task X/Y → review"
@@ -74,7 +74,7 @@ Find task in `pending/` with met dependencies (check Dependencies field, verify 
   - Critical: Verify ALL linting/quality checks passing (no warnings, no "not part of task" excuses)
   - Critical: Launch all 3 review agents in parallel (test-coverage-analyzer, error-handling-reviewer, security-reviewer)
   - Critical: REJECT if Security <80 OR any CRITICAL findings OR any tests failing OR any linting errors
-  - Critical: Use `bash experimental/scripts/task-helpers.sh update_status` (not Edit tool)
+  - Critical: Use `bash "${CCCONFIGS_ROOT:-$HOME/ccconfigs}/experimental/scripts/task-helpers.sh" update_status` (not Edit tool)
 - Read Status from task file after update
 - If `APPROVED`: Move to `testing/`, report "✅ Task X/Y approved → testing"
 - If `REJECTED`:
@@ -88,7 +88,7 @@ Find task in `pending/` with met dependencies (check Dependencies field, verify 
   - Critical: Re-validate ALL tests passing (full suite, no skips)
   - Critical: Re-validate ALL linting/quality checks passing (no regressions)
   - Critical: Verify >80% statement coverage, >75% branch coverage
-  - Critical: Use `bash experimental/scripts/task-helpers.sh update_status` (not Edit tool)
+  - Critical: Use `bash "${CCCONFIGS_ROOT:-$HOME/ccconfigs}/experimental/scripts/task-helpers.sh" update_status` (not Edit tool)
 - Read Status from task file after update
 - If `COMPLETED`: Move to `completed/`, report "✅ Task X/Y completed"
 - If `NEEDS_FIX`: Move back to `implementation/`, loop back to step 2

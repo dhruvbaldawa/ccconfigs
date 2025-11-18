@@ -40,11 +40,11 @@ Given task file path `.plans/<project>/review/NNN-task.md`:
 
 5. **Update task file** using `scripts/task-helpers.sh`:
    ```bash
-   # Approve
-   ./scripts/task-helpers.sh update_status "$task_file" "APPROVED"
+   # Approve (use absolute path since working directory may vary)
+   bash "${CCCONFIGS_ROOT:-$HOME/ccconfigs}/experimental/scripts/task-helpers.sh" update_status "$task_file" "APPROVED"
 
    # Or reject
-   ./scripts/task-helpers.sh update_status "$task_file" "REJECTED"
+   bash "${CCCONFIGS_ROOT:-$HOME/ccconfigs}/experimental/scripts/task-helpers.sh" update_status "$task_file" "REJECTED"
    ```
 
 6. **Append notes** (see formats below) - include agent findings

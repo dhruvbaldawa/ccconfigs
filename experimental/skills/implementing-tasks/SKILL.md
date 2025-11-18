@@ -13,8 +13,8 @@ Given task file path `.plans/<project>/implementation/NNN-task.md`:
 2. Follow LLM Prompt step-by-step, write code + tests, run full suite
 3. Update task file using `scripts/task-helpers.sh`:
    ```bash
-   # Update status atomically
-   ./scripts/task-helpers.sh update_status "$task_file" "READY_FOR_REVIEW"
+   # Update status atomically (use absolute path since working directory may vary)
+   bash "${CCCONFIGS_ROOT:-$HOME/ccconfigs}/experimental/scripts/task-helpers.sh" update_status "$task_file" "READY_FOR_REVIEW"
 
    # Append notes
    cat >> "$task_file" <<EOF
@@ -37,7 +37,7 @@ When blocked during implementation:
 
 ### 1. Mark Task as Stuck
 ```bash
-./scripts/task-helpers.sh update_status "$task_file" "STUCK"
+bash "${CCCONFIGS_ROOT:-$HOME/ccconfigs}/experimental/scripts/task-helpers.sh" update_status "$task_file" "STUCK"
 
 cat >> "$task_file" <<EOF
 

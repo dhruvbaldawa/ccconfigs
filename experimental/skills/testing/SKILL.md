@@ -15,7 +15,8 @@ Given task file path `.plans/<project>/testing/NNN-task.md`:
 4. Run coverage - verify >80% statements, >75% branches
 5. Update task file using `scripts/task-helpers.sh`:
    ```bash
-   ./scripts/task-helpers.sh update_status "$task_file" "COMPLETED"
+   # Use absolute path since working directory may vary
+   bash "${CCCONFIGS_ROOT:-$HOME/ccconfigs}/experimental/scripts/task-helpers.sh" update_status "$task_file" "COMPLETED"
 
    cat >> "$task_file" <<EOF
 
@@ -49,7 +50,7 @@ If tests fail or coverage <80%:
 - Fix test scenarios first
 - If code bug found:
   ```bash
-  ./scripts/task-helpers.sh update_status "$task_file" "NEEDS_FIX"
+  bash "${CCCONFIGS_ROOT:-$HOME/ccconfigs}/experimental/scripts/task-helpers.sh" update_status "$task_file" "NEEDS_FIX"
 
   cat >> "$task_file" <<EOF
 
