@@ -66,6 +66,7 @@ ccconfigs/
     │       └── security-reviewer.md         # OWASP Top 10 vulnerabilities (sonnet)
     ├── commands/                  # Workflow commands
     │   ├── plan-feature.md       # Create .plans/ with risk-prioritized tasks
+    │   ├── add-task.md           # Add ad-hoc task to existing project
     │   ├── implement-plan.md     # Execute tasks through kanban workflow
     │   └── orchestrate.md        # End-to-end: planning → implementation → review
     └── skills/                    # Workflow skills (invoked by commands)
@@ -246,6 +247,8 @@ See `essentials/skills/research-synthesis/reference/multi-agent-invocation.md` f
 ### Slash Commands
 
 **`/plan-feature [REQUEST]`**: Creates `.plans/<project>/` with risk-prioritized tasks. Invokes planning skill which uses technical-planning skill for risk analysis and launches exploration agents (architecture-explorer + codebase-analyzer) in parallel to understand existing patterns. Generates task files in pending/ following Last Responsible Moment principle.
+
+**`/add-task [PROJECT] [TASK DESCRIPTION]`**: Adds a single ad-hoc task to an existing project's pending queue without full planning. Creates properly formatted task file in `.plans/<project>/pending/` with auto-incremented task number. Useful for adding tasks discovered during implementation or tracking quick work items. Prompts for project if not specified. Simpler than `/plan-feature` - no exploration agents or risk analysis, just scaffolds task structure for manual refinement.
 
 **`/implement-plan [PROJECT] [--auto]`**: Executes tasks through kanban workflow with end-to-end completion per task (implementation → review → fix issues → commit → next task). Creates granular sub-todos for each task (read requirements, implement, test, review, address issues, commit). With `--auto` flag, automatically commits and continues to next task; without flag, stops after each task for human review. Uses smart commit strategy (commits after testing, or before review for complex changes > 200 lines). Commit messages describe what was accomplished (not task numbers). Invokes implementing-tasks skill which launches research agents when stuck, reviewing-code skill which launches all 3 review agents in parallel, and testing skill for validation.
 

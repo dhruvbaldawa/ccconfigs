@@ -13,10 +13,13 @@ Multi-skill orchestration plugin coordinating specialized skills via physical fi
 # Plan a feature
 /plan-feature Add user authentication with JWT
 
+# Add ad-hoc task to existing project
+/add-task user-authentication Add email verification
+
 # Execute the plan
 /implement-plan user-authentication
 
-# Or do both
+# Or do both planning and implementation
 /orchestrate Build real-time notifications
 ```
 
@@ -101,6 +104,46 @@ mv testing/002-login.md completed/002-login.md
 - Checks coverage >80% statements, >75% branches
 - **Updates task file:** Status → "COMPLETED", appends testing notes with coverage
 - **Runs in main conversation** → you see test validation, coverage reports
+
+## Slash Commands
+
+### `/plan-feature [REQUEST]`
+Creates `.plans/<project>/` with risk-prioritized tasks following Last Responsible Moment principle.
+- Invokes **planning skill** (uses technical-planning + exploration agents)
+- Launches architecture-explorer and codebase-analyzer in parallel
+- Generates task files in `pending/` with LLM Prompt blocks
+- Documents deferred items with rationale
+
+**Example:** `/plan-feature Add user authentication with JWT`
+
+### `/add-task [PROJECT] [TASK DESCRIPTION]`
+Adds a single ad-hoc task to an existing project without full planning workflow.
+- Auto-increments task number by scanning existing tasks
+- Creates properly formatted task file in `pending/`
+- Prompts for project if not specified
+- Simpler than `/plan-feature` - no exploration agents or risk analysis
+- Useful for tasks discovered during implementation
+
+**Examples:**
+- `/add-task auth Add rate limiting to login endpoint`
+- `/add-task Add email verification` (prompts for project)
+
+### `/implement-plan [PROJECT] [--auto]`
+Executes tasks through kanban workflow (pending → implementation → review → testing → completed).
+- Creates granular sub-todos for each task
+- Launches research agents when stuck
+- Launches all 3 review agents in parallel for comprehensive analysis
+- With `--auto` flag: automatically commits and continues to next task
+- Without flag: stops after each task for human review
+
+**Example:** `/implement-plan user-authentication --auto`
+
+### `/orchestrate [REQUEST]`
+End-to-end workflow from planning through completion.
+- Combines `/plan-feature` and `/implement-plan`
+- User confirmation between phases
+
+**Example:** `/orchestrate Build real-time notifications`
 
 ## Task File (Single Source of Truth)
 
@@ -303,6 +346,14 @@ Integration:     _____ × 2
 7. Testing writes 12 unit tests, 94% coverage
 8. `mv testing/001-*.md completed/001-*.md`
 9. Repeat for 002-006
+
+**Add task mid-implementation:**
+```bash
+# Discovered we need email verification
+/add-task user-auth Add email verification to registration flow
+```
+
+Creates `007-add-email-verification.md` in `pending/`, ready to be implemented after current tasks complete.
 
 **Result:**
 ```

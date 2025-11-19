@@ -210,6 +210,8 @@ Multi-skill workflow system using kanban file movement for complex, high-value d
 
 - **`/plan-feature [REQUEST]`**: Creates `.plans/<project>/` with risk-prioritized tasks. Launches exploration agents (architecture-explorer + codebase-analyzer) in parallel to understand existing patterns. Generates task files in pending/ following Last Responsible Moment principle.
 
+- **`/add-task [PROJECT] [TASK DESCRIPTION]`**: Adds a single ad-hoc task to an existing project's pending queue without full planning. Creates properly formatted task file with auto-incremented task number. Useful for adding tasks discovered during implementation. Prompts for project if not specified.
+
 - **`/implement-plan [PROJECT]`**: Executes tasks through kanban workflow (pending → implementation → review → testing → completed). Launches research agents when stuck, review agents (all 3) in parallel for comprehensive analysis.
 
 - **`/orchestrate [REQUEST]`**: End-to-end workflow from planning through completion. Combines `/plan-feature` and `/implement-plan` in single command with user confirmation between phases.
@@ -285,6 +287,7 @@ ccconfigs/
     │       └── security-reviewer.md
     ├── commands/                  # Workflow commands
     │   ├── plan-feature.md
+    │   ├── add-task.md
     │   ├── implement-plan.md
     │   └── orchestrate.md
     └── skills/                    # Workflow skills
