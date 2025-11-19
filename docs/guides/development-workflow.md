@@ -56,6 +56,15 @@ pending → implementation → review → testing → completed
 # │   └── 003-integration-tests.md
 ```
 
+**Adding tasks mid-implementation:**
+```bash
+# During implementation, discovered need for monitoring
+/add-task rate-limiting Add Prometheus metrics for rate limit hits
+
+# Creates: .plans/rate-limiting/pending/004-add-prometheus-metrics.md
+# Will be implemented after current tasks complete
+```
+
 ### Pattern 2: Discovery + Development (Vague Ideas)
 
 **Use when:** Idea is vague, constraints unclear, multiple approaches possible
@@ -193,6 +202,24 @@ Just planning, no implementation:
 ```
 
 Creates `.plans/<project>/` with plan and tasks.
+
+### /add-task
+
+Add single ad-hoc task to existing project:
+```bash
+/add-task <project-name> <task description>
+/add-task auth Add rate limiting to login endpoint
+/add-task Add email verification  # Prompts for project
+```
+
+**Use when:**
+- Discovered new task during implementation
+- Quick task additions without full planning
+- Manual task tracking needed
+
+**Creates:** Properly formatted task file in `pending/` with auto-incremented number.
+
+**Simpler than `/plan-feature`:** No exploration agents or risk analysis, just scaffolds task structure.
 
 ### /implement-plan
 
@@ -390,8 +417,30 @@ You can iterate:
 # Execute
 /implement-plan in-app-notifications
 
-# Later, add more
+# During implementation, discover new requirements
+/add-task in-app-notifications Add WebSocket reconnection logic
+/add-task in-app-notifications Add notification preferences UI
+
+# Later, add more features
 /plan-feature Push notifications (reads existing in-app code)
+```
+
+### Manual Task Tracking
+
+For simple task tracking without full planning workflow:
+```bash
+# Create project structure first
+mkdir -p .plans/bug-fixes/{pending,implementation,review,testing,completed}
+
+# Add tasks as you discover them
+/add-task bug-fixes Fix login timeout issue
+/add-task bug-fixes Update deprecated API endpoints
+/add-task bug-fixes Add error handling to payment flow
+
+# Execute when ready
+/implement-plan bug-fixes
+
+# Result: Structured workflow for ad-hoc work
 ```
 
 ## Troubleshooting
