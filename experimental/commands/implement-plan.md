@@ -93,41 +93,81 @@ Find task in `pending/` with met dependencies (check Dependencies field, verify 
 #### 5. Commit Phase
 After successful review (Status = APPROVED):
 
-**Smart commit strategy:**
-- **Simple changes** (< 200 lines, single file): Commit after review
-- **Complex changes** (> 200 lines, multiple files, significant refactoring): Commit after review (tests already validated in testing phase)
+**CRITICAL: Detect --auto flag before any commit action**
 
-**Create descriptive commit message:**
-- Read task file to understand Goal and Working Result
-- Draft commit message that describes **what was accomplished** (not "Complete task NNN")
-- Use conventional commit format if applicable (feat:, fix:, refactor:, etc.)
-- Example: "Add user authentication with JWT tokens" NOT "Complete task 001"
+STEP 1: Check command arguments for "--auto" flag
+- Parse the original command arguments: `{{ARGS}}`
+- Output explicitly: "Flag check: --auto is [PRESENT/ABSENT]"
 
-**If `--auto` flag present:**
-- Commit changes automatically:
-  ```bash
-  git add .
-  git commit -m "$(cat <<'EOF'
-  [Descriptive commit message]
-  EOF
-  )"
-  ```
-- Report: `✅ Task X/Y committed, moving to next task...`
-- Continue to next task (loop back to step 0)
+STEP 2: Route to the correct workflow based on flag detection
 
-**If `--auto` flag NOT present:**
-- Report: `✅ Task X/Y completed. Ready to commit with message:`
-  ```
-  [Show descriptive commit message]
-  ```
-- STOP and wait for user confirmation
-- User should review changes and respond with:
-  - "commit" or "yes" → Create the commit and ask if they want to continue to next task
-  - "skip" → Move to next task without committing
-  - "edit" → Wait for user to provide modified commit message, then commit
-- After committing (if confirmed), ask: "Continue to next task?"
-  - If yes: Loop back to step 0
-  - If no: STOP (user can resume with `/implement-plan {{ARGS}}` later)
+<auto_flag_absent>
+**DEFAULT BEHAVIOR (--auto flag ABSENT):**
+
+This is the MOST COMMON case. DO NOT commit automatically.
+
+You MUST follow this exact sequence:
+
+1. Draft descriptive commit message:
+   - Read task file to understand Goal and Working Result
+   - Describe **what was accomplished** (not "Complete task NNN")
+   - Use conventional commit format if applicable (feat:, fix:, refactor:, etc.)
+   - Example: "Add user authentication with JWT tokens" NOT "Complete task 001"
+
+2. Report to user:
+   ```
+   ✅ Task X/Y completed and approved.
+
+   Proposed commit message:
+   [Show full commit message here]
+
+   Ready to commit. Please respond:
+   - "commit" or "yes" to proceed with commit
+   - "skip" to move to next task without committing
+   - "edit [message]" to use a different commit message
+   ```
+
+3. STOP and WAIT for user response
+   - DO NOT proceed until user responds
+   - DO NOT commit automatically
+   - DO NOT continue to next task
+
+4. After user responds:
+   - If "commit" or "yes":
+     * Execute git commit with the proposed message
+     * Ask: "Continue to next task?"
+     * WAIT for user response before proceeding
+   - If "skip":
+     * Move to next task without committing
+   - If "edit [message]":
+     * Execute git commit with their provided message
+     * Ask: "Continue to next task?"
+     * WAIT for user response before proceeding
+</auto_flag_absent>
+
+<auto_flag_present>
+**AUTOMATIC BEHAVIOR (--auto flag PRESENT):**
+
+Only use this workflow if "--auto" was detected in command arguments.
+
+1. Draft descriptive commit message:
+   - Read task file to understand Goal and Working Result
+   - Describe **what was accomplished** (not "Complete task NNN")
+   - Use conventional commit format if applicable (feat:, fix:, refactor:, etc.)
+
+2. Execute git commit automatically:
+   ```bash
+   git add .
+   git commit -m "$(cat <<'EOF'
+   [Descriptive commit message]
+   EOF
+   )"
+   ```
+
+3. Report: `✅ Task X/Y committed automatically, moving to next task...`
+
+4. Continue to next task immediately (loop back to step 0)
+</auto_flag_present>
 
 #### 6. Progress Update
 After each task: `Progress: X/Y completed | Z in-flight | W pending`
@@ -162,11 +202,12 @@ Review: git log --oneline -X
 
 - **End-to-end per task**: Each task goes through implementation → testing → review → commit → next task
 - **Meaningful todos**: Creates specific, actionable todos based on actual work (not generic templates)
-- **Smart commits**: Commits after review (tests already validated in testing phase)
-- **Auto mode** (`--auto` flag): Commits automatically and continues to next task without stopping
-- **Manual mode** (no `--auto` flag): Stops BEFORE committing for user review. User must confirm commit ("commit"/"yes"), can skip ("skip"), or edit message ("edit"). After commit, asks if user wants to continue to next task.
+- **Commit timing**: Always after review approval (tests already validated in testing phase)
+- **Flag detection**: Always checks for `--auto` flag and explicitly reports whether it's PRESENT or ABSENT
+- **Auto mode** (`--auto` flag PRESENT): Commits automatically and continues to next task without stopping
+- **Manual mode** (`--auto` flag ABSENT - DEFAULT): Stops BEFORE committing. Displays proposed commit message and WAITS for user confirmation ("commit"/"yes"), skip request ("skip"), or edit request ("edit [message]"). After commit, asks if user wants to continue to next task.
 - **Descriptive commits**: Commit messages describe what was accomplished (not task numbers)
-- Skills run in main conversation (full visibility)
-- Orchestrator moves files based on Status field
-- State persists (resume anytime with `/implement-plan {{ARGS}}`)
-- Track rejection count per task (warn if >3)
+- **Skills run in main conversation** (full visibility)
+- **Orchestrator moves files** based on Status field
+- **State persists** (resume anytime with `/implement-plan {{ARGS}}`)
+- **Track rejection count** per task (warn if >3)
