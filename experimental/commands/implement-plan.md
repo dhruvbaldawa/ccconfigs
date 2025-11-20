@@ -84,22 +84,31 @@ Find task in `pending/` with met dependencies (check Dependencies field, verify 
   - Critical: Launch all 3 review agents in parallel (test-coverage-analyzer, error-handling-reviewer, security-reviewer)
   - Critical: REJECT if Security <80 OR any CRITICAL findings OR any tests failing OR any linting errors
 - Read Status from task file after update
-- If `APPROVED`: Move to `completed/`, report "✅ Task X/Y approved"
+- If `APPROVED`:
+  - Move to `completed/`, report "✅ Task X/Y approved"
+  - **PROCEED to Commit Phase (step 5)**
 - If `REJECTED`:
   - Move back to `implementation/`, show rejection reasons
   - Fix ALL blocking issues from review
   - Loop back to step 2 (re-implement → re-test → re-review)
+  - **SKIP Commit Phase** (task not approved)
 
 #### 5. Commit Phase
-After successful review (Status = APPROVED):
+**CRITICAL: Only execute this phase if Status = APPROVED from review phase**
+
+After successful review approval:
 
 **CRITICAL: Detect --auto flag before any commit action**
 
 STEP 1: Check command arguments for "--auto" flag
 - Parse the original command arguments: `{{ARGS}}`
-- Output explicitly: "Flag check: --auto is [PRESENT/ABSENT]"
+- Search for exact string "--auto" in arguments
+- Output explicitly: "🔍 Flag check: --auto is [PRESENT/ABSENT] in arguments: {{ARGS}}"
+- If --auto NOT found, DEFAULT to manual mode (wait for confirmation)
 
 STEP 2: Route to the correct workflow based on flag detection
+- If "--auto" found in arguments: Execute <auto_flag_present> workflow
+- If "--auto" NOT found in arguments: Execute <auto_flag_absent> workflow (DEFAULT)
 
 <auto_flag_absent>
 **DEFAULT BEHAVIOR (--auto flag ABSENT):**
@@ -201,9 +210,11 @@ Review: git log --oneline -X
 ## Notes
 
 - **End-to-end per task**: Each task goes through implementation → testing → review → commit → next task
+- **Proper flow**: Implementation sets READY_FOR_TESTING → Testing validates tests + linting + typechecking, sets READY_FOR_REVIEW → Review approves/rejects → Only APPROVED tasks proceed to commit
+- **Quality gates**: Testing phase MUST run linting and type checking (0 errors required) before moving to review
 - **Meaningful todos**: Creates specific, actionable todos based on actual work (not generic templates)
-- **Commit timing**: Always after review approval (tests already validated in testing phase)
-- **Flag detection**: Always checks for `--auto` flag and explicitly reports whether it's PRESENT or ABSENT
+- **Commit timing**: ONLY after Status = APPROVED from review phase (never before review)
+- **Flag detection**: Always checks for exact `--auto` string in arguments and explicitly reports whether it's PRESENT or ABSENT. Defaults to manual mode if not found.
 - **Auto mode** (`--auto` flag PRESENT): Commits automatically and continues to next task without stopping
 - **Manual mode** (`--auto` flag ABSENT - DEFAULT): Stops BEFORE committing. Displays proposed commit message and WAITS for user confirmation ("commit"/"yes"), skip request ("skip"), or edit request ("edit [message]"). After commit, asks if user wants to continue to next task.
 - **Descriptive commits**: Commit messages describe what was accomplished (not task numbers)

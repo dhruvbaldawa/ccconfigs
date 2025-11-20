@@ -12,11 +12,16 @@ Given task file path `.plans/<project>/testing/NNN-task.md`:
 1. Validate existing tests - behavior-focused? Covers Validation?
 2. Identify gaps - empty/null inputs, boundaries, errors, race conditions, security
 3. Add minimal tests if genuinely missing
-4. Run coverage - verify >80% statements, >75% branches
-5. Update task status using Edit tool:
+4. Run full test suite - verify all tests passing
+5. Run quality checks:
+   - **Linting**: Run project's linter (eslint, pylint, ruff, etc.) - must pass with 0 errors
+   - **Type checking**: Run type checker (tsc, mypy, etc.) - must pass with 0 errors
+   - Fix ALL issues found (no exceptions, no "not part of task" rationalizations)
+6. Run coverage - verify >80% statements, >75% branches
+7. Update task status using Edit tool:
    - Find: `**Status:** [current status]`
-   - Replace: `**Status:** COMPLETED`
-6. Append testing notes:
+   - Replace: `**Status:** READY_FOR_REVIEW`
+8. Append testing notes:
    ```bash
    cat >> "$task_file" <<EOF
 
@@ -27,15 +32,19 @@ Given task file path `.plans/<project>/testing/NNN-task.md`:
    - [Test description]
    - [Test description]
 
+   Quality checks:
+   - Linting: ✓ Passed (0 errors)
+   - Type checking: ✓ Passed (0 errors)
+
    Test breakdown: Unit: X | Integration: Y | Total: Z
    Coverage: Statements: XX% | Branches: XX% | Functions: XX% | Lines: XX%
    Full suite: XXX/XXX passing
    Working Result verified: ✓ [description]
 
-   COMPLETED
+   READY_FOR_REVIEW
    EOF
    ```
-7. Report completion
+9. Report completion
 
 ## Test Quality
 
@@ -46,8 +55,9 @@ Granularity: Pure functions → Unit | DB/API → Integration | Critical workflo
 
 ## Failure Handling
 
-If tests fail or coverage <80%:
+If tests fail, quality checks fail, or coverage <80%:
 - Fix test scenarios first
+- Fix ALL linting and type checking errors (no exceptions)
 - If code bug found:
   - Update status using Edit tool: Find `**Status:** [current status]` → Replace `**Status:** NEEDS_FIX`
   - Append notes:
@@ -58,6 +68,10 @@ If tests fail or coverage <80%:
     Found issues:
     - [Specific issue]
     - [Specific issue]
+
+    Quality check failures:
+    - Linting: [X] errors
+    - Type checking: [Y] errors
 
     Requires code fixes. Moving back to implementation.
     EOF

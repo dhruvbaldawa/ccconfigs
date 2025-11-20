@@ -13,7 +13,7 @@ Given task file path `.plans/<project>/implementation/NNN-task.md`:
 2. Follow LLM Prompt step-by-step, write code + tests, run full suite
 3. Update task status using Edit tool:
    - Find: `**Status:** [current status]`
-   - Replace: `**Status:** READY_FOR_REVIEW`
+   - Replace: `**Status:** READY_FOR_TESTING`
 4. Append implementation notes using bash:
    ```bash
    cat >> "$task_file" <<EOF
@@ -127,7 +127,7 @@ Then STOP and report blocker with full context.
 If task moved back from review:
 1. Read review notes for issues
 2. Fix all blocking issues
-3. Update status to `READY_FOR_REVIEW` again
+3. Update status to `READY_FOR_TESTING` again
 4. Append revision notes:
    ```
    **implementation (revision):**
