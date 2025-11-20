@@ -103,22 +103,31 @@ After successful testing (Status = COMPLETED):
 - Use conventional commit format if applicable (feat:, fix:, refactor:, etc.)
 - Example: "Add user authentication with JWT tokens" NOT "Complete task 001"
 
-**Commit changes:**
-```bash
-git add .
-git commit -m "$(cat <<'EOF'
-[Descriptive commit message]
-EOF
-)"
-```
-
 **If `--auto` flag present:**
+- Commit changes automatically:
+  ```bash
+  git add .
+  git commit -m "$(cat <<'EOF'
+  [Descriptive commit message]
+  EOF
+  )"
+  ```
 - Report: `✅ Task X/Y committed, moving to next task...`
 - Continue to next task (loop back to step 0)
 
 **If `--auto` flag NOT present:**
-- Report: `✅ Task X/Y completed and committed. Stop for human review.`
-- STOP and wait for user to run `/implement-plan {{ARGS}}` again to continue
+- Report: `✅ Task X/Y completed. Ready to commit with message:`
+  ```
+  [Show descriptive commit message]
+  ```
+- STOP and wait for user confirmation
+- User should review changes and respond with:
+  - "commit" or "yes" → Create the commit and ask if they want to continue to next task
+  - "skip" → Move to next task without committing
+  - "edit" → Wait for user to provide modified commit message, then commit
+- After committing (if confirmed), ask: "Continue to next task?"
+  - If yes: Loop back to step 0
+  - If no: STOP (user can resume with `/implement-plan {{ARGS}}` later)
 
 #### 6. Progress Update
 After each task: `Progress: X/Y completed | Z in-flight | W pending`
@@ -151,11 +160,11 @@ Review: git log --oneline -X
 
 ## Notes
 
-- **End-to-end per task**: Each task goes through implementation → review → fix issues → commit → next task
+- **End-to-end per task**: Each task goes through implementation → review → fix issues → testing → commit → next task
 - **Meaningful todos**: Creates specific, actionable todos based on actual work (not generic templates)
 - **Smart commits**: Commits after testing, or before review for complex changes (> 200 lines)
-- **Auto mode**: With `--auto` flag, commits and continues to next task automatically
-- **Manual mode**: Without `--auto`, stops after each task for human review
+- **Auto mode** (`--auto` flag): Commits automatically and continues to next task without stopping
+- **Manual mode** (no `--auto` flag): Stops BEFORE committing for user review. User must confirm commit ("commit"/"yes"), can skip ("skip"), or edit message ("edit"). After commit, asks if user wants to continue to next task.
 - **Descriptive commits**: Commit messages describe what was accomplished (not task numbers)
 - Skills run in main conversation (full visibility)
 - Orchestrator moves files based on Status field
