@@ -1,5 +1,5 @@
 ---
-description: Execute tasks from pending/ through Kanban flow (implementation → review → testing)
+description: Execute tasks from pending/ through Kanban flow (implementation → testing → review)
 argument-hint: [PROJECT] [--auto]
 ---
 
@@ -19,7 +19,7 @@ Execute tasks from `.plans/{{ARGS}}/pending/` through Kanban flow.
 
 ## Your Task
 
-Orchestrate **implementation**, **review**, and **testing** skills to complete all tasks **end-to-end** per task.
+Orchestrate **implementation**, **testing**, and **review** skills to complete all tasks **end-to-end** per task.
 
 ### Setup
 
@@ -63,10 +63,20 @@ Find task in `pending/` with met dependencies (check Dependencies field, verify 
   - Critical: ALL linting/quality checks must pass (fix ALL issues, not just task-specific ones)
   - If STUCK: Launch research agents per skill guidance
 - Read Status from task file after update
-- If `READY_FOR_REVIEW`: Move to `review/`, report "Task X/Y → review"
+- If `READY_FOR_TESTING`: Move to `testing/`, report "Task X/Y → testing"
 - If `STUCK`: STOP, show blocker, ask user how to proceed
 
-#### 3. Review Phase
+#### 3. Testing Phase
+- Report: `🧪 Testing Task X/Y: [name]`
+- **Invoke testing skill** - follow its complete process
+  - Critical: Validate ALL tests passing (full suite, no skips)
+  - Critical: Validate ALL linting/quality checks passing (no regressions)
+  - Critical: Verify >80% statement coverage, >75% branch coverage
+- Read Status from task file after update
+- If `READY_FOR_REVIEW`: Move to `review/`, report "Task X/Y → review"
+- If `NEEDS_FIX`: Move back to `implementation/`, loop back to step 2
+
+#### 4. Review Phase
 - Report: `🔍 Reviewing Task X/Y: [name]`
 - **Invoke reviewing-code skill** - follow its complete process, do NOT skip steps or substitute ad-hoc reviews
   - Critical: Verify ALL tests passing (run full test suite, no exceptions)
@@ -74,28 +84,18 @@ Find task in `pending/` with met dependencies (check Dependencies field, verify 
   - Critical: Launch all 3 review agents in parallel (test-coverage-analyzer, error-handling-reviewer, security-reviewer)
   - Critical: REJECT if Security <80 OR any CRITICAL findings OR any tests failing OR any linting errors
 - Read Status from task file after update
-- If `APPROVED`: Move to `testing/`, report "✅ Task X/Y approved → testing"
+- If `APPROVED`: Move to `completed/`, report "✅ Task X/Y approved"
 - If `REJECTED`:
   - Move back to `implementation/`, show rejection reasons
   - Fix ALL blocking issues from review
-  - Loop back to step 3 for re-review
-
-#### 4. Testing Phase
-- Report: `🧪 Testing Task X/Y: [name]`
-- **Invoke testing skill** - follow its complete process
-  - Critical: Re-validate ALL tests passing (full suite, no skips)
-  - Critical: Re-validate ALL linting/quality checks passing (no regressions)
-  - Critical: Verify >80% statement coverage, >75% branch coverage
-- Read Status from task file after update
-- If `COMPLETED`: Move to `completed/`, report "✅ Task X/Y completed"
-- If `NEEDS_FIX`: Move back to `implementation/`, loop back to step 2
+  - Loop back to step 2 (re-implement → re-test → re-review)
 
 #### 5. Commit Phase
-After successful testing (Status = COMPLETED):
+After successful review (Status = APPROVED):
 
 **Smart commit strategy:**
-- **Simple changes** (< 200 lines, single file): Commit after testing
-- **Complex changes** (> 200 lines, multiple files, significant refactoring): Commit before review if it makes sense to checkpoint progress
+- **Simple changes** (< 200 lines, single file): Commit after review
+- **Complex changes** (> 200 lines, multiple files, significant refactoring): Commit after review (tests already validated in testing phase)
 
 **Create descriptive commit message:**
 - Read task file to understand Goal and Working Result
@@ -103,22 +103,31 @@ After successful testing (Status = COMPLETED):
 - Use conventional commit format if applicable (feat:, fix:, refactor:, etc.)
 - Example: "Add user authentication with JWT tokens" NOT "Complete task 001"
 
-**Commit changes:**
-```bash
-git add .
-git commit -m "$(cat <<'EOF'
-[Descriptive commit message]
-EOF
-)"
-```
-
 **If `--auto` flag present:**
+- Commit changes automatically:
+  ```bash
+  git add .
+  git commit -m "$(cat <<'EOF'
+  [Descriptive commit message]
+  EOF
+  )"
+  ```
 - Report: `✅ Task X/Y committed, moving to next task...`
 - Continue to next task (loop back to step 0)
 
 **If `--auto` flag NOT present:**
-- Report: `✅ Task X/Y completed and committed. Stop for human review.`
-- STOP and wait for user to run `/implement-plan {{ARGS}}` again to continue
+- Report: `✅ Task X/Y completed. Ready to commit with message:`
+  ```
+  [Show descriptive commit message]
+  ```
+- STOP and wait for user confirmation
+- User should review changes and respond with:
+  - "commit" or "yes" → Create the commit and ask if they want to continue to next task
+  - "skip" → Move to next task without committing
+  - "edit" → Wait for user to provide modified commit message, then commit
+- After committing (if confirmed), ask: "Continue to next task?"
+  - If yes: Loop back to step 0
+  - If no: STOP (user can resume with `/implement-plan {{ARGS}}` later)
 
 #### 6. Progress Update
 After each task: `Progress: X/Y completed | Z in-flight | W pending`
@@ -151,11 +160,11 @@ Review: git log --oneline -X
 
 ## Notes
 
-- **End-to-end per task**: Each task goes through implementation → review → fix issues → commit → next task
+- **End-to-end per task**: Each task goes through implementation → testing → review → commit → next task
 - **Meaningful todos**: Creates specific, actionable todos based on actual work (not generic templates)
-- **Smart commits**: Commits after testing, or before review for complex changes (> 200 lines)
-- **Auto mode**: With `--auto` flag, commits and continues to next task automatically
-- **Manual mode**: Without `--auto`, stops after each task for human review
+- **Smart commits**: Commits after review (tests already validated in testing phase)
+- **Auto mode** (`--auto` flag): Commits automatically and continues to next task without stopping
+- **Manual mode** (no `--auto` flag): Stops BEFORE committing for user review. User must confirm commit ("commit"/"yes"), can skip ("skip"), or edit message ("edit"). After commit, asks if user wants to continue to next task.
 - **Descriptive commits**: Commit messages describe what was accomplished (not task numbers)
 - Skills run in main conversation (full visibility)
 - Orchestrator moves files based on Status field
