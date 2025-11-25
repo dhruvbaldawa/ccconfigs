@@ -1,4 +1,5 @@
 ---
+model: haiku
 allowed-tools: Bash(git:*)
 argument-hint: "[optional: description or specific files]"
 description: "Smart commit workflow - adapts to change size"
