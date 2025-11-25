@@ -1,7 +1,7 @@
 ---
 name: error-handling-reviewer
 description: Reviews error handling quality, identifying silent failures, inadequate logging, and inappropriate fallback behavior
-model: sonnet
+model: haiku
 color: yellow
 ---
 

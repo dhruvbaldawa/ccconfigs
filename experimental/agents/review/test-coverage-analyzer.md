@@ -1,7 +1,7 @@
 ---
 name: test-coverage-analyzer
 description: Analyzes test coverage quality and identifies critical behavioral gaps in code changes
-model: sonnet
+model: haiku
 color: cyan
 ---
 
