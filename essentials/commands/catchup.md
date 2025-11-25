@@ -28,12 +28,11 @@ Current branch: `git rev-parse --abbrev-ref HEAD`
 
 ---
 
-Now I'll analyze the most important changed files to understand what was done.
+## Analysis
 
-Based on the files above, I'll prioritize by significance:
-1. Manifest files (`.claude-plugin/`, `.mcp.json`)
-2. Commands and skills (`.md` files in `commands/` and `skills/`)
-3. Configuration files (`CLAUDE.md`, `settings.json`)
-4. Scripts and supporting code
+Read the key files that were changed (prioritize manifest files, commands, skills, and config), understand the changes, and provide a concise summary including:
 
-Let me read the key files and provide a comprehensive summary of what's been done.
+- What was built or changed (purpose and scope)
+- Why it matters (new capabilities, workflow improvements, config changes)
+- Key impact areas and potential testing focus
+- Any breaking changes or architectural shifts
