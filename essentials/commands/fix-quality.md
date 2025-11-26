@@ -31,10 +31,24 @@ Fix quality issues in `{{ARGS}}` (files, glob pattern, or `.` for entire project
 **1. Gather & Categorize**
 Run linting and type checking tools to collect all issues. Group by: root cause fixable, needs alternative approach, legitimate ignore.
 
+**For large codebases (>20 issues)**: Use TodoWrite to track fixes by category:
+```
+☐ Root cause fixes (X issues)
+  ☐ Remove unused imports (N files)
+  ☐ Fix type errors (N issues)
+  ☐ Add missing return types (N functions)
+☐ Safety alternatives (Y issues)
+☐ Legitimate ignores (Z issues)
+☐ Validate all checks pass
+☐ Run full test suite
+```
+
 **2. Fix in Priority Order**
 - Root causes: Remove unused, fix types, add return types
 - Safety alternatives: Refactor without deteriorating quality
 - Ignores: Document reason, choose local scope, specific rule
+
+Mark todos completed as you fix each category. This prevents losing track when interrupted.
 
 **3. Validate**
 All linting checks + full test suite must pass.
@@ -73,4 +87,3 @@ All checks ✓ | Tests X/X ✓
 - Run full test suite after fixes
 - Review ignores periodically (some may become fixable)
 - If >10% needs ignores, reconsider the rule
-- Use TodoWrite for large codebases

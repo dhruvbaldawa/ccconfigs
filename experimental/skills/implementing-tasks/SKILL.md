@@ -9,6 +9,20 @@ Given task file path `.plans/<project>/implementation/NNN-task.md`:
 
 ## Process
 
+**Use TodoWrite to track implementation progress:**
+```
+☐ Read task file (LLM Prompt, Working Result, Validation)
+☐ [LLM Prompt step 1]
+☐ [LLM Prompt step 2]
+...
+☐ Write tests for new functionality
+☐ Run full test suite
+☐ Mark validation checkboxes
+☐ Update status to READY_FOR_REVIEW
+```
+
+Convert each step from the task's LLM Prompt into a todo. Mark completed as you progress.
+
 1. Read task file - LLM Prompt, Working Result, Validation, Files
 2. Follow LLM Prompt step-by-step, write code + tests, run full suite
 3. Update task status using Edit tool:

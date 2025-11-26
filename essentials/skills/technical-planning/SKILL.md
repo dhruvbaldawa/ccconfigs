@@ -15,6 +15,28 @@ description: Plans technical projects with risk-first development, milestone str
 
 **Managed Deferral**: Explicitly document what's being deferred and when it will be addressed. Distinguish between core value delivery and polish/optimization.
 
+### Progress Tracking with TodoWrite
+
+Use TodoWrite to track planning progress through the four phases:
+
+1. **At start**: Create todos for each phase:
+   ```
+   ☐ Phase 1: Requirements & Risk Analysis
+   ☐ Phase 2: Milestone Planning
+   ☐ Phase 3: Implementation Strategy
+   ☐ Phase 4: Execution Framework
+   ```
+
+2. **During planning**: Mark phases in_progress → completed as you work through them. Add sub-todos for key deliverables:
+   ```
+   ☐ Extract core requirements (2-3 user journeys)
+   ☐ Identify technical risks (high/integration/performance/architecture)
+   ☐ Define milestones with success criteria
+   ☐ Document deferred items with rationale
+   ```
+
+3. **For complex projects**: Track clarifying questions and their resolutions as todos - prevents proceeding with incomplete information
+
 ### Decision Timing Framework
 
 **Decide Early (Requirements Phase)**:
