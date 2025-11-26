@@ -99,15 +99,15 @@ mv testing/002-login.md completed/002-login.md
 ## Slash Commands
 
 ### `/plan-feature [REQUEST]`
-Creates `.plans/<project>/` with risk-prioritized tasks following Last Responsible Moment principle.
-- Directly invokes **technical-planning skill** (from essentials) for risk-first analysis
-- **Milestone-aware**: Detects existing plans and generates next batch of tasks
-- Generates task files in `pending/` with LLM Prompt blocks
+Sprint planning for `.plans/<project>/` - same rigor whether starting fresh or continuing.
+- Always invokes **technical-planning skill** (from essentials) with full risk analysis
+- For continuing sprints: loads context from completed work, applies learnings
+- Generates outcome-focused task files in `pending/` (WHAT and WHY, not HOW)
 - Documents deferred items with rationale
 
 **Examples:**
-- `/plan-feature Add user authentication with JWT` (new project)
-- `/plan-feature user-auth` (continue existing project)
+- `/plan-feature Add user authentication with JWT` (initial sprint)
+- `/plan-feature user-auth` (continuing sprint - loads context first)
 
 ### `/add-task [PROJECT] [TASK DESCRIPTION]`
 Adds a single ad-hoc task to an existing project without full planning workflow.

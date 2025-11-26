@@ -235,7 +235,7 @@ See `essentials/skills/research-synthesis/reference/multi-agent-invocation.md` f
 
 ### Slash Commands
 
-**`/plan-feature [REQUEST]`**: Creates `.plans/<project>/` with risk-prioritized tasks. **Milestone-aware**: detects existing plans and generates next batch of tasks for continuing projects. Directly invokes `technical-planning` skill (from essentials) for risk-first analysis. Generates task files in pending/ following Last Responsible Moment principle.
+**`/plan-feature [REQUEST]`**: Sprint planning for `.plans/<project>/`. Same rigor whether starting fresh or continuing - always invokes `technical-planning` skill (from essentials) with full risk analysis. For continuing sprints, loads context from completed work and applies learnings. Generates outcome-focused task files in pending/ following Last Responsible Moment principle.
 
 **`/add-task [PROJECT] [TASK DESCRIPTION]`**: Adds a single ad-hoc task to an existing project's pending queue without full planning. Creates properly formatted task file in `.plans/<project>/pending/` with auto-incremented task number. Useful for adding tasks discovered during implementation or tracking quick work items. Prompts for project if not specified. Simpler than `/plan-feature` - no risk analysis, just scaffolds task structure for manual refinement.
 
@@ -257,7 +257,7 @@ See `essentials/skills/research-synthesis/reference/multi-agent-invocation.md` f
 - **Parallel invocation**: All agents designed for parallel execution (2-3 research, 3 review)
 - **Skills orchestrate agents**: Skills determine which agents to launch and consolidate findings
 - **Model optimization**: Haiku for research (cost-efficient), Sonnet for review (quality-critical)
-- **Milestone-aware planning**: Planning skill detects existing plans and continues from where you left off, avoiding redundant work
+- **Sprint-based planning**: Same technical-planning rigor every sprint - context accumulates but process stays consistent
 - **Stateful kanban**: Tasks move through directories based on status (pending → implementation → review → testing → completed)
 - **End-to-end per task**: Each task completes fully (implement → review → fix → commit) before moving to next, with granular sub-todos for visibility. Smart commits per task with descriptive messages (not task numbers).
 
@@ -357,4 +357,4 @@ Build artifacts, dependencies, and system dirs: `.git`, `node_modules`, `.next`,
 
 **Parallel agent invocation** (experimental plugin): Agents designed for parallel execution using Promise.all pattern. Research agents (2-3 launched together), review agents (all 3 launched together). Skills consolidate findings using confidence scores, severity ratings, and synthesis methodology. This reduces latency and provides comprehensive analysis from multiple specialized perspectives.
 
-**Milestone-aware planning** (experimental plugin): `/plan-feature` command detects if a plan already exists and behaves accordingly. Initial planning invokes technical-planning skill (from essentials) and creates full plan structure. Continuing planning reads existing plan, updates milestone progress, and generates next batch of tasks. This avoids redundant work when resuming a project.
+**Sprint-based planning** (experimental plugin): `/plan-feature` applies same technical-planning rigor every sprint. Initial sprint starts fresh; continuing sprints load context from completed work (learnings, architectural decisions, resolved/new risks) before applying the full planning process. Context accumulates but process stays consistent - like an agile scrum master running sprint planning.

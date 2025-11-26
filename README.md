@@ -204,7 +204,7 @@ Multi-skill workflow system using kanban file movement for complex, high-value d
 
 #### Slash Commands
 
-- **`/plan-feature [REQUEST]`**: Creates `.plans/<project>/` with risk-prioritized tasks. Milestone-aware: detects existing plans and generates next batch of tasks for continuing projects. Generates task files in pending/ following Last Responsible Moment principle.
+- **`/plan-feature [REQUEST]`**: Sprint planning for `.plans/<project>/`. Same rigor whether starting fresh or continuing - always invokes technical-planning skill with full risk analysis. For continuing sprints, loads context from completed work and applies learnings.
 
 - **`/add-task [PROJECT] [TASK DESCRIPTION]`**: Adds a single ad-hoc task to an existing project's pending queue without full planning. Creates properly formatted task file with auto-incremented task number. Useful for adding tasks discovered during implementation. Prompts for project if not specified.
 
