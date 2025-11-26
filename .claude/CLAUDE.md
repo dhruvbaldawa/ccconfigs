@@ -62,7 +62,7 @@ ccconfigs/
     │       ├── error-handling-reviewer.md   # Silent failures audit (sonnet)
     │       └── security-reviewer.md         # OWASP Top 10 vulnerabilities (sonnet)
     ├── commands/                  # Workflow commands
-    │   ├── plan-feature.md       # Create .plans/ with risk-prioritized tasks (milestone-aware)
+    │   ├── plan-feature.md       # Sprint planning for .plans/ (same rigor every sprint)
     │   ├── add-task.md           # Add ad-hoc task to existing project
     │   ├── implement-plan.md     # Execute tasks through kanban workflow
     │   └── orchestrate.md        # End-to-end: planning → implementation → review
