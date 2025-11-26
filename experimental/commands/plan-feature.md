@@ -59,12 +59,15 @@ Use task template from `experimental/templates/task.md`.
 
 ### Step 4: Continuing Planning
 
-If plan.md already exists:
+If plan.md already exists, this is a **lightweight continuation** (no full re-planning):
 
-1. **Read existing plan** - review context, architecture, completed milestones
+1. **Read existing plan** - review context, architecture decisions, completed milestones, learnings
 2. **Update milestone progress** - check off deliverables, update percentages
-3. **Generate next batch of tasks** - create new tasks in `pending/` based on learnings
-4. **Update plan.md** - move completed to history, update deferrals
+3. **Generate next batch of tasks** - create 1-2 iterations of tasks in `pending/` based on:
+   - What was learned from completed tasks
+   - Architectural decisions made during implementation
+   - Any new risks or constraints discovered
+4. **Update plan.md** - move completed to history, update deferrals, document new decisions
 
 ### Step 5: Report Completion
 
