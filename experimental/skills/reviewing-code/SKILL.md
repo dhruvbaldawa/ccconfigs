@@ -9,6 +9,13 @@ Given task file path `.plans/<project>/review/NNN-task.md`:
 
 ## Process
 
+0. **Load Accepted Risks** (before any review):
+   - Check for `.plans/<project>/accepted-risks.md`
+   - If exists, parse all `### AR-NNN:` entries
+   - Extract: Agent, Severity, Pattern, Scope, Justification
+   - These items will be filtered from review findings (won't block approval)
+   - Template: See `reference/accepted-risks-template.md`
+
 1. **Initial Review**:
    - Run `git diff` on Files listed
    - Read test files
@@ -26,7 +33,12 @@ Given task file path `.plans/<project>/review/NNN-task.md`:
 
 3. **Consolidate Findings**:
    - Combine initial review with agent findings
-   - Filter by confidence/severity:
+   - **Filter accepted risks first**:
+     - For each finding, check against loaded accepted risks
+     - Match by: Agent type + (file pattern OR description pattern)
+     - Matched items → move to "Previously Accepted" list (don't count as blocking)
+     - Unmatched items → proceed to severity filtering
+   - Filter remaining by confidence/severity:
      - **CRITICAL**: Security 90-100 confidence, Error handling CRITICAL, Test gaps 9-10
      - **HIGH**: Security 70-89, Error handling HIGH, Test gaps 7-8
      - **MEDIUM**: Security 50-69, Error handling MEDIUM, Test gaps 5-6
@@ -100,6 +112,10 @@ Diff: [N] lines
 - Error Handling: 1 HIGH finding - [description with justification why acceptable]
 - Security: No vulnerabilities detected (0 findings >70 confidence)
 
+**Previously Accepted (not blocking):**
+- [AR-001] Test Coverage: Missing test for legacy endpoint - accepted 2025-01-15
+- [AR-003] Security: SQL-like syntax in query-builder.ts - accepted 2025-01-22
+
 APPROVED → testing
 ```
 
@@ -117,6 +133,9 @@ CRITICAL Issues (must fix):
 
 HIGH Issues (review recommended):
 1. [Security/Test/Error] - [Description from agent] - [Confidence/Severity/Criticality score]
+
+**Previously Accepted (not blocking):**
+- [AR-001] Test Coverage: Missing test for legacy endpoint - accepted 2025-01-15
 
 REJECTED - Blocking issues:
 1. [Specific issue + fix needed]
@@ -146,3 +165,25 @@ REJECTED → implementation
 - HIGH findings include justification why acceptable
 - All tests passing
 - Validation complete
+
+## Accepting Risks for Future Reviews
+
+When a finding should not block future reviews (e.g., known false positive, intentional pattern, deferred fix):
+
+1. **During review**: If user says "accept this risk" or similar:
+   - Check if `.plans/<project>/accepted-risks.md` exists
+   - If not, create from template (`reference/accepted-risks-template.md`)
+   - Add entry with next AR-NNN number
+   - Include: Agent, Severity, Pattern (file or description), Scope, Justification, Accepted date/task
+
+2. **Via command**: User can run `/accept-risk [project]` to add entries interactively
+
+3. **Matching rules** (for filtering in step 3):
+   - Agent must match exactly
+   - Pattern matches if ANY of:
+     - File path matches glob pattern in Scope
+     - Finding description contains Pattern string (case-insensitive)
+     - Finding location matches Pattern
+   - Expired entries (past Expires date) are ignored
+
+**Important**: CRITICAL findings cannot be accepted - they must be fixed or the severity must be re-evaluated by security team. Only HIGH and MEDIUM findings can be risk-accepted.

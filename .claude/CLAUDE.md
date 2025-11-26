@@ -254,13 +254,15 @@ See `essentials/skills/research-synthesis/reference/multi-agent-invocation.md` f
 
 **`/orchestrate [REQUEST]`**: End-to-end workflow from planning through completion. Combines `/plan-feature` and `/implement-plan` in single command with user confirmation between phases.
 
+**`/accept-risk [PROJECT] [FINDING DESCRIPTION]`**: Adds a review finding to the project's accepted risks file (`.plans/<project>/accepted-risks.md`). Accepted findings are automatically filtered during future reviews - they show as "Previously Accepted" and don't block approval. Prompts for agent type, severity, matching pattern, scope, and justification. CRITICAL findings cannot be accepted. Useful for known false positives, intentional patterns, or deferred fixes.
+
 ### Skills
 
 **planning**: Invoked by `/plan-feature`. Uses technical-planning skill for risk-first analysis, launches exploration agents in parallel (architecture-explorer + codebase-analyzer), creates .plans/ structure with tasks in pending/.
 
 **implementing-tasks**: Invoked by `/implement-plan` for tasks in implementation/. When stuck, marks task as STUCK and launches 2-3 research agents in parallel based on blocker type. Uses research-synthesis skill to consolidate findings and update task file.
 
-**reviewing-code**: Invoked by `/implement-plan` for tasks in review/. Performs initial review scoring (security, quality, performance, tests), then launches all 3 review agents in parallel (test-coverage-analyzer, error-handling-reviewer, security-reviewer). Consolidates findings by confidence/severity and decides APPROVE or REJECT.
+**reviewing-code**: Invoked by `/implement-plan` for tasks in review/. First loads accepted risks from `.plans/<project>/accepted-risks.md` if present. Performs initial review scoring (security, quality, performance, tests), then launches all 3 review agents in parallel (test-coverage-analyzer, error-handling-reviewer, security-reviewer). Consolidates findings by confidence/severity, filters out accepted risks (shows as "Previously Accepted"), and decides APPROVE or REJECT.
 
 **testing**: Invoked by `/implement-plan` for tasks in testing/. Runs test suite, validates completion criteria, moves to completed/ on success.
 
@@ -272,6 +274,7 @@ See `essentials/skills/research-synthesis/reference/multi-agent-invocation.md` f
 - **Model optimization**: Haiku for research/exploration (cost-efficient), Sonnet for review (quality-critical)
 - **Stateful kanban**: Tasks move through directories based on status (pending → implementation → review → testing → completed)
 - **End-to-end per task**: Each task completes fully (implement → review → fix → commit) before moving to next, with granular sub-todos for visibility. Smart commits per task with descriptive messages (not task numbers).
+- **Accepted risks tracking**: Review findings that are known false positives, intentional patterns, or deferred fixes can be tracked in `.plans/<project>/accepted-risks.md`. These are automatically filtered during reviews across all tasks in the project, avoiding repetitive re-acceptance. Only HIGH and MEDIUM findings can be accepted - CRITICAL must be fixed.
 
 ## Utility Scripts
 
