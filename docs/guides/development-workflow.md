@@ -1,62 +1,118 @@
 # Development Workflow Guide
 
-Complete guide to using Claude Code for software development projects.
+Complete guide to using the experimental plugin for software development projects.
 
 ## Quick Start
 
-### Clear Requirements
 ```bash
+# Plan a feature
+/plan-feature Add JWT authentication to login endpoint
+
+# Continue planning (next sprint)
+/plan-feature user-auth
+
+# Execute the plan
+/implement-plan user-auth
+
+# Or do both
 /orchestrate Add JWT authentication to login endpoint
 ```
 
-### Vague Ideas (Discovery Mode)
-```bash
-/orchestrate --discover "Something with real-time notifications?"
+## Core Concept: Sprint-Based Planning
+
+**Same rigor every sprint. Context accumulates.**
+
 ```
+Sprint 1: [] → technical-planning → tasks for Milestone 1
+Sprint 2: [Sprint 1 learnings] → technical-planning → tasks for Milestone 2
+Sprint 3: [Sprint 1+2 learnings] → technical-planning → tasks for Milestone 3
+```
+
+Whether starting fresh or continuing, `/plan-feature` applies the same technical-planning methodology:
+- Ask clarifying questions (never assume)
+- Risk analysis (Critical+Unknown first)
+- Outcome-focused tasks (WHAT and WHY, not HOW)
+- Last Responsible Moment (defer decisions until you have enough information)
 
 ## Workflow Patterns
 
-### Pattern 1: Standard Development (Clear Requirements)
+### Pattern 1: Standard Development
 
-**Use when:** Requirements are clear, scope is defined
+**Use when:** Requirements are reasonably clear
 
 **Flow:**
 ```
-Requirements
+/plan-feature <description>
     ↓
-/orchestrate <clear request>
-    ↓
-Planning (technical-planning skill)
+Technical-planning skill (risk analysis, clarifying questions)
     ↓
 .plans/<project>/plan.md + tasks in pending/
     ↓
-Implementation Loop (Kanban flow)
+/implement-plan <project>
     ↓
-pending → implementation → review → testing → completed
+Kanban flow: pending → implementation → testing → review → completed
 ```
 
 **Example:**
 ```bash
-# Start
-/orchestrate Add rate limiting to login endpoint using Redis
+# Plan
+/plan-feature Add rate limiting to login endpoint using Redis
 
 # What happens:
-# 1. Complexity check (is multi-agent justified?)
-# 2. Planning agent creates risk-prioritized plan
-# 3. Implementation loop executes tasks through Kanban
-# 4. Each task: code + tests → review → test validation
-# 5. Output: working feature with tests
+# 1. Technical-planning asks clarifying questions
+# 2. Risk analysis (Critical+Unknown → Foundation iteration)
+# 3. Creates outcome-focused tasks in pending/
+# 4. Documents deferred items
 
-# Result:
-# .plans/rate-limiting/
-# ├── plan.md
-# ├── completed/
-# │   ├── 001-redis-client.md
-# │   ├── 002-rate-limit-middleware.md
-# │   └── 003-integration-tests.md
+# Execute
+/implement-plan rate-limiting
+
+# What happens:
+# 1. Each task: implement → test → review → commit
+# 2. Research agents launched if stuck
+# 3. Review agents check security/quality/tests
+# 4. Commit per task with descriptive message
 ```
 
-**Adding tasks mid-implementation:**
+### Pattern 2: Continuing a Project (Next Sprint)
+
+**Use when:** Completed first milestone, ready for next batch of tasks
+
+**Flow:**
+```
+/plan-feature <project-name>
+    ↓
+Loads context (completed tasks, learnings, architecture decisions)
+    ↓
+Technical-planning skill (SAME rigor, with accumulated context)
+    ↓
+New risks may emerge from learnings
+    ↓
+Tasks for next 1-2 iterations added to pending/
+    ↓
+/implement-plan <project>
+```
+
+**Example:**
+```bash
+# After completing Milestone 1
+/plan-feature user-auth
+
+# What happens:
+# 1. Reads completed tasks, plan.md, architecture decisions
+# 2. Technical-planning with full rigor (same as initial)
+# 3. May discover NEW Critical+Unknown from implementation learnings
+# 4. Generates next batch of tasks
+# 5. Updates plan.md with progress
+
+# Continue execution
+/implement-plan user-auth
+```
+
+### Pattern 3: Ad-hoc Task Addition
+
+**Use when:** Discovered task during implementation, quick tracking needed
+
 ```bash
 # During implementation, discovered need for monitoring
 /add-task rate-limiting Add Prometheus metrics for rate limit hits
@@ -65,174 +121,96 @@ pending → implementation → review → testing → completed
 # Will be implemented after current tasks complete
 ```
 
-### Pattern 2: Discovery + Development (Vague Ideas)
+### Pattern 4: Stuck Task Research
 
-**Use when:** Idea is vague, constraints unclear, multiple approaches possible
-
-**Flow:**
-```
-Vague Idea
-    ↓
-/orchestrate --discover <vague idea>
-    ↓
-Discovery Agent (brainstorming + research)
-    ↓
-Interactive conversation (questions, research, clarification)
-    ↓
-.plans/<project>/discovery.md
-    ↓
-[User confirms ready]
-    ↓
-Planning Agent (reads discovery.md)
-    ↓
-Standard workflow continues
-```
-
-**Example:**
-```bash
-# Start with vague idea
-/orchestrate --discover "notifications system for our app"
-
-# Discovery conversation:
-AI: Let's explore this. What triggered the need for notifications?
-    - Push notifications, email, or in-app?
-    - Real-time or batch delivery?
-    - Expected scale?
-
-You: Real-time in-app notifications. Users need to see updates immediately.
-     Maybe 10k concurrent users.
-
-AI: [researches using Perplexity]
-    Found 3 common approaches:
-    1. WebSocket with Redis pub/sub
-    2. Server-Sent Events (SSE)
-    3. Long polling
-
-    For 10k concurrent users, WebSocket + Redis recommended.
-
-    [creates discovery.md with findings]
-
-    Ready to create implementation plan?
-
-You: Yes
-
-# Then standard workflow continues with planning
-```
-
-### Pattern 3: Stuck Task Research
-
-**Use when:** Agent marks task as Stuck (blocked by unknown)
+**Use when:** Task is blocked by unknown
 
 **Flow:**
 ```
-Task Status: Stuck
+Task Status: STUCK
     ↓
 /research <task-file>
     ↓
-Discovery Agent investigates
-    ↓
-Uses MCP tools (Perplexity, Firecrawl, Context7)
+2-3 research agents investigate in parallel
     ↓
 Updates task file with findings
     ↓
 Status: Pending (unblocked)
     ↓
-/implement-plan <project> --resume
+/implement-plan <project>
 ```
 
 **Example:**
 ```bash
-# Task gets stuck
-# In 003-jwt-middleware.md:
-Status: Stuck
-Notes:
-**implementation-agent:** Cannot complete - unclear how to integrate
-with existing auth middleware.
+# Task got stuck
+/research .plans/user-auth/implementation/003-jwt-middleware.md
 
-# Research the blocker
-/research experimental/.plans/user-auth/implementation/003-jwt-middleware.md
+# Research agents:
+# - research-breadth: Industry patterns
+# - research-technical: Official docs
+# - research-depth: Specific implementations
 
-# Discovery agent:
-# 1. Reads task for context
-# 2. Researches JWT + Express patterns (Perplexity)
-# 3. Looks up library docs (Context7)
-# 4. Updates task with findings:
-
-Status: Pending
-Notes:
-**discovery-agent:** Researched JWT integration patterns.
-
-Findings:
-- Use express-jwt middleware with custom getToken function
-- Integrate with existing auth via req.user population
-- Pattern: verify JWT → populate req.user → call next()
-
-Updated LLM Prompt with implementation steps.
-
-# Resume implementation
+# Task updated with findings, status → Pending
+# Resume
 /implement-plan user-auth
 ```
 
 ## Command Reference
 
-### /orchestrate
-
-**Standard Mode:**
-```bash
-/orchestrate <clear requirement>
-```
-
-**Discovery Mode:**
-```bash
-/orchestrate --discover "<vague idea>"
-```
-
-**Complexity Check:**
-Multi-agent justified when score ≥ 10:
-- Files to change: N × 1
-- New patterns: N × 3
-- Security risk: N × 5
-- Integration: N × 2
-
 ### /plan-feature
 
-Just planning, no implementation:
+Sprint planning - same rigor whether initial or continuing.
+
 ```bash
-/plan-feature <requirement>
+# Initial sprint
+/plan-feature Add user authentication with JWT
+
+# Continuing sprint (loads context first)
+/plan-feature user-auth
 ```
 
-Creates `.plans/<project>/` with plan and tasks.
+**Creates:**
+- `.plans/<project>/plan.md` - Overview, risk analysis, milestones, deferrals
+- `.plans/<project>/pending/*.md` - Outcome-focused task files
 
 ### /add-task
 
-Add single ad-hoc task to existing project:
+Add single task without full planning workflow:
+
 ```bash
-/add-task <project-name> <task description>
+/add-task <project> <description>
 /add-task auth Add rate limiting to login endpoint
 /add-task Add email verification  # Prompts for project
 ```
 
-**Use when:**
-- Discovered new task during implementation
-- Quick task additions without full planning
-- Manual task tracking needed
-
-**Creates:** Properly formatted task file in `pending/` with auto-incremented number.
-
-**Simpler than `/plan-feature`:** No exploration agents or risk analysis, just scaffolds task structure.
+**Simpler than /plan-feature:** No risk analysis, just scaffolds task structure.
 
 ### /implement-plan
 
-Execute existing plan:
+Execute tasks through Kanban flow:
+
 ```bash
-/implement-plan <project-name>
+/implement-plan <project>
+/implement-plan <project> --auto  # Auto-commit and continue
 ```
 
-Runs tasks through Kanban flow: pending → implementation → review → testing → completed
+**Without --auto (default):** Stops after each task, asks for commit confirmation.
+**With --auto:** Commits automatically and continues to next task.
+
+### /orchestrate
+
+End-to-end: planning + implementation:
+
+```bash
+/orchestrate Add user authentication with JWT
+```
+
+Runs `/plan-feature` then `/implement-plan` with confirmation between.
 
 ### /research
 
 Research blocker or question:
+
 ```bash
 # For stuck task
 /research <task-file-path>
@@ -246,292 +224,192 @@ Research blocker or question:
 ### Directory Structure
 ```
 .plans/<project>/
-├── plan.md              # Overview, risk analysis, iterations
-├── discovery.md         # (if using --discover) Research findings
+├── plan.md              # Overview, risk analysis, milestones, deferrals
 ├── pending/             # Tasks waiting to start
 ├── implementation/      # Being coded
-├── review/             # Security/quality review
-├── testing/            # Test validation
-└── completed/          # Done
+├── testing/             # Test validation
+├── review/              # Security/quality review
+└── completed/           # Done
 ```
 
 ### File Movement = Handoffs
-```
-mv pending/001-task.md implementation/001-task.md   # Claim
-mv implementation/001-task.md review/001-task.md    # Submit for review
-mv review/001-task.md testing/001-task.md           # Approved
-mv testing/001-task.md completed/001-task.md        # Complete
+```bash
+mv pending/001-task.md implementation/   # Claim task
+mv implementation/001-task.md testing/   # Submit for testing
+mv testing/001-task.md review/           # Submit for review
+mv review/001-task.md completed/         # Approved
 ```
 
-### Task File Structure
+### Task File Structure (Outcome-Focused)
+
 ```markdown
-# Task 002: Implement Login Endpoint
+#### Task 002: Implement Login Endpoint
 
-**Iteration:** Foundation
-**Status:** Pending | Stuck
-**Dependencies:** 001
-**Files:** src/routes/auth.ts, tests/auth.test.ts
+Status: **Pending**
 
-## Description
-POST /api/auth/login accepting email/password, returning JWT.
+**Goal**: Enable users to authenticate and receive JWT tokens.
 
-## Working Result
-User can login via POST /api/auth/login with valid credentials and receive JWT token.
+**Working Result**: User can login via POST /api/auth/login with valid credentials.
 
-## Validation
+**Constraints**:
+- Must integrate with existing Express middleware pattern
+- Response time <100ms
+- Rate limit: 5 requests/minute per IP
+
+**Dependencies**: 001 (User model)
+
+<guidance>
+**Context**: The application uses session-based patterns in src/middleware/.
+
+**Key Considerations**:
+- Session vs token auth trade-offs
+- Password hashing library choice (bcrypt vs argon2)
+- Token expiry strategy
+
+**Risks**:
+- Session fixation vulnerabilities
+- Timing attacks on password comparison
+
+**Questions to Resolve**:
+- Should "remember me" be included or deferred?
+
+**Existing Patterns**: Review src/middleware/requestLogger.js
+</guidance>
+
+**Validation**:
 - [ ] Valid login returns 200 + JWT token
 - [ ] Invalid password returns 401
-- [ ] Rate limit returns 429 (5 req/min)
-- [ ] All tests passing (no regressions)
-
-## LLM Prompt
-<prompt>
-1. Read **src/middleware/auth.ts** to understand patterns
-2. Create **src/routes/auth.ts** with POST /login endpoint
-3. Implement email validation
-4. Implement bcrypt password verification
-5. Generate JWT token (24h expiry, HS256)
-6. Add rate limiting (5 req/min per IP)
-7. Write tests in **tests/auth.test.ts**:
-   - Valid login returns 200 + token
-   - Invalid password returns 401
-   - Rate limit blocks 6th request
-8. Run full test suite: `npm test`
-</prompt>
-
-## Notes
-**planning-agent:** Follow auth patterns in src/middleware/
-**implementation-agent:** [added after implementation]
-**review-agent:** [added after review]
-**testing-agent:** [added after testing]
+- [ ] Rate limit returns 429
+- [ ] All tests passing
 ```
 
-## Agent Roles
-
-### Planning Agent (Sonnet)
-- Uses technical-planning skill (risk-first)
-- Creates plan.md with risk analysis
-- Generates tasks with LLM Prompt blocks
-- Organizes by iteration (Foundation → Integration → Polish)
-- Documents deferred items
-
-### Implementation Agent (Haiku)
-- Follows LLM Prompt block step-by-step
-- Writes code + tests together
-- Runs full test suite (prevent regressions)
-- Marks Status: Stuck if blocked, STOPS
-- Appends notes with results
-
-### Review Agent (Sonnet)
-- Fresh-eyes review (sees outputs only)
-- Reviews git diff, tests
-- Verifies Working Result achieved
-- Checks security/quality/performance/tests
-- Approves to testing/ or rejects to implementation/
-
-### Testing Agent (Haiku)
-- Validates existing tests (implementation wrote them)
-- Adds missing edge cases only
-- Checks coverage >80%
-- Completes to completed/
-
-### Discovery Agent (Sonnet)
-- Brainstorms through questions (doesn't inject ideas)
-- Researches using MCP tools
-- Creates discovery.md with findings
-- Transitions when ready
+**Key difference from prescriptive tasks:**
+- `<guidance>` block provides context and considerations
+- Does NOT prescribe step-by-step implementation
+- Implementer makes decisions based on what they learn
 
 ## Skills Used
 
 ### technical-planning (essentials)
-- Risk-first development
+- Risk-first development (Critical+Unknown first)
 - Asks clarifying questions (never assumes)
-- Critical+Unknown → Iteration 1
-- Managed deferral with rationale
+- Last Responsible Moment (defer until you have information)
+- Four phases: Requirements, Milestone Planning, Implementation Strategy, Execution
 
-### brainstorming (essentials)
-- Collaborative ideation
-- Draws out user's ideas through questions
-- Explores tensions and assumptions
-- Finds concrete angle from abstract
+### implementing-tasks (experimental)
+- Follows task guidance
+- Writes code + tests together
+- Launches research agents when stuck
+
+### reviewing-code (experimental)
+- Launches 3 review agents in parallel:
+  - test-coverage-analyzer
+  - error-handling-reviewer
+  - security-reviewer
+- Consolidates findings, APPROVE or REJECT
+
+### testing (experimental)
+- Validates tests
+- Checks coverage >80% statements, >75% branches
 
 ### research-synthesis (essentials)
-- Perplexity: broad research, best practices
-- Firecrawl: specific URLs, implementations
-- Context7: library docs, API reference
-- Synthesizes into narrative (not lists)
+- Consolidates research agent findings
+- Synthesizes into narrative (not bullet lists)
 
 ## Tips & Best Practices
 
-### When to Use Discovery Mode
+### When to Use Multi-Agent Workflow
 
-**Use --discover when:**
-- Idea is vague ("something with notifications")
-- Multiple approaches possible
-- Constraints unclear (scale, security, integrations)
-- You need to research patterns first
+**Use when:**
+- Complex features (>5 tasks)
+- Security-critical (authentication, payments)
+- Multiple integration points
+- High-risk unknowns
 
-**Skip discovery when:**
-- Requirements are clear
-- Standard pattern (add CRUD endpoint)
-- Time-sensitive (quick fix)
+**Skip when (use single agent):**
+- Simple changes (1-2 files)
+- Well-defined scope
+- Standard patterns (CRUD)
+- Quick bug fixes
+
+### Continuing vs Starting Fresh
+
+**Continue (`/plan-feature <project-name>`):**
+- Plan exists, milestone partially complete
+- Want next batch of tasks based on learnings
+- Architecture evolved, need to adapt
+
+**Start fresh (`/plan-feature <new description>`):**
+- New project
+- Completely different scope
+- Previous plan obsolete
 
 ### Handling Stuck Tasks
 
-**Agent marks Stuck when:**
-- Missing dependencies or files
-- Unclear requirements
-- Technical blockers
-- Cannot meet Validation checklist
+1. **Read the blocker** - What's the specific issue?
+2. **Use /research** - Let research agents investigate
+3. **Or fix manually** - Update task, change Status: Pending
 
-**Your options:**
-1. `/research <task-file>` - Let discovery-agent investigate
-2. Manual fix - Update task yourself, change Status: Pending
-3. Human guidance - Provide context, unblock manually
+### Cost Awareness
 
-### Cost Optimization
-
-Multi-agent uses **15× more tokens**:
-- Simple (6 tasks): $0.45-0.80
-- Medium (12 tasks): $0.95-2.00
-- Complex (25 tasks): $2.80-4.50
-
-**When to use single-agent instead:**
-- Complexity score < 10
-- Simple CRUD operations
-- Quick bug fixes
-- Well-defined, small scope
-
-### Progressive Refinement
-
-You can iterate:
-```bash
-# Start with discovery
-/orchestrate --discover "notifications"
-
-# [after discovery conversation]
-# Decide to start small
-
-/plan-feature In-app notifications only (defer push notifications)
-
-# Execute
-/implement-plan in-app-notifications
-
-# During implementation, discover new requirements
-/add-task in-app-notifications Add WebSocket reconnection logic
-/add-task in-app-notifications Add notification preferences UI
-
-# Later, add more features
-/plan-feature Push notifications (reads existing in-app code)
-```
-
-### Manual Task Tracking
-
-For simple task tracking without full planning workflow:
-```bash
-# Create project structure first
-mkdir -p .plans/bug-fixes/{pending,implementation,review,testing,completed}
-
-# Add tasks as you discover them
-/add-task bug-fixes Fix login timeout issue
-/add-task bug-fixes Update deprecated API endpoints
-/add-task bug-fixes Add error handling to payment flow
-
-# Execute when ready
-/implement-plan bug-fixes
-
-# Result: Structured workflow for ad-hoc work
-```
+Multi-agent uses more tokens:
+- Simple (6 tasks): ~$0.50-1.00
+- Medium (12 tasks): ~$1.00-2.50
+- Complex (25 tasks): ~$3.00-5.00
 
 ## Troubleshooting
 
-### "Agent marked task as Stuck"
+### "Task marked as Stuck"
 
-**Check:**
-1. Read task Notes - what's the blocker?
-2. Is it research-able? Use `/research <task-file>`
-3. Is it a constraint issue? Update discovery.md or plan.md
-4. Is it a dependency? Check if dependency task completed
+1. Read task Notes for blocker details
+2. `/research <task-file>` to investigate
+3. Or manually provide guidance and set Status: Pending
 
-### "Review agent keeps rejecting"
+### "Review keeps rejecting"
 
-**Common causes:**
-- Security score < 80 (add rate limiting, validation, etc.)
+Common causes:
+- Security score <80 (add validation, rate limiting)
 - Tests failing
 - Validation checklist incomplete
-- Critical vulnerability (SQL injection, auth bypass)
 
-**Fix:** Read review-agent notes, fix issues, resubmit
+Fix: Read review notes, address all issues, resubmit
 
-### "Too many tasks created"
+### "Planning takes too long"
 
-**Cause:** Planning agent broke down too granularly
+- Answer clarifying questions directly
+- Provide constraints upfront
+- Say "let's defer X" for non-critical items
 
-**Fix:**
-- Use `/optimize-doc .plans/<project>/plan.md` to consolidate
-- Or manually merge tasks (edit plan.md, combine task files)
-
-### "Discovery taking too long"
-
-**Tips:**
-- Answer questions directly (don't explore every angle)
-- Say "let's go with X" when ready
-- Provide constraints upfront (scale, tech stack, timeline)
-
-## Examples
-
-### Example 1: E-commerce Cart
+## Example: Complete Flow
 
 ```bash
-# Vague starting point
-/orchestrate --discover "shopping cart for e-commerce site"
+# Sprint 1: Initial planning
+/plan-feature Add user authentication with JWT
 
-# Discovery conversation explores:
-# - Persistent vs session-based?
-# - Payment integration needed?
-# - Inventory management?
-# - Expected scale?
+# AI asks clarifying questions about scope, constraints
+# Creates plan.md + 4 tasks in pending/
 
-# Result: discovery.md with Redis-based cart, Stripe integration plan
+# Execute Sprint 1
+/implement-plan user-auth
 
-# Then planning creates 8 tasks across 3 iterations:
-# Foundation: Cart data model, Redis client
-# Integration: Add to cart API, Stripe checkout
-# Polish: Cart abandonment tracking, promo codes
-```
+# Each task: implement → test → review → commit
+# Completed: 001-user-model, 002-login-endpoint, 003-jwt-middleware, 004-tests
 
-### Example 2: Simple Bug Fix
+# Sprint 2: Continue (discovered new requirements)
+/plan-feature user-auth
 
-```bash
-# Don't use multi-agent for simple fixes
-# Complexity: 1 file × 1 = 1 point (< 10)
+# AI loads context from completed tasks
+# Applies technical-planning with same rigor
+# Adds 3 new tasks: password-reset, email-verification, rate-limiting
 
-# Just fix directly or use single command:
-/do fix-login-bug.md
-```
+# Execute Sprint 2
+/implement-plan user-auth
 
-### Example 3: Microservice Migration
-
-```bash
-# Large, complex project
-/orchestrate --discover "migrate monolith auth to microservice"
-
-# Discovery explores:
-# - Which endpoints to migrate?
-# - Database strategy (shared vs separate)?
-# - Service communication (REST vs gRPC)?
-# - Backward compatibility?
-
-# Creates discovery.md with phased migration plan
-
-# Planning creates multi-milestone plan:
-# M1: Extract auth service (keep shared DB)
-# M2: Separate database, data migration
-# M3: Remove auth from monolith
+# Done!
 ```
 
 ## Further Reading
 
-- `/breakdown` and `/do` commands (similar task-based patterns)
-- Technical-planning skill (risk-first methodology)
-- Experimental plugin README (detailed Kanban architecture)
+- `/breakdown` and `/do` commands (essentials - similar task patterns)
+- `technical-planning` skill (essentials - risk-first methodology)
+- `experimental/README.md` (detailed Kanban architecture)

@@ -106,7 +106,9 @@ STEP 2: Route to the correct workflow based on flag detection
 
 This is the MOST COMMON case. DO NOT commit automatically.
 
-You MUST follow this exact sequence:
+**IMPORTANT: Each task requires its own commit confirmation. Previous "yes" responses do NOT carry over to subsequent tasks.**
+
+You MUST follow this exact sequence FOR EVERY TASK:
 
 1. Draft descriptive commit message:
    - Read task file to understand Goal and Working Result
@@ -131,18 +133,22 @@ You MUST follow this exact sequence:
    - DO NOT proceed until user responds
    - DO NOT commit automatically
    - DO NOT continue to next task
+   - DO NOT assume previous "yes" applies to this task
 
 4. After user responds:
    - If "commit" or "yes":
      * Execute git commit with the proposed message
-     * Ask: "Continue to next task?"
-     * WAIT for user response before proceeding
+     * Report: "✅ Committed. Moving to next task..."
+     * Continue to next task (loop back to step 0)
    - If "skip":
+     * Report: "Skipping commit. Moving to next task..."
      * Move to next task without committing
    - If "edit [message]":
      * Execute git commit with their provided message
-     * Ask: "Continue to next task?"
-     * WAIT for user response before proceeding
+     * Report: "✅ Committed with custom message. Moving to next task..."
+     * Continue to next task (loop back to step 0)
+
+**Note:** The user's response applies ONLY to the current task. When the next task completes, you MUST prompt for commit confirmation again.
 </auto_flag_absent>
 
 <auto_flag_present>
@@ -205,7 +211,7 @@ Review: git log --oneline -X
 - **Commit timing**: Always after review approval (tests already validated in testing phase)
 - **Flag detection**: Always checks for `--auto` flag and explicitly reports whether it's PRESENT or ABSENT
 - **Auto mode** (`--auto` flag PRESENT): Commits automatically and continues to next task without stopping
-- **Manual mode** (`--auto` flag ABSENT - DEFAULT): Stops BEFORE committing. Displays proposed commit message and WAITS for user confirmation ("commit"/"yes"), skip request ("skip"), or edit request ("edit [message]"). After commit, asks if user wants to continue to next task.
+- **Manual mode** (`--auto` flag ABSENT - DEFAULT): Stops BEFORE committing each task. Displays proposed commit message and WAITS for user confirmation. Each task requires its own confirmation - previous "yes" does NOT carry over.
 - **Descriptive commits**: Commit messages describe what was accomplished (not task numbers)
 - **Skills run in main conversation** (full visibility)
 - **Orchestrator moves files** based on Status field
