@@ -13,38 +13,78 @@ Analyze request and create `.plans/<project>/` structure with task breakdown.
 /plan-feature Build real-time notifications
 ```
 
+**Continuing a project:**
+```
+/plan-feature user-auth   # Detects existing plan, generates next batch of tasks
+```
+
 ## Your Task
 
-Invoke the **planning skill** to analyze the request: "${{{ARGS}}}"
+Plan the feature request: "$ARGS"
 
-The planning skill will:
-- Ask clarifying questions if requirements unclear
-- Use technical-planning skill for risk-first analysis
-- Create .plans/<project>/ structure with risk analysis and iterations
-- Generate tasks with LLM Prompt blocks in pending/
-- Document deferred items with rationale
+### Step 1: Detect Mode
 
-After planning completes:
-1. Count tasks created in pending/
-2. Summarize iterations and risk mitigation strategy
-3. List deferred items
-4. Report next step: /implement-plan <project-name>
+Check if `.plans/<project>/plan.md` exists:
+- **Exists**: This is **continuing planning** - skip to Step 4
+- **Does not exist**: This is **initial planning** - continue to Step 2
 
-## Output Format
+### Step 2: Initial Planning - Requirements Analysis
 
-```markdown
-✅ Planning Complete
+Invoke the **technical-planning skill** to:
+- Ask clarifying questions about requirements
+- Identify high-risk unknowns (Critical+Unknown → Foundation iteration)
+- Understand scope and constraints
+- Document what to defer vs decide now (Last Responsible Moment)
 
-Project: <project-name>
-Tasks: X total (Foundation: Y, Integration: Z, Polish: W)
+### Step 3: Initial Planning - Create Structure
 
-Risk Mitigation:
-- Iteration 1 (Foundation): [Critical+Unknown]
-- Iteration 2 (Integration): [Critical+Known]
-- Iteration 3 (Polish): [Non-Critical]
+Create directory and plan file:
 
+```bash
+mkdir -p .plans/<project>/{pending,implementation,review,testing,completed}
+```
+
+Create `plan.md` with sections:
+- **Overview**: 1-2 sentence project description
+- **Success Criteria**: Project-level outcomes (checkboxes)
+- **Milestones**: Major outcomes with status (✅/🔄/📋)
+- **Risk Analysis**: Critical+Unknown (Foundation), Critical+Known (Integration), Non-Critical (Polish)
+- **Architecture**: Key decisions (updated during implementation)
+- **Task History**: Completed and in-flight tracking
+- **Deferred Items**: What's deferred and why
+
+Create initial task files in `pending/` for first 1-2 iterations only (Foundation + early Integration).
+
+Use task template from `experimental/templates/task.md`.
+
+### Step 4: Continuing Planning
+
+If plan.md already exists:
+
+1. **Read existing plan** - review context, architecture, completed milestones
+2. **Update milestone progress** - check off deliverables, update percentages
+3. **Generate next batch of tasks** - create new tasks in `pending/` based on learnings
+4. **Update plan.md** - move completed to history, update deferrals
+
+### Step 5: Report Completion
+
+**Initial Planning:**
+```
+Planning complete. Created .plans/<project-name>/.
+
+Tasks: X total (Foundation: Y, Integration: Z)
+Key risks: [List]
 Deferred: [Items with rationale]
-Key Files: [List]
+
+Next: /implement-plan <project-name>
+```
+
+**Continuing Planning:**
+```
+Planning continued for .plans/<project-name>/.
+
+Milestone progress: [Current milestone] at X%
+New tasks: Y added to pending/
 
 Next: /implement-plan <project-name>
 ```

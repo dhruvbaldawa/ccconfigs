@@ -52,25 +52,21 @@ ccconfigs/
 │           └── SKILL.md
 └── experimental/                   # Experimental workflows plugin
     ├── .claude-plugin/plugin.json # Plugin metadata
-    ├── agents/                    # Specialized agents (used by planning, implementing, reviewing skills)
+    ├── agents/                    # Specialized agents (used by implementing, reviewing skills)
     │   ├── research/              # Research agents (parallel invocation)
     │   │   ├── research-breadth.md      # Broad surveys via Perplexity (haiku)
     │   │   ├── research-depth.md        # Deep-dive via Firecrawl (haiku)
     │   │   └── research-technical.md    # Official docs via Context7 (haiku)
-    │   ├── exploration/           # Codebase exploration agents (parallel invocation)
-    │   │   ├── architecture-explorer.md # Execution tracing & layer mapping (haiku)
-    │   │   └── codebase-analyzer.md     # Pattern discovery & conventions (haiku)
     │   └── review/                # Code review agents (parallel invocation)
     │       ├── test-coverage-analyzer.md    # Behavioral test gaps (sonnet)
     │       ├── error-handling-reviewer.md   # Silent failures audit (sonnet)
     │       └── security-reviewer.md         # OWASP Top 10 vulnerabilities (sonnet)
     ├── commands/                  # Workflow commands
-    │   ├── plan-feature.md       # Create .plans/ with risk-prioritized tasks
+    │   ├── plan-feature.md       # Create .plans/ with risk-prioritized tasks (milestone-aware)
     │   ├── add-task.md           # Add ad-hoc task to existing project
     │   ├── implement-plan.md     # Execute tasks through kanban workflow
     │   └── orchestrate.md        # End-to-end: planning → implementation → review
     └── skills/                    # Workflow skills (invoked by commands)
-        ├── planning/              # Uses exploration agents for context
         ├── implementing-tasks/    # Uses research agents when stuck
         ├── reviewing-code/        # Uses review agents in parallel
         └── testing/               # Test execution and validation
@@ -112,7 +108,7 @@ Configuration files only (JSON and Markdown). No build, test, or lint commands.
 **Agents**: Create `.md` files in `[plugin]/agents/` with YAML frontmatter
 - Official documentation: https://code.claude.com/docs/en/sub-agents
 - Best practices: https://code.claude.com/docs/en/sub-agents#best-practices
-- Best for: Specialized analysis with isolated context (research, code review, exploration)
+- Best for: Specialized analysis with isolated context (research, code review)
 - Design principles:
   - **Single, clear responsibility** - focused agents over multi-purpose ones
   - **Detailed prompts** - include specific instructions, examples, constraints
@@ -212,7 +208,7 @@ Conversation-driven workflow for blog writing in Dhruv Baldawa's distinctive sty
 
 ### Overview
 
-Multi-skill workflow system using kanban file movement for complex, high-value tasks. Features 8 specialized agents organized in 3 categories (research, exploration, review), all optimized for parallel invocation.
+Multi-skill workflow system using kanban file movement for complex, high-value tasks. Features 6 specialized agents organized in 2 categories (research, review), all optimized for parallel invocation.
 
 ### Specialized Agents
 
@@ -220,10 +216,6 @@ Multi-skill workflow system using kanban file movement for complex, high-value t
 - **research-breadth**: Broad surveys via WebSearch → Parallel Search → Perplexity (industry trends, consensus, multiple perspectives)
 - **research-depth**: Deep-dive via WebFetch → Parallel Search (specific URLs, implementation details, case studies)
 - **research-technical**: Official docs via Context7 (API references, method signatures, configurations)
-
-**Exploration Agents** (2 agents - all haiku, parallel invocation):
-- **architecture-explorer**: Traces execution paths, maps architectural layers, identifies patterns
-- **codebase-analyzer**: Finds similar features, extracts conventions, identifies reusable components
 
 **Review Agents** (3 agents - all sonnet, parallel invocation):
 - **test-coverage-analyzer**: Behavioral test gaps with 1-10 criticality ratings
@@ -236,9 +228,6 @@ Multi-skill workflow system using kanban file movement for complex, high-value t
 - `/research` command invoked (2-3 agents based on question type)
 - `implementing-tasks` skill encounters STUCK status (automatic parallel launch)
 
-**Exploration agents** used when:
-- `planning` skill starts (both agents in parallel for codebase context)
-
 **Review agents** used when:
 - `reviewing-code` skill runs (all 3 agents in parallel for comprehensive review)
 
@@ -246,17 +235,15 @@ See `essentials/skills/research-synthesis/reference/multi-agent-invocation.md` f
 
 ### Slash Commands
 
-**`/plan-feature [REQUEST]`**: Creates `.plans/<project>/` with risk-prioritized tasks. Invokes planning skill which uses technical-planning skill for risk analysis and launches exploration agents (architecture-explorer + codebase-analyzer) in parallel to understand existing patterns. Generates task files in pending/ following Last Responsible Moment principle.
+**`/plan-feature [REQUEST]`**: Creates `.plans/<project>/` with risk-prioritized tasks. **Milestone-aware**: detects existing plans and generates next batch of tasks for continuing projects. Directly invokes `technical-planning` skill (from essentials) for risk-first analysis. Generates task files in pending/ following Last Responsible Moment principle.
 
-**`/add-task [PROJECT] [TASK DESCRIPTION]`**: Adds a single ad-hoc task to an existing project's pending queue without full planning. Creates properly formatted task file in `.plans/<project>/pending/` with auto-incremented task number. Useful for adding tasks discovered during implementation or tracking quick work items. Prompts for project if not specified. Simpler than `/plan-feature` - no exploration agents or risk analysis, just scaffolds task structure for manual refinement.
+**`/add-task [PROJECT] [TASK DESCRIPTION]`**: Adds a single ad-hoc task to an existing project's pending queue without full planning. Creates properly formatted task file in `.plans/<project>/pending/` with auto-incremented task number. Useful for adding tasks discovered during implementation or tracking quick work items. Prompts for project if not specified. Simpler than `/plan-feature` - no risk analysis, just scaffolds task structure for manual refinement.
 
 **`/implement-plan [PROJECT] [--auto]`**: Executes tasks through kanban workflow with end-to-end completion per task (implementation → review → fix issues → commit → next task). Creates granular sub-todos for each task (read requirements, implement, test, review, address issues, commit). With `--auto` flag, automatically commits and continues to next task; without flag, stops after each task for human review. Uses smart commit strategy (commits after testing, or before review for complex changes > 200 lines). Commit messages describe what was accomplished (not task numbers). Invokes implementing-tasks skill which launches research agents when stuck, reviewing-code skill which launches all 3 review agents in parallel, and testing skill for validation.
 
 **`/orchestrate [REQUEST]`**: End-to-end workflow from planning through completion. Combines `/plan-feature` and `/implement-plan` in single command with user confirmation between phases.
 
 ### Skills
-
-**planning**: Invoked by `/plan-feature`. Uses technical-planning skill for risk-first analysis, launches exploration agents in parallel (architecture-explorer + codebase-analyzer), creates .plans/ structure with tasks in pending/.
 
 **implementing-tasks**: Invoked by `/implement-plan` for tasks in implementation/. When stuck, marks task as STUCK and launches 2-3 research agents in parallel based on blocker type. Uses research-synthesis skill to consolidate findings and update task file.
 
@@ -267,9 +254,10 @@ See `essentials/skills/research-synthesis/reference/multi-agent-invocation.md` f
 ### Design Philosophy
 
 - **Agents for specialized analysis**: Each agent has single, clear responsibility with detailed output format
-- **Parallel invocation**: All agents designed for parallel execution (2-3 research, 2 exploration, 3 review)
+- **Parallel invocation**: All agents designed for parallel execution (2-3 research, 3 review)
 - **Skills orchestrate agents**: Skills determine which agents to launch and consolidate findings
-- **Model optimization**: Haiku for research/exploration (cost-efficient), Sonnet for review (quality-critical)
+- **Model optimization**: Haiku for research (cost-efficient), Sonnet for review (quality-critical)
+- **Milestone-aware planning**: Planning skill detects existing plans and continues from where you left off, avoiding redundant work
 - **Stateful kanban**: Tasks move through directories based on status (pending → implementation → review → testing → completed)
 - **End-to-end per task**: Each task completes fully (implement → review → fix → commit) before moving to next, with granular sub-todos for visibility. Smart commits per task with descriptive messages (not task numbers).
 
@@ -367,4 +355,6 @@ Build artifacts, dependencies, and system dirs: `.git`, `node_modules`, `.next`,
 
 **Two-document pattern** (writing plugin): Separates messy ideation (braindump.md) from polished output (draft.md). Allows back-and-forth collaboration without polluting the final deliverable. Similar to how `/breakdown` creates task lists separate from implementation.
 
-**Parallel agent invocation** (experimental plugin): Agents designed for parallel execution using Promise.all pattern. Research agents (2-3 launched together), exploration agents (both launched together), review agents (all 3 launched together). Skills consolidate findings using confidence scores, severity ratings, and synthesis methodology. This reduces latency and provides comprehensive analysis from multiple specialized perspectives.
+**Parallel agent invocation** (experimental plugin): Agents designed for parallel execution using Promise.all pattern. Research agents (2-3 launched together), review agents (all 3 launched together). Skills consolidate findings using confidence scores, severity ratings, and synthesis methodology. This reduces latency and provides comprehensive analysis from multiple specialized perspectives.
+
+**Milestone-aware planning** (experimental plugin): `/plan-feature` command detects if a plan already exists and behaves accordingly. Initial planning invokes technical-planning skill (from essentials) and creates full plan structure. Continuing planning reads existing plan, updates milestone progress, and generates next batch of tasks. This avoids redundant work when resuming a project.
