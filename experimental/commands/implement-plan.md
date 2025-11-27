@@ -78,7 +78,11 @@ Final Test Coverage: XX%
 ## Key Behaviors
 
 - **End-to-end per task**: implement → test → review → commit → next
-- **Per-task commit confirmation**: Previous "yes" does NOT carry over
-- **Task files committed**: Code + task file in each commit
-- **Skills run in main conversation**: Full visibility
+- **Per-task commit confirmation**: Previous "yes" does NOT carry over to subsequent tasks
+- **Task files committed**: Code + task file in each commit (git history shows project progress)
+- **Flag detection**: Always report "Flag check: --auto is [PRESENT/ABSENT]" at start
+- **Descriptive commits**: Message describes what was accomplished (not "Complete task NNN")
+- **Track rejections**: Warn if task rejected >3 times
+- **Skills run in main conversation**: Full visibility into implementation/review
+- **Orchestrator moves files**: Based on Status field in task file
 - **State persists**: Resume anytime with `/implement-plan {{ARGS}}`
