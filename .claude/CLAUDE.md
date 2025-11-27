@@ -368,3 +368,32 @@ Build artifacts, dependencies, and system dirs: `.git`, `node_modules`, `.next`,
 **Two-document pattern** (writing plugin): Separates messy ideation (braindump.md) from polished output (draft.md). Allows back-and-forth collaboration without polluting the final deliverable. Similar to how `/breakdown` creates task lists separate from implementation.
 
 **Parallel agent invocation** (experimental plugin): Agents designed for parallel execution using Promise.all pattern. Research agents (2-3 launched together), exploration agents (both launched together), review agents (all 3 launched together). Skills consolidate findings using confidence scores, severity ratings, and synthesis methodology. This reduces latency and provides comprehensive analysis from multiple specialized perspectives.
+
+## Tool Integration Patterns
+
+### TodoWrite for Progress Tracking
+
+Use TodoWrite in skills and commands for multi-step workflows:
+
+- **debugging**: Track UNDERSTAND checklist steps (U-N-D-E-R-S-T-A-N-D)
+- **technical-planning**: Track planning phases (1-4) and deferral decisions
+- **fix-quality**: Track issues by category (root cause, alternatives, ignores)
+- **optimize-doc**: Track optimization passes per section
+- **implementing-tasks**: Convert LLM Prompt steps into todos
+- **testing**: Track validation steps and gap identification
+
+**Exemplar**: `/implement-plan` command (Step 0) shows the gold standard for TodoWrite integration - converts Validation checklist, Working Result, and Implementation Guidance into specific, actionable todos.
+
+### Task Tool for Agent Invocation
+
+Invoke specialized agents using Task tool with `subagent_type="general-purpose"`:
+
+```
+Task(
+  description: "Analyze test coverage",
+  prompt: "[Full agent prompt with context]",
+  subagent_type: "general-purpose"
+)
+```
+
+For parallel invocation, call multiple Task invocations in a single message.

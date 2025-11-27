@@ -158,10 +158,18 @@ SUCCESS CRITERIA:
 ## Execution Instructions
 
 1. Read `{{arg}}`
-2. Analyze each section using methodology above
-3. Optimize directly: strengthen vague instructions, remove redundancy, apply conciseness strategies
-4. Report changes to user
-5. Commit with descriptive message
+2. **For large documents (>100 lines)**: Use TodoWrite to track sections:
+   ```
+   ☐ Section: [name] - analyze clarity
+   ☐ Section: [name] - analyze clarity
+   ...
+   ☐ Apply all optimizations
+   ☐ Verify quality standards met
+   ```
+3. Analyze each section using methodology above
+4. Optimize directly: strengthen vague instructions, remove redundancy, apply conciseness strategies
+5. Report changes to user
+6. Commit with descriptive message
 
 ## Quality Standards
 

@@ -51,6 +51,30 @@ Based on documented failures in AI debugging, explicitly avoid:
 - Note: record insights, warnings, decisions
 - Document: update comments/docs/tests as needed
 
+## Progress Tracking with TodoWrite
+
+Use TodoWrite to track debugging progress through the UNDERSTAND checklist:
+
+1. **At start**: Create todos for each applicable step:
+   ```
+   ☐ U - Capture exact repro and scope
+   ☐ N - Isolate failing component
+   ☐ D - Research error message
+   ☐ E - Compare with working patterns
+   ☐ R - Root cause analysis (5 Whys)
+   ☐ S - Write falsifiable hypothesis
+   ☐ T - Verify with minimal test
+   ☐ A - Apply fix across all occurrences
+   ☐ N - Record insights
+   ☐ D - Update docs/tests
+   ```
+
+2. **During debugging**: Mark steps in_progress → completed as you work through them
+
+3. **When stuck**: TodoWrite makes it visible which step is blocked - helps identify if you're skipping steps or going in circles
+
+4. **Skip steps only if**: Bug is simple enough that checklist is overkill (see "Skip this skill for" above)
+
 ## Tool Decision Tree
 
 - Know exact text/symbol? → grep
