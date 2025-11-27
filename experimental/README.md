@@ -69,18 +69,9 @@ mv review/002-login.md testing/002-login.md
 mv testing/002-login.md completed/002-login.md
 ```
 
-## Four Specialized Skills
+## Three Specialized Skills
 
-### 1. Planning Skill
-- Uses **technical-planning skill** (risk-first development)
-- Asks clarifying questions (never assumes)
-- Creates risk-prioritized iterations (Foundation → Integration → Polish)
-- Generates tasks with LLM Prompt blocks (step-by-step instructions)
-- Documents deferred items with rationale
-- Read-only (no code changes)
-- **Runs in main conversation** → you see all questions and decisions
-
-### 2. Implementation Skill
+### 1. Implementation Skill
 - Receives task file path from orchestrator
 - **Follows LLM Prompt block step-by-step**
 - Writes code + tests together (prevent regressions)
@@ -88,7 +79,7 @@ mv testing/002-login.md completed/002-login.md
 - Marks **Status: STUCK** if blocked, reports blocker
 - **Runs in main conversation** → you see code being written, tests running
 
-### 3. Review Skill
+### 2. Review Skill
 - Receives task file path from orchestrator
 - **Fresh eyes** - reviews outputs (diff, tests) not implementation notes
 - Checks security (OWASP Top 10), quality, performance, test coverage
@@ -96,7 +87,7 @@ mv testing/002-login.md completed/002-login.md
 - **Updates task file:** Status → "APPROVED" or "REJECTED", appends review notes with scores
 - **Runs in main conversation** → you see security analysis, quality checks
 
-### 4. Testing Skill
+### 3. Testing Skill
 - Receives task file path from orchestrator
 - Validates existing tests (implementation already wrote them)
 - Adds missing edge cases only (minimal, no test bloat)
@@ -108,20 +99,22 @@ mv testing/002-login.md completed/002-login.md
 ## Slash Commands
 
 ### `/plan-feature [REQUEST]`
-Creates `.plans/<project>/` with risk-prioritized tasks following Last Responsible Moment principle.
-- Invokes **planning skill** (uses technical-planning + exploration agents)
-- Launches architecture-explorer and codebase-analyzer in parallel
-- Generates task files in `pending/` with LLM Prompt blocks
+Sprint planning for `.plans/<project>/` - same rigor whether starting fresh or continuing.
+- Always invokes **technical-planning skill** (from essentials) with full risk analysis
+- For continuing sprints: loads context from completed work, applies learnings
+- Generates outcome-focused task files in `pending/` (WHAT and WHY, not HOW)
 - Documents deferred items with rationale
 
-**Example:** `/plan-feature Add user authentication with JWT`
+**Examples:**
+- `/plan-feature Add user authentication with JWT` (initial sprint)
+- `/plan-feature user-auth` (continuing sprint - loads context first)
 
 ### `/add-task [PROJECT] [TASK DESCRIPTION]`
 Adds a single ad-hoc task to an existing project without full planning workflow.
 - Auto-increments task number by scanning existing tasks
 - Creates properly formatted task file in `pending/`
 - Prompts for project if not specified
-- Simpler than `/plan-feature` - no exploration agents or risk analysis
+- Simpler than `/plan-feature` - no risk analysis, just scaffolds task structure
 - Useful for tasks discovered during implementation
 
 **Examples:**
@@ -411,8 +404,8 @@ APPROVED → testing
 
 ## Files
 
-**Skills:** `skills/*/SKILL.md` (planning, implementation, review, testing)
-**Commands:** `commands/*.md` (plan-feature, implement-plan, orchestrate)
+**Skills:** `skills/*/SKILL.md` (implementing-tasks, reviewing-code, testing)
+**Commands:** `commands/*.md` (plan-feature, add-task, implement-plan, orchestrate)
 **Templates:** `templates/*.md` (plan, task, milestones)
 
 ## References

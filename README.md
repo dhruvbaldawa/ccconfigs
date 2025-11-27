@@ -92,7 +92,7 @@ Once the marketplace is added:
 3. Select and install plugins:
    - **essentials**: For development workflows (MCP servers, task management, research, debugging/planning)
    - **writing**: For blog post writing in Dhruv's style
-   - **experimental**: For complex development workflows with specialized agents (research, exploration, review)
+   - **experimental**: For complex development workflows with specialized agents (research, review)
 
 Plugins automatically configure all MCP servers, slash commands, skills, and agents.
 
@@ -102,7 +102,7 @@ This repository provides a structured plugin marketplace for Claude Code with th
 
 - **essentials**: Systematic development workflows including MCP servers, task management commands, research capabilities, and debugging/planning skills
 - **writing**: Conversation-driven blog writing workflow in Dhruv Baldawa's distinctive style
-- **experimental**: Multi-skill workflow system with 8 specialized agents for complex development tasks (research, codebase exploration, code review)
+- **experimental**: Multi-skill workflow system with 6 specialized agents for complex development tasks (research, code review)
 
 ## Plugins
 
@@ -188,18 +188,14 @@ Every blog post uses two files:
 
 ### Experimental Plugin
 
-Multi-skill workflow system using kanban file movement for complex, high-value development tasks. Features 8 specialized agents organized in 3 categories (research, exploration, review), all optimized for parallel invocation.
+Multi-skill workflow system using kanban file movement for complex, high-value development tasks. Features 6 specialized agents organized in 2 categories (research, review), all optimized for parallel invocation.
 
-#### Specialized Agents (8 total)
+#### Specialized Agents (6 total)
 
 **Research Agents** (3 agents - all haiku):
 - **research-breadth**: Broad surveys via WebSearch → Parallel Search → Perplexity (industry trends, consensus, multiple perspectives)
 - **research-depth**: Deep-dive via WebFetch → Parallel Search (specific URLs, implementation details, case studies)
 - **research-technical**: Official docs via Context7 (API references, method signatures, configurations)
-
-**Exploration Agents** (2 agents - all haiku):
-- **architecture-explorer**: Traces execution paths, maps architectural layers, identifies patterns
-- **codebase-analyzer**: Finds similar features, extracts conventions, identifies reusable components
 
 **Review Agents** (3 agents - all sonnet):
 - **test-coverage-analyzer**: Behavioral test gaps with 1-10 criticality ratings
@@ -208,7 +204,7 @@ Multi-skill workflow system using kanban file movement for complex, high-value d
 
 #### Slash Commands
 
-- **`/plan-feature [REQUEST]`**: Creates `.plans/<project>/` with risk-prioritized tasks. Launches exploration agents (architecture-explorer + codebase-analyzer) in parallel to understand existing patterns. Generates task files in pending/ following Last Responsible Moment principle.
+- **`/plan-feature [REQUEST]`**: Sprint planning for `.plans/<project>/`. Same rigor whether starting fresh or continuing - always invokes technical-planning skill with full risk analysis. For continuing sprints, loads context from completed work and applies learnings.
 
 - **`/add-task [PROJECT] [TASK DESCRIPTION]`**: Adds a single ad-hoc task to an existing project's pending queue without full planning. Creates properly formatted task file with auto-incremented task number. Useful for adding tasks discovered during implementation. Prompts for project if not specified.
 
@@ -218,12 +214,11 @@ Multi-skill workflow system using kanban file movement for complex, high-value d
 
 #### Skills
 
-- **planning**: Risk-first analysis using technical-planning skill, launches exploration agents in parallel, creates .plans/ structure
 - **implementing-tasks**: Launches 2-3 research agents in parallel when stuck based on blocker type, consolidates findings using research-synthesis skill
 - **reviewing-code**: Launches all 3 review agents in parallel, consolidates findings by confidence/severity, decides APPROVE or REJECT
 - **testing**: Test suite execution and validation
 
-**Design philosophy**: Agents for specialized analysis with single, clear responsibilities. Skills orchestrate agents and consolidate findings. Parallel invocation reduces latency (2-3 research, 2 exploration, 3 review agents together). Model optimization: Haiku for research/exploration (cost-efficient), Sonnet for review (quality-critical).
+**Design philosophy**: Agents for specialized analysis with single, clear responsibilities. Skills orchestrate agents and consolidate findings. Parallel invocation reduces latency (2-3 research, 3 review agents together). Model optimization: Haiku for research (cost-efficient), Sonnet for review (quality-critical).
 
 ## Repository Structure
 
@@ -273,14 +268,11 @@ ccconfigs/
 │           └── SKILL.md
 └── experimental/                   # The experimental plugin
     ├── .claude-plugin/plugin.json # Plugin metadata
-    ├── agents/                    # Specialized agents (8 total)
+    ├── agents/                    # Specialized agents (6 total)
     │   ├── research/              # Research agents (parallel invocation)
     │   │   ├── research-breadth.md
     │   │   ├── research-depth.md
     │   │   └── research-technical.md
-    │   ├── exploration/           # Codebase exploration agents
-    │   │   ├── architecture-explorer.md
-    │   │   └── codebase-analyzer.md
     │   └── review/                # Code review agents
     │       ├── test-coverage-analyzer.md
     │       ├── error-handling-reviewer.md
@@ -291,7 +283,6 @@ ccconfigs/
     │   ├── implement-plan.md
     │   └── orchestrate.md
     └── skills/                    # Workflow skills
-        ├── planning/
         ├── implementing-tasks/
         ├── reviewing-code/
         └── testing/
