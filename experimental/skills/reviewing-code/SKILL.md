@@ -56,26 +56,41 @@ Given task file path `.plans/<project>/review/NNN-task.md`:
 
 ## Invoking Specialized Agents
 
-After initial review, invoke agents in parallel using the Agent tool:
+After initial review, invoke agents in parallel using the Task tool with `subagent_type="general-purpose"`:
 
-```python
-# Launch all three agents simultaneously
-Agent("test-coverage-analyzer", context={
-    "task_file": task_file_path,
-    "test_files": [...],
-    "implementation_files": [...]
-})
-
-Agent("error-handling-reviewer", context={
-    "task_file": task_file_path,
-    "implementation_files": [...]
-})
-
-Agent("security-reviewer", context={
-    "task_file": task_file_path,
-    "implementation_files": [...]
-})
 ```
+Launch all three agents simultaneously using Task tool:
+
+Task(
+  description: "Analyze test coverage",
+  prompt: "You are test-coverage-analyzer. Analyze test coverage for:
+    Task file: [task_file_path]
+    Test files: [list test files]
+    Implementation files: [list impl files]
+    [Include full agent prompt from experimental/agents/review/test-coverage-analyzer.md]",
+  subagent_type: "general-purpose"
+)
+
+Task(
+  description: "Review error handling",
+  prompt: "You are error-handling-reviewer. Review error handling in:
+    Task file: [task_file_path]
+    Implementation files: [list impl files]
+    [Include full agent prompt from experimental/agents/review/error-handling-reviewer.md]",
+  subagent_type: "general-purpose"
+)
+
+Task(
+  description: "Security review",
+  prompt: "You are security-reviewer. Review security in:
+    Task file: [task_file_path]
+    Implementation files: [list impl files]
+    [Include full agent prompt from experimental/agents/review/security-reviewer.md]",
+  subagent_type: "general-purpose"
+)
+```
+
+Call all three Task invocations in a single message to run them in parallel.
 
 Each agent returns:
 - **test-coverage-analyzer**: List of test gaps with 1-10 criticality scores

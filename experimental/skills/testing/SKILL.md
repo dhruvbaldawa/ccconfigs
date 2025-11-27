@@ -9,6 +9,16 @@ Given task file path `.plans/<project>/testing/NNN-task.md`:
 
 ## Process
 
+**Use TodoWrite to track testing validation:**
+```
+☐ Validate existing tests (behavior-focused?)
+☐ Check coverage of Validation checklist items
+☐ Identify gaps (empty/null, boundaries, errors)
+☐ Add tests for genuine gaps
+☐ Run coverage (>80% statements, >75% branches)
+☐ Update task status
+```
+
 1. Validate existing tests - behavior-focused? Covers Validation?
 2. Identify gaps - empty/null inputs, boundaries, errors, race conditions, security
 3. Add minimal tests if genuinely missing
