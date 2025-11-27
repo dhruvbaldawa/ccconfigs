@@ -137,6 +137,7 @@ You MUST follow this exact sequence FOR EVERY TASK:
 
 4. After user responds:
    - If "commit" or "yes":
+     * Stage code changes AND the task file in completed/: `git add . .plans/{{ARGS}}/completed/NNN-*.md`
      * Execute git commit with the proposed message
      * Report: "✅ Committed. Moving to next task..."
      * Continue to next task (loop back to step 0)
@@ -144,6 +145,7 @@ You MUST follow this exact sequence FOR EVERY TASK:
      * Report: "Skipping commit. Moving to next task..."
      * Move to next task without committing
    - If "edit [message]":
+     * Stage code changes AND the task file in completed/: `git add . .plans/{{ARGS}}/completed/NNN-*.md`
      * Execute git commit with their provided message
      * Report: "✅ Committed with custom message. Moving to next task..."
      * Continue to next task (loop back to step 0)
@@ -161,9 +163,9 @@ Only use this workflow if "--auto" was detected in command arguments.
    - Describe **what was accomplished** (not "Complete task NNN")
    - Use conventional commit format if applicable (feat:, fix:, refactor:, etc.)
 
-2. Execute git commit automatically:
+2. Execute git commit automatically (includes code changes AND task file):
    ```bash
-   git add .
+   git add . .plans/{{ARGS}}/completed/NNN-*.md
    git commit -m "$(cat <<'EOF'
    [Descriptive commit message]
    EOF
@@ -209,6 +211,7 @@ Review: git log --oneline -X
 - **End-to-end per task**: Each task goes through implementation → testing → review → commit → next task
 - **Meaningful todos**: Creates specific, actionable todos based on actual work (not generic templates)
 - **Commit timing**: Always after review approval (tests already validated in testing phase)
+- **Task files committed**: Each commit includes code changes AND the task file (moved to completed/), providing git history of project progress
 - **Flag detection**: Always checks for `--auto` flag and explicitly reports whether it's PRESENT or ABSENT
 - **Auto mode** (`--auto` flag PRESENT): Commits automatically and continues to next task without stopping
 - **Manual mode** (`--auto` flag ABSENT - DEFAULT): Stops BEFORE committing each task. Displays proposed commit message and WAITS for user confirmation. Each task requires its own confirmation - previous "yes" does NOT carry over.

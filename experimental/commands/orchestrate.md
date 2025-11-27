@@ -16,7 +16,9 @@ Complete end-to-end workflow from planning through implementation.
 
 ### Phase 1: Planning
 
-1. Invoke **planning skill** to analyze: "${{{ARGS}}}"
+1. Run `/plan-feature` workflow to analyze: "${{{ARGS}}}"
+   - This invokes technical-planning skill with full rigor
+   - Creates `.plans/<project>/` with plan.md and tasks in pending/
 2. After planning, extract project name and summarize
 3. Ask: "Ready to start implementation? (yes/no)"
    - yes → Continue to Phase 2
