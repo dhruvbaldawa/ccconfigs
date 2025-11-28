@@ -11,7 +11,7 @@
         "id": "66721d12-32e1-4476-b650-12435726007b",
         "type": "custom-command",
         "backgroundColor": "bgRed",
-        "commandPath": "echo \"${PROVIDER:ANT}\""
+        "commandPath": "echo \"${PROVIDER:-ANT}\""
       },
       {
         "id": "5",

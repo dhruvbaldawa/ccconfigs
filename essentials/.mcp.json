@@ -17,8 +17,13 @@
       "env": {}
     },
     "parallel-search": {
-      "type": "http",
-      "url": "https://search-mcp.parallel.ai/mcp"
+      "type": "stdio",
+      "command": "pnpx",
+      "args": [
+        "mcp-remote",
+        "https://search-mcp.parallel.ai/mcp",
+        "--header", "authorization: Bearer ${PARALLEL_API_KEY}"
+      ]
     },
     "perplexity": {
       "type": "stdio",
