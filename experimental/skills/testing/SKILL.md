@@ -25,7 +25,7 @@ Given task file path `.plans/<project>/testing/NNN-task.md`:
 4. Run coverage - verify >80% statements, >75% branches
 5. Update task status using Edit tool:
    - Find: `**Status:** [current status]`
-   - Replace: `**Status:** COMPLETED`
+   - Replace: `**Status:** READY_FOR_REVIEW`
 6. Append testing notes:
    ```bash
    cat >> "$task_file" <<EOF
@@ -41,8 +41,6 @@ Given task file path `.plans/<project>/testing/NNN-task.md`:
    Coverage: Statements: XX% | Branches: XX% | Functions: XX% | Lines: XX%
    Full suite: XXX/XXX passing
    Working Result verified: ✓ [description]
-
-   COMPLETED
    EOF
    ```
 7. Report completion
