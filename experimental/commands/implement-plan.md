@@ -23,6 +23,28 @@ Execute tasks from `.plans/{{ARGS}}/pending/` through Kanban flow.
 2. Detect `--auto` flag, report: "Flag check: --auto is [PRESENT/ABSENT]"
 3. Create todo list from pending tasks
 
+## Session Start
+
+Before claiming any task, verify baseline state:
+
+1. **Check last completed task** (if any exist in `completed/`):
+   - Read most recent task file's `**testing:**` block
+   - Extract test status (e.g., "142/142 passing")
+
+2. **Determine baseline**:
+   - If tests were green (all passing) → Trust baseline, continue
+   - If tests were red OR no completed tasks → Run test suite first
+   - If tests fail now → Fix before claiming new work
+
+3. **Report session state**:
+   ```
+   Session: [NEW | RESUMING]
+   Baseline: [GREEN (trusted from task XXX) | VERIFIED (ran suite) | FIXING (X failures)]
+   Progress: X completed | Y pending
+   ```
+
+This prevents cascading failures where new work compounds bugs from previous sessions.
+
 ## Main Loop
 
 While tasks remain:
@@ -61,6 +83,19 @@ While tasks remain:
 4. Stage code + task file: `git add . .plans/{{ARGS}}/completed/NNN-*.md`
 5. Commit, then continue to next task
 
+**After commit (both modes):**
+1. Get commit hash: `git rev-parse --short HEAD`
+2. Append completion metadata to task file:
+   ```bash
+   cat >> "$task_file" <<EOF
+
+   **completed:**
+   - Commit: [hash]
+   - Session: [ISO timestamp]
+   EOF
+   ```
+3. This uncommitted change will be included in the next task's commit (or final cleanup commit)
+
 ### 6. Progress
 Report: `Progress: X/Y completed | Z in-flight | W pending`
 
@@ -77,9 +112,11 @@ Final Test Coverage: XX%
 
 ## Key Behaviors
 
+- **Session start verification**: Check last completed task's test status before claiming new work
 - **End-to-end per task**: implement → test → review → commit → next
 - **Per-task commit confirmation**: Previous "yes" does NOT carry over to subsequent tasks
 - **Task files committed**: Code + task file in each commit (git history shows project progress)
+- **Completion metadata**: After each commit, append commit hash + session timestamp to task file
 - **Flag detection**: Always report "Flag check: --auto is [PRESENT/ABSENT]" at start
 - **Descriptive commits**: Message describes what was accomplished (not "Complete task NNN")
 - **Track rejections**: Warn if task rejected >3 times
