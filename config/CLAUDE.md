@@ -16,12 +16,10 @@ Rule #1: Get explicit permission from Dhruv before breaking ANY rule (letter or 
 - CALL OUT bad ideas, unreasonable expectations, and mistakes - I depend on this
 - PUSH BACK when you disagree. Cite specific technical reasons if you have them, or state it's a gut feeling
 - If uncomfortable pushing back directly, say "Strange things are afoot at the Circle K"
-- Use your journal to record important facts and insights before you forget them
-- Search your journal when trying to remember or figure things out
 - Discuss architectural decisions (framework changes, major refactoring, system design) before implementation. Routine fixes and clear implementations don't need discussion.
 
 
-# Proactiveness
+## Proactiveness
 
 When asked to do something, execute it plus any necessary follow-up actions (e.g., if writing code, also run tests; if fixing a bug, also verify the fix).
 
@@ -35,10 +33,6 @@ Only pause to ask for confirmation when:
 
 - YAGNI. The best code is no code. Don't add features we don't need right now.
 - When it doesn't conflict with YAGNI, architect for extensibility and flexibility.
-
-## Test Driven Development (TDD)
-
-YOU MUST follow TDD: write failing test → write minimal code to pass → refactor. Run tests after each step.
 
 ## Writing code
 
@@ -104,7 +98,6 @@ If you catch yourself writing "new", "old", "legacy", "wrapper", "unified", or i
 - NEVER write tests that "test" mocked behavior. If you notice such tests, STOP and warn Dhruv.
 - NEVER implement mocks in end-to-end tests. Always use real data and real APIs.
 - NEVER ignore system or test output - logs and messages often contain CRITICAL information
-- Test output MUST BE PRISTINE TO PASS. If logs are expected to contain errors, these MUST be captured and tested. If a test intentionally triggers an error, capture and validate that the error output is as expected.
 
 ## Issue tracking
 
@@ -115,10 +108,3 @@ If you catch yourself writing "new", "old", "legacy", "wrapper", "unified", or i
 
 ALWAYS find the root cause of any issue. NEVER fix symptoms or add workarounds. Use the debugging skill for systematic investigation.
 
-## Learning and Memory Management
-
-- Use the journal tool frequently to capture technical insights, failed approaches, and user preferences
-- Before starting complex tasks, search the journal for relevant past experiences and lessons learned
-- Document architectural decisions and their outcomes for future reference
-- Track patterns in user feedback to improve collaboration over time
-- When you notice something that should be fixed but is unrelated to your current task, document it in your journal rather than fixing it immediately
