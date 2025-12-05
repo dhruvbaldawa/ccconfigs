@@ -25,41 +25,32 @@ description: Engineers effective prompts using systematic methodology. Use when 
 
 ---
 
-## LEVEL 2: COMMON MISTAKES ⚠️
+## LEVEL 2: DIAGNOSTICS 🔧
 
-Avoid these patterns that reduce effectiveness:
-
-| Mistake | Problem | Fix |
-|---------|---------|-----|
-| **Over-engineering** | All techniques for simple task | Start minimal, add only what helps |
-| **Clarity blindness** | Jumping to advanced techniques | Foundation first, always |
-| **Assuming intuition** | No explicit direction | State requirements clearly |
-| **Negative framing** | "Don't do X" | Say what TO do instead |
-| **No motivation** | Missing the WHY | Explain your goals |
-| **Technique stacking** | Everything at once | One technique at a time |
-| **No iteration** | Deploy without testing | Test, measure, refine |
-| **Outdated practices** | XML/roles for every prompt | Modern models need less scaffolding |
-
----
-
-## LEVEL 3: TROUBLESHOOTING 🔧
-
-**Quick Diagnostic:**
+**Output Problems → Solutions:**
 
 | Problem | Solution |
 |---------|----------|
-| Output too generic | Add specificity + examples |
-| Off-topic responses | Add context explaining goals |
-| Wrong format | Use examples or prefilling |
-| Unreliable complexity | Break into multiple prompts (chaining) |
+| Too generic | Add specificity + examples |
+| Off-topic | Add context explaining goals |
+| Wrong format | Examples or prefilling |
+| Unreliable on complex tasks | Prompt chaining |
 | Unnecessary preambles | Prefill or "start directly with..." |
-| Hallucinations | Say "if unsure, acknowledge uncertainty" |
-| Shallow reasoning | Add chain of thought |
-| Pattern misses | Add multishot examples |
+| Hallucinations | "If unsure, acknowledge uncertainty" |
+| Shallow reasoning | Chain of thought |
+
+**Process Problems → Fixes:**
+
+| Mistake | Fix |
+|---------|-----|
+| Over-engineering | Start minimal, add only what helps |
+| Negative framing | Say what TO do instead |
+| No motivation | Explain the WHY |
+| No iteration | Test, measure, refine |
 
 ---
 
-## LEVEL 4: THE 12 TECHNIQUES 🛠️
+## LEVEL 3: THE 12 TECHNIQUES 🛠️
 
 ### Foundation (Always Apply)
 
@@ -87,69 +78,30 @@ Avoid these patterns that reduce effectiveness:
 
 ---
 
-## LEVEL 5: DESIGN FRAMEWORK 📋
+## LEVEL 4: DESIGN CHECKLIST 📋
 
-### D - Define Requirements
+**Before Writing:**
+- [ ] Core task clear?
+- [ ] Output format defined?
+- [ ] Constraints known? (latency/cost/accuracy)
+- [ ] One-off or repeated use?
 
-**Questions to Answer:**
-- Core task?
-- Output format?
-- Constraints (latency/cost/accuracy)?
-- One-off or repeated?
-
-### E - Estimate Complexity
-
-**Simple:**
-- Extraction, formatting
-- Simple Q&A
-- Clear right answer
-
-**Medium:**
-- Analysis with reasoning
-- Code generation
-- Multi-step but clear
-
-**Complex:**
-- Deep reasoning
-- Novel problem-solving
-- Research synthesis
-
-### S - Start Simple
-
-**Minimal Viable Prompt:**
-1. Clear instruction
-2. Success criteria
-3. Output format
-
-Test first. Add complexity only if underperforming.
-
-### I - Iterate Selectively
-
-**Add techniques based on gaps:**
-- Unclear outputs → More clarity, examples
-- Wrong structure → XML tags, prefilling
-- Shallow reasoning → Chain of thought
-- Pattern misses → Multishot examples
-
-### G - Guide on Cost
+**Complexity Assessment:**
+- Simple (extraction, Q&A) → Foundation only
+- Medium (analysis, code gen) → + CoT, examples
+- Complex (research, novel problems) → + Chaining, role
 
 **Cost Optimization:**
-- Cache system prompts, reference docs (90% savings)
+- Cache system prompts + reference docs (90% savings)
 - Batch non-urgent work (50% savings)
-- Minimize token usage through clear, concise instructions
+- Skip CoT for simple tasks (saves 2-3x)
 
-### N - Note Implementation
-
-**Deliverables:**
-- The optimized prompt
-- Techniques applied + rationale
-- Techniques skipped + why
-- Token estimate
-- Caching strategy
+**Deliverable:**
+- Prompt + techniques used + rationale + token estimate
 
 ---
 
-## LEVEL 6: ADVANCED TOPICS 🚀
+## LEVEL 5: ADVANCED TOPICS 🚀
 
 ### Tool Integration
 
@@ -195,11 +147,11 @@ Need library docs?
 ❌ **Redundant examples** - 5 examples when 2 suffice
 ❌ **No batching** - Real-time calls for non-urgent work (50% savings lost)
 
-See **LEVEL 2: Common Mistakes** for general anti-patterns.
+See **LEVEL 2: Diagnostics** for general fixes.
 
 ---
 
-## LEVEL 7: REFERENCES 📚
+## LEVEL 6: REFERENCES 📚
 
 ### Deep Dive Documentation
 
