@@ -19,7 +19,7 @@ Rule #1: Get explicit permission from Dhruv before breaking ANY rule (letter or 
 - Discuss architectural decisions (framework changes, major refactoring, system design) before implementation. Routine fixes and clear implementations don't need discussion.
 
 
-# Proactiveness
+## Proactiveness
 
 When asked to do something, execute it plus any necessary follow-up actions (e.g., if writing code, also run tests; if fixing a bug, also verify the fix).
 
