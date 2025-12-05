@@ -1,18 +1,26 @@
 # Prompt Engineering Technique Catalog
 
-Deep dive into each of the 9 core prompt engineering techniques with examples, token costs, and combination strategies.
+Deep dive into 12 prompt engineering techniques organized as **4 Foundation** (always apply) + **8 Advanced** (apply when needed), with examples, token costs, and combination strategies.
 
 ## Table of Contents
 
+### Foundation Techniques (Always Apply)
 - [1. Clarity and Directness](#1-clarity-and-directness)
-- [2. XML Structure](#2-xml-structure)
-- [3. Chain of Thought](#3-chain-of-thought)
-- [4. Multishot Prompting](#4-multishot-prompting)
-- [5. System Prompt (Role Assignment)](#5-system-prompt-role-assignment)
-- [6. Prefilling](#6-prefilling)
-- [7. Long Context Optimization](#7-long-context-optimization)
-- [8. Context Budget Management](#8-context-budget-management)
-- [9. Tool Documentation](#9-tool-documentation)
+- [2. Context and Motivation](#2-context-and-motivation)
+- [3. Positive Framing](#3-positive-framing)
+- [4. XML Structure](#4-xml-structure) *(situational with modern models)*
+
+### Advanced Techniques (Apply When Needed)
+- [5. Chain of Thought](#5-chain-of-thought)
+- [6. Prompt Chaining](#6-prompt-chaining)
+- [7. Multishot Prompting](#7-multishot-prompting)
+- [8. System Prompt (Role Assignment)](#8-system-prompt-role-assignment)
+- [9. Prefilling](#9-prefilling)
+- [10. Long Context Optimization](#10-long-context-optimization)
+- [11. Context Budget Management](#11-context-budget-management)
+- [12. Tool Documentation](#12-tool-documentation)
+
+### Reference
 - [Technique Combination Matrix](#technique-combination-matrix)
 - [Decision Framework](#decision-framework)
 - [Common Patterns](#common-patterns)
@@ -59,16 +67,138 @@ Specificity allows Claude to understand exactly what's needed and focus reasonin
 
 ---
 
-## 2. XML Structure
+## 2. Context and Motivation
+
+### What It Is
+Explaining the reasoning behind your request—the "why"—not just the requirements. This helps Claude understand your objectives and make better judgment calls.
+
+### When to Use
+**ALWAYS** alongside clarity. Particularly valuable when:
+- Requirements might seem arbitrary without context
+- Edge cases need intelligent handling
+- You want Claude to adapt approach to your goals
+
+### Token Cost
+Minimal - typically 10-30 tokens for motivation.
+
+### Examples
+
+**Before (Just constraint):**
+```
+Don't use bullet points in your response.
+```
+
+**After (With motivation):**
+```
+I prefer responses in natural paragraph form rather than bullet points
+because I find flowing prose easier to read and share with my team.
+```
+
+**Before (Just instruction):**
+```
+Write a 500-word summary of this article.
+```
+
+**After (With context):**
+```
+Write a 500-word summary of this article for our company newsletter.
+Our readers are busy executives who want key takeaways they can act on.
+```
+
+**Before (Technical constraint):**
+```
+Return results as JSON with snake_case keys.
+```
+
+**After (With motivation):**
+```
+Return results as JSON with snake_case keys because our Python backend
+uses these conventions and it avoids transformation overhead.
+```
+
+### Why It Works
+When Claude understands your objectives:
+- Makes better decisions on edge cases not covered by explicit rules
+- Adjusts tone, depth, and focus appropriately
+- Avoids technically-correct-but-unhelpful responses
+
+### Combination Strategies
+- Always pair with clarity (the "what" + the "why")
+- Enhances examples (explain why the example output is good)
+- Improves chain of thought (Claude reasons toward your goals)
+
+### Skip When
+- Task is completely mechanical with no judgment calls
+- Motivation would be redundant (obvious context)
+
+---
+
+## 3. Positive Framing
+
+### What It Is
+Telling Claude what TO do rather than what NOT to do. Positive instructions are clearer and more actionable.
+
+### When to Use
+Whenever you're tempted to write a negative constraint.
+
+### Token Cost
+Often neutral or reduces tokens (positive statements are usually more concise).
+
+### Examples
+
+| Negative (Avoid) | Positive (Prefer) |
+|------------------|-------------------|
+| "Don't use jargon" | "Use plain language accessible to general audiences" |
+| "Don't be verbose" | "Be concise and direct" |
+| "Don't make assumptions" | "Ask clarifying questions when information is missing" |
+| "Don't hallucinate" | "If you're unsure, say so explicitly" |
+| "Don't use passive voice" | "Use active voice throughout" |
+| "Don't include preambles" | "Start directly with the answer" |
+
+**Before (Negative list):**
+```
+Don't use:
+- Bullet points
+- Headers
+- Code blocks
+- Emojis
+```
+
+**After (Positive instruction):**
+```
+Write in flowing prose paragraphs without structural formatting.
+```
+
+### Why It Works
+- Negative constraints require Claude to infer the positive alternative
+- Positive instructions are unambiguous about desired behavior
+- Reduces cognitive load and interpretation errors
+
+### Combination Strategies
+- Applies to all instructions - always reframe negatives
+- Particularly important in examples (show what TO do)
+- Improves system prompts (positive persona definition)
+
+---
+
+## 4. XML Structure
 
 ### What It Is
 Using XML tags to create hard structural boundaries within prompts, separating instructions, context, examples, and formatting requirements.
 
+### Modern Model Note (2024+)
+XML structure was essential with earlier Claude models but is **less necessary** with Claude 4.x. Modern models understand natural language context better. Use XML when you genuinely need it, not by default.
+
 ### When to Use
-- Complex prompts with multiple sections
+- Complex prompts with multiple distinct sections
 - Risk of instruction leakage (user input mixed with instructions)
-- Structured data tasks
-- Long prompts where sections need clear delineation
+- Long context where documents need clear boundaries
+- Automated pipelines where structure aids parsing
+
+### When to Skip (Modern Models)
+- Simple single-section prompts
+- Conversational interactions
+- When natural language is equally clear
 
 ### Token Cost
 ~50-100 tokens overhead for tag structure.
@@ -113,7 +243,7 @@ Claude has been fine-tuned to pay special attention to XML tags, preventing conf
 
 ---
 
-## 3. Chain of Thought
+## 5. Chain of Thought
 
 ### What It Is
 Encouraging step-by-step reasoning before providing final answers. Implemented via phrases like "Think step by step" or explicit `<thinking></thinking>` tags.
@@ -177,7 +307,71 @@ Breaking down reasoning into steps improves accuracy and makes the decision-maki
 
 ---
 
-## 4. Multishot Prompting
+## 6. Prompt Chaining
+
+### What It Is
+Breaking complex tasks into sequential smaller prompts, where later prompts use output from earlier ones.
+
+### When to Use
+- Multi-step analysis where later steps depend on earlier results
+- Tasks too complex for reliable single-pass accuracy
+- When you need intermediate verification or human review
+- Workflows with distinct phases (research → analyze → synthesize)
+
+### Token Cost
+Multiple API calls, but each call is simpler and more reliable.
+
+### Examples
+
+**Before (Single complex prompt):**
+```
+Analyze this codebase, identify all security vulnerabilities, prioritize them by severity,
+create remediation plans for each, estimate effort for fixes, and produce a project timeline.
+```
+
+**After (Chained prompts):**
+```
+Prompt 1: "Analyze this codebase and list all potential security vulnerabilities."
+→ Output: List of 12 vulnerabilities
+
+Prompt 2: "Given these vulnerabilities: [list], rate each by severity (Critical/High/Medium/Low)
+with justification."
+→ Output: Prioritized list
+
+Prompt 3: "For the top 5 critical/high vulnerabilities, create specific remediation plans."
+→ Output: Remediation plans
+
+Prompt 4: "Estimate implementation effort for each remediation plan."
+→ Output: Effort estimates
+```
+
+### Why It Works
+- Each prompt is simpler and more focused
+- Intermediate outputs can be verified before proceeding
+- Errors in early steps can be corrected before compounding
+- Complex reasoning is broken into manageable chunks
+
+### Trade-offs
+| Benefit | Cost |
+|---------|------|
+| Higher accuracy | Increased latency |
+| Intermediate verification | More API calls |
+| Easier debugging | More complex orchestration |
+| Focused prompts | State management needed |
+
+### Combination Strategies
+- Each step can use appropriate techniques (CoT for analysis, examples for formatting)
+- Intermediate outputs become context for next prompt
+- Can run some chains in parallel if independent
+
+### Skip When
+- Task is simple enough for single-pass
+- Latency is critical
+- Steps are truly interdependent (can't parallelize)
+
+---
+
+## 7. Multishot Prompting
 
 ### What It Is
 Providing 2-5 examples of input → desired output to demonstrate patterns.
@@ -231,7 +425,7 @@ Examples teach patterns more effectively than textual descriptions, especially f
 
 ---
 
-## 5. System Prompt (Role Assignment)
+## 8. System Prompt (Role Assignment)
 
 ### What It Is
 Using the system parameter to assign Claude a specific role, expertise area, or perspective.
@@ -275,7 +469,7 @@ Roles frame Claude's approach and leverage domain-specific patterns from trainin
 
 ---
 
-## 6. Prefilling
+## 9. Prefilling
 
 ### What It Is
 Providing the start of Claude's response to guide format and skip preambles.
@@ -325,7 +519,7 @@ Forces Claude to continue from the prefilled content, ensuring format compliance
 
 ---
 
-## 7. Long Context Optimization
+## 10. Long Context Optimization
 
 ### What It Is
 Specific strategies for handling 20K+ token inputs effectively, including document placement, XML structure, and quote grounding.
@@ -389,7 +583,7 @@ Analyze these documents for X
 
 ---
 
-## 8. Context Budget Management
+## 11. Context Budget Management
 
 ### What It Is
 Optimizing for repeated prompts through caching and managing attention budget across long conversations.
@@ -457,7 +651,7 @@ The system prompt and style guide cache, only the user query changes.
 
 ---
 
-## 9. Tool Documentation
+## 12. Tool Documentation
 
 ### What It Is
 Clear, detailed descriptions of tools/functions including when to use them, parameter schemas, and examples.
@@ -540,16 +734,19 @@ Clear tool descriptions help Claude:
 ## Technique Combination Matrix
 
 | Primary Technique | Works Well With | Avoid Combining With |
-|------------------|-----------------|---------------------|
+|-------------------|-----------------|---------------------|
 | Clarity | Everything | N/A - always use |
-| XML Structure | Long Context, Examples, Caching | Simple single-section prompts |
-| Chain of Thought | XML, Role, Long Context | Simple extraction (unnecessary) |
-| Multishot | XML, Prefilling | Overly simple tasks |
+| Context & Motivation | Clarity (always pair) | N/A - always use |
+| Positive Framing | All instructions | N/A - always use |
+| XML Structure | Long Context, Examples, Caching | Simple prompts (modern models) |
+| Chain of Thought | XML, Role, Long Context | Simple extraction |
+| Prompt Chaining | All techniques per step | Latency-critical tasks |
+| Multishot | XML, Prefilling | Trivial tasks |
 | System Role | Chain of Thought, Tools | Generic tasks |
 | Prefilling | XML, Multishot | Conversational outputs |
 | Long Context | XML, Quoting, Caching | Short prompts |
 | Context Budget | XML, System Prompts | One-off queries |
-| Tool Docs | Role, Examples | No tool use |
+| Tool Docs | Role, Examples, CoT | No tool use |
 
 ---
 
@@ -558,75 +755,95 @@ Clear tool descriptions help Claude:
 ```
 Start Here
     ↓
-1. Always apply CLARITY
+1. ALWAYS apply foundation techniques:
+   - Clarity (explicit instructions)
+   - Context & Motivation (explain WHY)
+   - Positive Framing (say what TO do)
     ↓
-2. Assess prompt length:
-   < 5K tokens → Skip long context tips
-   > 20K tokens → Apply long context optimization
+2. Assess task complexity:
+   Simple → Stop here, skip advanced techniques
+   Complex → Continue below
     ↓
-3. Check if repeated:
-   Yes → Structure for caching
-   No → Skip cache optimization
+3. Too complex for single pass?
+   Yes → Use Prompt Chaining
+   No → Continue
     ↓
 4. Does it need reasoning?
-   Yes → Add chain of thought
+   Yes → Add Chain of Thought
    No → Skip (save 2-3x tokens)
     ↓
-5. Is format subtle or specific?
-   Yes → Add examples or prefilling
+5. Assess prompt length:
+   > 20K tokens → Apply Long Context tips
+   < 5K tokens → Skip
+    ↓
+6. Is it repeated use?
+   Yes → Structure for Caching
+   No → Skip cache optimization
+    ↓
+7. Is format subtle or specific?
+   Yes → Add Examples or Prefilling
    No → Skip
     ↓
-6. Is it complex or has sections?
-   Yes → Use XML structure
-   No → Keep simple
+8. Does it need structure?
+   Complex multi-section → Use XML
+   Simple → Natural language is fine
     ↓
-7. Does domain expertise help?
-   Yes → Assign role in system prompt
+9. Does domain expertise help?
+   Yes → Assign Role in system prompt
    No → Skip
     ↓
-8. Does it involve tools?
-   Yes → Write detailed tool docs
-   No → Skip
+10. Does it involve tools?
+    Yes → Write detailed Tool Docs
+    No → Skip
     ↓
 Final Check: Is every technique justified?
+The best prompt achieves goals with MINIMUM necessary structure.
 ```
 
 ---
 
 ## Common Patterns
 
-### Pattern 1: Simple Extraction
+**Foundation techniques apply to ALL patterns:**
 - Clarity ✓
-- XML (maybe, if multi-section)
-- Everything else: Skip
+- Context & Motivation ✓
+- Positive Framing ✓
+
+### Pattern 1: Simple Extraction
+- Foundation only
+- Skip everything else
 
 ### Pattern 2: Analysis Task
-- Clarity ✓
+- Foundation ✓
 - Chain of Thought ✓
-- XML Structure ✓
 - System Role ✓
 - Long Context (if large input) ✓
+- XML Structure (if complex) ✓
 
 ### Pattern 3: Format Conversion
-- Clarity ✓
+- Foundation ✓
 - Multishot Examples ✓
 - Prefilling ✓
-- XML (maybe)
 
-### Pattern 4: Agent Workflow
-- Clarity ✓
+### Pattern 4: Complex Multi-Step Task
+- Foundation ✓
+- Prompt Chaining ✓
+- Chain of Thought (per step) ✓
+- System Role ✓
+
+### Pattern 5: Agent Workflow
+- Foundation ✓
 - System Role ✓
 - Tool Documentation ✓
 - Chain of Thought ✓
 - Context Budget Management ✓
 - XML Structure ✓
 
-### Pattern 5: Repeated Queries
-- Clarity ✓
+### Pattern 6: Repeated Queries
+- Foundation ✓
 - System Role ✓
 - Context Budget Management ✓
 - XML Structure (for cache boundaries) ✓
-- Other techniques as needed
 
 ---
 

@@ -9,56 +9,85 @@ description: Engineers effective prompts using systematic methodology. Use when 
 
 ## LEVEL 1: QUICKSTART ⚡
 
-**5-Step Prompt Creation:**
+**Foundation First (Always Apply):**
 
-1. **Start Clear**: Explicit instructions + success criteria
-2. **Assess Need**: Does it need structure? Examples? Reasoning?
-3. **Add Sparingly**: Only techniques that improve outcomes
-4. **Estimate Cost**: Count tokens, identify caching opportunities
-5. **Test & Iterate**: Measure effectiveness, refine based on results
+1. **Clarity**: Explicit instructions + success criteria
+2. **Context & Motivation**: Explain WHY, not just WHAT
+3. **Positive Framing**: Say what TO do, not what NOT to do
 
----
+**Then Assess:**
 
-## LEVEL 2: CORE PHILOSOPHY 🎯
+4. **Simple task?** → Stop here. Foundation is enough.
+5. **Complex task?** → Add advanced techniques sparingly
+6. **Test & Iterate**: Measure effectiveness, refine based on results
 
-### The Three Principles
-
-**Simplicity First**
-- Start with minimal prompt
-- Add complexity only when empirically justified
-- More techniques ≠ better results
-
-**Cost Awareness**
-- Minimize token usage
-- Leverage prompt caching (90% savings on repeated content)
-- Batch processing for non-urgent work (50% savings)
-
-**Effectiveness**
-- Techniques must improve outcomes for YOUR use case
-- Measure impact, don't just apply best practices
-- Iterate based on results
+> **Key insight**: The best prompt achieves goals with minimum necessary structure.
 
 ---
 
-## LEVEL 3: THE 9 TECHNIQUES 🛠️
+## LEVEL 2: COMMON MISTAKES ⚠️
 
-### Quick Reference
+Avoid these patterns that reduce effectiveness:
 
-| Technique | When to Use | Cost Impact |
-|-----------|------------|-------------|
-| **1. Clarity** | ALWAYS | Minimal, max impact |
-| **2. XML Structure** | Complex prompts, instruction leakage | ~50-100 tokens |
-| **3. Chain of Thought** | Reasoning, analysis, math | 2-3x output tokens |
-| **4. Multishot Examples** | Pattern learning, format guidance | 200-1K tokens each |
-| **5. System Role** | Domain expertise needed | Minimal (caches well) |
-| **6. Prefilling** | Strict format requirements | Minimal |
-| **7. Long Context** | 20K+ token inputs | Better accuracy |
-| **8. Context Budget** | Repeated use, long conversations | 90% savings with cache |
-| **9. Tool Docs** | Function calling, agents | 100-500 tokens per tool |
+| Mistake | Problem | Fix |
+|---------|---------|-----|
+| **Over-engineering** | All techniques for simple task | Start minimal, add only what helps |
+| **Clarity blindness** | Jumping to advanced techniques | Foundation first, always |
+| **Assuming intuition** | No explicit direction | State requirements clearly |
+| **Negative framing** | "Don't do X" | Say what TO do instead |
+| **No motivation** | Missing the WHY | Explain your goals |
+| **Technique stacking** | Everything at once | One technique at a time |
+| **No iteration** | Deploy without testing | Test, measure, refine |
+| **Outdated practices** | XML/roles for every prompt | Modern models need less scaffolding |
 
 ---
 
-## LEVEL 4: DESIGN FRAMEWORK 📋
+## LEVEL 3: TROUBLESHOOTING 🔧
+
+**Quick Diagnostic:**
+
+| Problem | Solution |
+|---------|----------|
+| Output too generic | Add specificity + examples |
+| Off-topic responses | Add context explaining goals |
+| Wrong format | Use examples or prefilling |
+| Unreliable complexity | Break into multiple prompts (chaining) |
+| Unnecessary preambles | Prefill or "start directly with..." |
+| Hallucinations | Say "if unsure, acknowledge uncertainty" |
+| Shallow reasoning | Add chain of thought |
+| Pattern misses | Add multishot examples |
+
+---
+
+## LEVEL 4: THE 12 TECHNIQUES 🛠️
+
+### Foundation (Always Apply)
+
+| Technique | What It Does | Cost |
+|-----------|--------------|------|
+| **1. Clarity** | Explicit instructions, success criteria | Minimal |
+| **2. Context & Motivation** | Explain WHY you want something | Minimal |
+| **3. Positive Framing** | Say what TO do, not what NOT to do | Minimal |
+| **4. XML Structure** | Separate sections in complex prompts | ~50-100 tokens |
+
+> **Note**: XML is less essential with Claude 4.x - use when genuinely needed.
+
+### Advanced (Apply When Needed)
+
+| Technique | When to Use | Cost |
+|-----------|-------------|------|
+| **5. Chain of Thought** | Reasoning, analysis, math | 2-3x output |
+| **6. Prompt Chaining** | Multi-step, complex tasks | Multiple calls |
+| **7. Multishot Examples** | Pattern learning, format | 200-1K each |
+| **8. System Role** | Domain expertise needed | Minimal |
+| **9. Prefilling** | Strict format requirements | Minimal |
+| **10. Long Context** | 20K+ token inputs | Better accuracy |
+| **11. Context Budget** | Repeated use, conversations | 90% savings |
+| **12. Tool Docs** | Function calling, agents | 100-500/tool |
+
+---
+
+## LEVEL 5: DESIGN FRAMEWORK 📋
 
 ### D - Define Requirements
 
@@ -120,7 +149,7 @@ Test first. Add complexity only if underperforming.
 
 ---
 
-## LEVEL 5: ADVANCED TOPICS 🚀
+## LEVEL 6: ADVANCED TOPICS 🚀
 
 ### Tool Integration
 
@@ -159,20 +188,18 @@ Need library docs?
 - Structured output reduces back-and-forth
 - Tool use instead of long context when possible
 
-### Anti-Patterns
+### Cost-Specific Anti-Patterns
 
-❌ **Over-engineering** - All 9 techniques for simple task
-❌ **Premature optimization** - Complexity before testing simple
-❌ **Vague instructions** - "Analyze this" without specifics
-❌ **No examples** - Expecting format inference
-❌ **Missing structure** - Long prompts without XML
-❌ **Ignoring caching** - Not leveraging repeated content
+❌ **Ignoring caching** - Not leveraging repeated content (90% savings lost)
+❌ **Over-requesting CoT** - Chain of thought for simple tasks (2-3x wasted)
+❌ **Redundant examples** - 5 examples when 2 suffice
+❌ **No batching** - Real-time calls for non-urgent work (50% savings lost)
 
-**Stop here if:** You need advanced implementation details
+See **LEVEL 2: Common Mistakes** for general anti-patterns.
 
 ---
 
-## LEVEL 6: REFERENCES 📚
+## LEVEL 7: REFERENCES 📚
 
 ### Deep Dive Documentation
 
