@@ -40,7 +40,9 @@ ccconfigs/
 │       ├── research-synthesis/   # MCP tool usage and synthesis
 │       │   ├── SKILL.md
 │       │   └── reference/        # Research examples
-│       └── technical-planning/   # Risk-first planning (4-phase approach)
+│       ├── technical-planning/   # Risk-first planning (4-phase approach)
+│       │   └── SKILL.md
+│       └── claude-md-authoring/  # Write effective CLAUDE.md files
 │           └── SKILL.md
 ├── writing/                        # The writing plugin
 │   ├── .claude-plugin/plugin.json # Plugin metadata
@@ -142,6 +144,8 @@ Configuration files only (JSON and Markdown). No build, test, or lint commands.
 **debugging**: Systematic debugging using UNDERSTAND methodology (10-step checklist). Focuses on root cause analysis over symptom treatment. Prioritizes built-in tools (WebSearch) then MCP servers (Parallel Search for advanced research, Perplexity for broad surveys, Context7 for official docs, SequentialThinking for complex analysis). Includes antipattern awareness and decision framework for when to use which tools. Reference materials document common debugging failures.
 
 **technical-planning**: Risk-first development methodology with Last Responsible Moment decision-making. Four-phase approach: Requirements & Risk Analysis, Milestone Planning, Implementation Strategy, Execution Framework. Emphasizes "what" over "how", defers implementation decisions until execution, manages deferral explicitly, and addresses highest-risk challenges first. Includes decision timing framework (what to decide early vs. defer), task breakdown guidelines (outcome-focused vs. prescriptive), and decision framework for handling unclear requirements.
+
+**claude-md-authoring**: Write effective CLAUDE.md files for Claude Code. Applies HumanLayer guidelines: instruction budgets (~50 user-level, ~100 project-level), WHAT/WHY/HOW framework for project-level, universal applicability for user-level, and progressive disclosure. Includes anti-patterns (never use Claude as linter for style rules), scope decision framework, structure templates, and quality checklist.
 
 ### MCP Servers
 
