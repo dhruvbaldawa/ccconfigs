@@ -9,114 +9,95 @@ description: Engineers effective prompts using systematic methodology. Use when 
 
 ## LEVEL 1: QUICKSTART ⚡
 
-**5-Step Prompt Creation:**
+**Foundation First (Always Apply):**
 
-1. **Start Clear**: Explicit instructions + success criteria
-2. **Assess Need**: Does it need structure? Examples? Reasoning?
-3. **Add Sparingly**: Only techniques that improve outcomes
-4. **Estimate Cost**: Count tokens, identify caching opportunities
-5. **Test & Iterate**: Measure effectiveness, refine based on results
+1. **Clarity**: Explicit instructions + success criteria
+2. **Context & Motivation**: Explain WHY, not just WHAT
+3. **Positive Framing**: Say what TO do, not what NOT to do
 
----
+**Then Assess:**
 
-## LEVEL 2: CORE PHILOSOPHY 🎯
+4. **Simple task?** → Stop here. Foundation is enough.
+5. **Complex task?** → Add advanced techniques sparingly
+6. **Test & Iterate**: Measure effectiveness, refine based on results
 
-### The Three Principles
-
-**Simplicity First**
-- Start with minimal prompt
-- Add complexity only when empirically justified
-- More techniques ≠ better results
-
-**Cost Awareness**
-- Minimize token usage
-- Leverage prompt caching (90% savings on repeated content)
-- Batch processing for non-urgent work (50% savings)
-
-**Effectiveness**
-- Techniques must improve outcomes for YOUR use case
-- Measure impact, don't just apply best practices
-- Iterate based on results
+> **Key insight**: The best prompt achieves goals with minimum necessary structure.
 
 ---
 
-## LEVEL 3: THE 9 TECHNIQUES 🛠️
+## LEVEL 2: DIAGNOSTICS 🔧
 
-### Quick Reference
+**Output Problems → Solutions:**
 
-| Technique | When to Use | Cost Impact |
-|-----------|------------|-------------|
-| **1. Clarity** | ALWAYS | Minimal, max impact |
-| **2. XML Structure** | Complex prompts, instruction leakage | ~50-100 tokens |
-| **3. Chain of Thought** | Reasoning, analysis, math | 2-3x output tokens |
-| **4. Multishot Examples** | Pattern learning, format guidance | 200-1K tokens each |
-| **5. System Role** | Domain expertise needed | Minimal (caches well) |
-| **6. Prefilling** | Strict format requirements | Minimal |
-| **7. Long Context** | 20K+ token inputs | Better accuracy |
-| **8. Context Budget** | Repeated use, long conversations | 90% savings with cache |
-| **9. Tool Docs** | Function calling, agents | 100-500 tokens per tool |
+| Problem | Solution |
+|---------|----------|
+| Too generic | Add specificity + examples |
+| Off-topic | Add context explaining goals |
+| Wrong format | Examples or prefilling |
+| Unreliable on complex tasks | Prompt chaining |
+| Unnecessary preambles | Prefill or "start directly with..." |
+| Hallucinations | "If unsure, acknowledge uncertainty" |
+| Shallow reasoning | Chain of thought |
+
+**Process Problems → Fixes:**
+
+| Mistake | Fix |
+|---------|-----|
+| Over-engineering | Start minimal, add only what helps |
+| Negative framing | Say what TO do instead |
+| No motivation | Explain the WHY |
+| No iteration | Test, measure, refine |
 
 ---
 
-## LEVEL 4: DESIGN FRAMEWORK 📋
+## LEVEL 3: THE 12 TECHNIQUES 🛠️
 
-### D - Define Requirements
+### Foundation (Always Apply)
 
-**Questions to Answer:**
-- Core task?
-- Output format?
-- Constraints (latency/cost/accuracy)?
-- One-off or repeated?
+| Technique | What It Does | Cost |
+|-----------|--------------|------|
+| **1. Clarity** | Explicit instructions, success criteria | Minimal |
+| **2. Context & Motivation** | Explain WHY you want something | Minimal |
+| **3. Positive Framing** | Say what TO do, not what NOT to do | Minimal |
+| **4. XML Structure** | Separate sections in complex prompts | ~50-100 tokens |
 
-### E - Estimate Complexity
+> **Note**: XML is less essential with Claude 4.x - use when genuinely needed.
 
-**Simple:**
-- Extraction, formatting
-- Simple Q&A
-- Clear right answer
+### Advanced (Apply When Needed)
 
-**Medium:**
-- Analysis with reasoning
-- Code generation
-- Multi-step but clear
+| Technique | When to Use | Cost |
+|-----------|-------------|------|
+| **5. Chain of Thought** | Reasoning, analysis, math | 2-3x output |
+| **6. Prompt Chaining** | Multi-step, complex tasks | Multiple calls |
+| **7. Multishot Examples** | Pattern learning, format | 200-1K each |
+| **8. System Role** | Domain expertise needed | Minimal |
+| **9. Prefilling** | Strict format requirements | Minimal |
+| **10. Long Context** | 20K+ token inputs | Better accuracy |
+| **11. Context Budget** | Repeated use, conversations | 90% savings |
+| **12. Tool Docs** | Function calling, agents | 100-500/tool |
 
-**Complex:**
-- Deep reasoning
-- Novel problem-solving
-- Research synthesis
+---
 
-### S - Start Simple
+## LEVEL 4: DESIGN CHECKLIST 📋
 
-**Minimal Viable Prompt:**
-1. Clear instruction
-2. Success criteria
-3. Output format
+**Before Writing:**
+- [ ] Core task clear?
+- [ ] Output format defined?
+- [ ] Constraints known? (latency/cost/accuracy)
+- [ ] One-off or repeated use?
 
-Test first. Add complexity only if underperforming.
-
-### I - Iterate Selectively
-
-**Add techniques based on gaps:**
-- Unclear outputs → More clarity, examples
-- Wrong structure → XML tags, prefilling
-- Shallow reasoning → Chain of thought
-- Pattern misses → Multishot examples
-
-### G - Guide on Cost
+**Complexity Assessment:**
+- Simple (extraction, Q&A) → Foundation only
+- Medium (analysis, code gen) → + CoT, examples
+- Complex (research, novel problems) → + Chaining, role
 
 **Cost Optimization:**
-- Cache system prompts, reference docs (90% savings)
+- Cache system prompts + reference docs (90% savings)
 - Batch non-urgent work (50% savings)
-- Minimize token usage through clear, concise instructions
+- Skip CoT for simple tasks (saves 2-3x)
 
-### N - Note Implementation
-
-**Deliverables:**
-- The optimized prompt
-- Techniques applied + rationale
-- Techniques skipped + why
-- Token estimate
-- Caching strategy
+**Deliverable:**
+- Prompt + techniques used + rationale + token estimate
 
 ---
 
@@ -159,16 +140,14 @@ Need library docs?
 - Structured output reduces back-and-forth
 - Tool use instead of long context when possible
 
-### Anti-Patterns
+### Cost-Specific Anti-Patterns
 
-❌ **Over-engineering** - All 9 techniques for simple task
-❌ **Premature optimization** - Complexity before testing simple
-❌ **Vague instructions** - "Analyze this" without specifics
-❌ **No examples** - Expecting format inference
-❌ **Missing structure** - Long prompts without XML
-❌ **Ignoring caching** - Not leveraging repeated content
+❌ **Ignoring caching** - Not leveraging repeated content (90% savings lost)
+❌ **Over-requesting CoT** - Chain of thought for simple tasks (2-3x wasted)
+❌ **Redundant examples** - 5 examples when 2 suffice
+❌ **No batching** - Real-time calls for non-urgent work (50% savings lost)
 
-**Stop here if:** You need advanced implementation details
+See **LEVEL 2: Diagnostics** for general fixes.
 
 ---
 
