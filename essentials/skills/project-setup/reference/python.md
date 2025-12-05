@@ -2,17 +2,18 @@
 
 Opinionated Python setup with modern tooling: uv for package management, ruff for linting/formatting, mypy for type checking, pytest for testing.
 
-## Tool Stack
+## Tool Stack (December 2025)
 
-| Purpose | Tool | Why |
-|---------|------|-----|
-| Package manager | **uv** | Fast, replaces pip/pipenv/poetry, handles Python versions |
-| Linting | **ruff** | Fast, replaces flake8/isort/pyupgrade, extensive rule sets |
-| Formatting | **ruff format** | Fast, black-compatible, integrated with linter |
-| Type checking | **mypy** | Mature, strict mode available, good IDE support |
-| Testing | **pytest** | Standard, fixtures, plugins ecosystem |
-| Coverage | **pytest-cov** | pytest integration, multiple report formats |
-| Pre-commit | **pre-commit** | Language-agnostic hooks, cached environments |
+| Purpose | Tool | Version | Why |
+|---------|------|---------|-----|
+| Runtime | **Python** | 3.14 | Latest stable LTS |
+| Package manager | **uv** | 0.9.15 | Fast, replaces pip/pipenv/poetry, handles Python versions |
+| Linting | **ruff** | 0.14.8 | Fast, replaces flake8/isort/pyupgrade, 800+ rules |
+| Formatting | **ruff format** | 0.14.8 | Fast, black-compatible, integrated with linter |
+| Type checking | **basedpyright** | 1.35.0 | Pyright fork with stricter defaults, better errors |
+| Testing | **pytest** | 9.0.1 | Standard, fixtures, strict mode in 9.x |
+| Coverage | **pytest-cov** | 7.0.0 | pytest integration, multiple report formats |
+| Pre-commit | **pre-commit** | 4.5.0 | Language-agnostic hooks, cached environments |
 
 ## Project Structure
 
@@ -48,7 +49,7 @@ uv init my-project
 cd my-project
 
 # Pin Python version
-echo "3.12" > .python-version
+echo "3.14" > .python-version
 
 # Create source structure
 mkdir -p src/my_project tests/integration
@@ -65,15 +66,15 @@ name = "my-project"
 version = "0.1.0"
 description = "Project description"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.14"
 dependencies = []
 
 [project.optional-dependencies]
 dev = [
-    "mypy>=1.11",
-    "pytest>=8.0",
-    "pytest-cov>=5.0",
-    "pre-commit>=3.8",
+    "basedpyright>=1.35.0",
+    "pytest>=9.0.1",
+    "pytest-cov>=7.0.0",
+    "pre-commit>=4.5.0",
 ]
 
 [build-system]
@@ -87,18 +88,18 @@ packages = ["src/my_project"]
 # Ruff - Linting & Formatting
 # =============================================================================
 [tool.ruff]
-line-length = 88
-target-version = "py312"
+line-length = 120
+target-version = "py314"
 src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = [
+    "F",      # pyflakes
     "E",      # pycodestyle errors
     "W",      # pycodestyle warnings
-    "F",      # pyflakes
-    "I",      # isort
-    "B",      # flake8-bugbear
     "C4",     # flake8-comprehensions
+    "B",      # flake8-bugbear
+    "I",      # isort
     "UP",     # pyupgrade
     "ARG",    # flake8-unused-arguments
     "SIM",    # flake8-simplify
@@ -109,6 +110,7 @@ select = [
     "RUF",    # ruff-specific
 ]
 ignore = [
+    "E501",     # Line too long (handled by formatter)
     "PLR0913",  # Too many arguments (sometimes necessary)
     "PLR2004",  # Magic value comparison (too noisy)
 ]
@@ -121,27 +123,18 @@ ignore = [
 known-first-party = ["my_project"]
 
 # =============================================================================
-# Mypy - Type Checking
+# basedpyright - Type Checking
 # =============================================================================
-[tool.mypy]
-python_version = "3.12"
-strict = true
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-check_untyped_defs = true
-disallow_untyped_decorators = true
-warn_redundant_casts = true
-warn_unused_ignores = true
-warn_no_return = true
-no_implicit_optional = true
-strict_equality = true
-extra_checks = true
-
-[[tool.mypy.overrides]]
-module = "tests.*"
-disallow_untyped_defs = false  # Fixtures don't need types
+[tool.basedpyright]
+pythonVersion = "3.14"
+typeCheckingMode = "all"  # Strictest mode
+reportMissingTypeStubs = "warning"
+reportUnusedImport = "error"
+reportUnusedVariable = "error"
+reportUnusedFunction = "warning"
+reportOptionalMemberAccess = "error"
+reportOptionalSubscript = "error"
+reportOptionalCall = "error"
 
 # =============================================================================
 # Pytest - Testing
@@ -151,14 +144,16 @@ testpaths = ["src", "tests"]
 python_files = ["*_test.py", "test_*.py"]
 python_functions = ["test_*"]
 addopts = [
-    "-ra",                    # Show summary of all results
-    "--strict-markers",       # Error on unknown markers
-    "--strict-config",        # Error on config issues
-    "-v",                     # Verbose output
+    "--import-mode=importlib",
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+    "-v",
 ]
-filterwarnings = [
-    "error",                  # Treat warnings as errors
-]
+filterwarnings = ["error"]
+
+# pytest 9.0+ strict mode
+strict = true
 
 [tool.coverage.run]
 source = ["src"]
@@ -182,21 +177,21 @@ Create `.pre-commit-config.yaml`:
 ```yaml
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.9
+    rev: v0.14.8
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.11.2
-    hooks:
-      - id: mypy
-        additional_dependencies: []  # Add typed stubs here
-        args: [--config-file=pyproject.toml]
-
   - repo: local
     hooks:
+      - id: basedpyright
+        name: basedpyright
+        entry: uv run basedpyright
+        language: system
+        types: [python]
+        pass_filenames: false
+
       - id: pytest
         name: pytest
         entry: uv run pytest
@@ -231,10 +226,16 @@ uv run ruff check .
 uv run ruff format .
 
 # Run type checker
-uv run mypy src
+uv run basedpyright
 
 # Run all checks (same as pre-commit)
-uv run ruff check . && uv run ruff format --check . && uv run mypy src && uv run pytest
+uv run ruff check . && uv run ruff format --check . && uv run basedpyright && uv run pytest
+
+# Check for outdated dependencies
+uv pip list --outdated
+
+# Update dependencies
+uv lock --upgrade
 ```
 
 ## CI Configuration (GitHub Actions)
@@ -257,9 +258,10 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v3
+        uses: astral-sh/setup-uv@v4
         with:
           enable-cache: true
+          cache-dependency-glob: 'uv.lock'
 
       - name: Set up Python
         run: uv python install
@@ -267,14 +269,14 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-extras
 
-      - name: Lint
-        run: uv run ruff check .
-
       - name: Format check
         run: uv run ruff format --check .
 
+      - name: Lint
+        run: uv run ruff check .
+
       - name: Type check
-        run: uv run mypy src
+        run: uv run basedpyright
 
       - name: Test
         run: uv run pytest --cov --cov-report=xml
@@ -358,35 +360,108 @@ uv run pip index versions types-requests
 
 # Add to dependencies
 uv add --dev types-requests
-
-# Add to mypy pre-commit hook
-# In .pre-commit-config.yaml under mypy hook:
-additional_dependencies: [types-requests]
 ```
 
 ## Strict Mode Rationale
 
-**Why `strict = true` in mypy?**
+**Why `typeCheckingMode = "all"` in basedpyright?**
+- Strictest type checking mode available
 - Catches more bugs at type-check time
 - Forces explicit types, improving documentation
+- Better error messages than standard pyright
 - Makes refactoring safer
-- Default is too permissive
 
 **Why extensive ruff rules?**
+- `F` (pyflakes): Catches undefined names, unused imports
 - `B` (bugbear): Catches common bugs
 - `C4` (comprehensions): Enforces idiomatic Python
 - `UP` (pyupgrade): Keeps code modern
 - `ARG` (unused-arguments): Catches dead code
 - `SIM` (simplify): Reduces complexity
 - `PTH` (pathlib): Modern file handling
+- `TCH` (type-checking): Optimizes type-only imports
+
+## .gitignore
+
+```gitignore
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Type checkers
+.mypy_cache/
+.pyright/
+.basedpyright/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# Ruff
+.ruff_cache/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Environment
+.env
+.env.local
+```
+
+## .editorconfig
+
+```ini
+[*.py]
+indent_style = space
+indent_size = 4
+max_line_length = 120
+```
+
+## Security Scanning
+
+```bash
+# Install pip-audit
+uv add --dev pip-audit
+
+# Run security scan
+uv run pip-audit
+```
+
+## Dependabot Configuration
+
+Create `.github/dependabot.yml`:
+
+```yaml
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+```
 
 ## Troubleshooting
 
-**mypy: Module not found**
+**basedpyright: Module not found**
 ```bash
-# Ensure src is in Python path
-export PYTHONPATH="${PYTHONPATH}:src"
-# Or configure in pyproject.toml
+# Ensure src is in Python path via pyrightconfig.json or pyproject.toml
+# Or use --pythonpath flag
 ```
 
 **pre-commit: Hook failed**
@@ -402,4 +477,5 @@ uv run pre-commit autoupdate
 ```bash
 # Check test file naming
 # Must be *_test.py or test_*.py (configured in pyproject.toml)
+# Ensure --import-mode=importlib is set
 ```

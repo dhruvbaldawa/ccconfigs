@@ -2,17 +2,19 @@
 
 Opinionated TypeScript setup: strict mode, ESLint with type-aware rules, Prettier, Vitest for testing, and Husky for pre-commit hooks.
 
-## Tool Stack
+## Tool Stack (December 2025)
 
-| Purpose | Tool | Why |
-|---------|------|-----|
-| Runtime | **Node.js 20+** | LTS, native ESM, good TypeScript support |
-| Package manager | **pnpm** | Fast, strict, disk efficient (npm/yarn also fine) |
-| Type checking | **TypeScript 5.x** | Strict mode, satisfies operator, improved inference |
-| Linting | **ESLint 9+** | Flat config, type-aware rules, extensive plugins |
-| Formatting | **Prettier** | Opinionated, widely adopted, editor integrations |
-| Testing | **Vitest** | Fast, native ESM/TS, Jest-compatible API |
-| Pre-commit | **Husky + lint-staged** | Lightweight, only lint changed files |
+| Purpose | Tool | Version | Why |
+|---------|------|---------|-----|
+| Runtime | **Node.js** | 24 (LTS) | Latest LTS, native ESM, excellent TypeScript support |
+| Package manager | **pnpm** | 9.x | Fast, strict, disk efficient |
+| Type checking | **TypeScript** | 5.9.3 | Strict mode, satisfies operator, improved inference |
+| Linting | **ESLint** | 9.39.1 | Flat config, native TS config support, type-aware rules |
+| Linting | **typescript-eslint** | 8.48.1 | Type-aware rules, strictTypeChecked preset |
+| Formatting | **Prettier** | 3.7.4 | Opinionated, widely adopted, editor integrations |
+| Testing | **Vitest** | 4.0.15 | Fast, native ESM/TS, Jest-compatible API |
+| Pre-commit | **Husky** | 9.1.7 | Git hooks management |
+| Pre-commit | **lint-staged** | 16.2.7 | Run linters on staged files only |
 
 ## Project Structure
 
@@ -20,7 +22,7 @@ Opinionated TypeScript setup: strict mode, ESLint with type-aware rules, Prettie
 my-project/
 ├── package.json
 ├── tsconfig.json
-├── eslint.config.js
+├── eslint.config.ts          # Native TypeScript config (ESLint 9.18+)
 ├── .prettierrc
 ├── vitest.config.ts
 ├── .husky/
@@ -88,15 +90,15 @@ Replace generated `tsconfig.json` with strict settings:
     "verbatimModuleSyntax": true,
 
     // Emit
-    "target": "ES2022",
+    "target": "ES2024",
     "outDir": "dist",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
 
     // Environment
-    "lib": ["ES2022"],
-    "types": ["node"],
+    "lib": ["ES2024"],
+    "types": ["node", "vitest/globals"],
     "skipLibCheck": true
   },
   "include": ["src/**/*"],
@@ -112,9 +114,10 @@ Install ESLint with TypeScript support:
 pnpm add -D eslint @eslint/js typescript-eslint globals
 ```
 
-Create `eslint.config.js` (flat config):
+Create `eslint.config.ts` (native TypeScript config, supported since ESLint 9.18+):
 
-```javascript
+```typescript
+// eslint.config.ts
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import globals from 'globals';
@@ -128,9 +131,9 @@ export default tseslint.config(
   // Base JavaScript rules
   eslint.configs.recommended,
 
-  // TypeScript type-aware rules
-  ...tseslint.configs.strictTypeChecked,
-  ...tseslint.configs.stylisticTypeChecked,
+  // TypeScript type-aware rules (strictest preset)
+  tseslint.configs.strictTypeChecked,
+  tseslint.configs.stylisticTypeChecked,
 
   // Global settings
   {
@@ -194,14 +197,20 @@ export default tseslint.config(
       '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/explicit-function-return-type': 'off',
     },
-  }
+  },
+
+  // Disable type-checked rules for JS config files
+  {
+    files: ['**/*.js', '**/*.mjs'],
+    ...tseslint.configs.disableTypeChecked,
+  },
 );
 ```
 
 ### 4. Set Up Prettier
 
 ```bash
-pnpm add -D prettier eslint-config-prettier eslint-plugin-prettier
+pnpm add -D prettier eslint-config-prettier
 ```
 
 Create `.prettierrc`:
@@ -212,7 +221,7 @@ Create `.prettierrc`:
   "singleQuote": true,
   "tabWidth": 2,
   "trailingComma": "es5",
-  "printWidth": 100,
+  "printWidth": 120,
   "bracketSpacing": true,
   "arrowParens": "always"
 }
@@ -227,9 +236,9 @@ coverage
 pnpm-lock.yaml
 ```
 
-Update `eslint.config.js` to include Prettier:
+Update `eslint.config.ts` to include Prettier:
 
-```javascript
+```typescript
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import globals from 'globals';
@@ -238,7 +247,7 @@ import prettierConfig from 'eslint-config-prettier';
 export default tseslint.config(
   // ... previous config ...
 
-  // Prettier must be last
+  // Prettier must be last (disables ESLint formatting rules)
   prettierConfig
 );
 ```
@@ -284,15 +293,7 @@ export default defineConfig({
 });
 ```
 
-Add Vitest types to `tsconfig.json`:
-
-```json
-{
-  "compilerOptions": {
-    "types": ["node", "vitest/globals"]
-  }
-}
-```
+Vitest types are already included in the `tsconfig.json` above (`"types": ["node", "vitest/globals"]`).
 
 ### 6. Set Up Pre-commit Hooks
 
@@ -363,26 +364,24 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Type check
-        run: pnpm typecheck
+      - name: Format check
+        run: pnpm format:check
 
       - name: Lint
         run: pnpm lint
 
-      - name: Format check
-        run: pnpm format:check
+      - name: Type check
+        run: pnpm typecheck
 
       - name: Test
         run: pnpm test:coverage
@@ -563,4 +562,85 @@ import { foo } from './foo';     # May fail
 rm -rf .husky
 pnpm exec husky init
 echo "pnpm lint-staged" > .husky/pre-commit
+```
+
+## .gitignore
+
+```gitignore
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Testing
+coverage/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+```
+
+## .editorconfig
+
+```ini
+[*.{ts,tsx,js,jsx,json,yml,yaml}]
+indent_style = space
+indent_size = 2
+max_line_length = 120
+
+[*.md]
+trim_trailing_whitespace = false
+```
+
+## Security Scanning
+
+```bash
+# Run npm audit
+pnpm audit
+
+# Fix vulnerabilities (where possible)
+pnpm audit --fix
+```
+
+## Dependabot Configuration
+
+Create `.github/dependabot.yml`:
+
+```yaml
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+```
+
+## Dependency Updates
+
+```bash
+# Check for outdated packages
+pnpm outdated
+
+# Update all dependencies
+pnpm update
+
+# Update to latest (including major versions)
+pnpm update --latest
 ```

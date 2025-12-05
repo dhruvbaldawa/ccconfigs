@@ -1,25 +1,24 @@
 # Common Patterns Across Languages
 
-Patterns and configurations that apply regardless of language choice.
+Patterns and configurations that apply regardless of language choice. Language-specific configurations (`.gitignore`, `.editorconfig`, CI caching, security scanning) are in the respective language reference files.
 
-## Git Configuration
+## Git Workflow Principles
 
-### .gitignore Template
+### .gitignore Strategy
+
+Organize `.gitignore` by category for maintainability:
+
+1. **Dependencies** - Package manager artifacts (language-specific)
+2. **Build outputs** - Compiled code, bundles (language-specific)
+3. **IDE/Editor** - Personal editor configs (universal)
+4. **OS artifacts** - System files (universal)
+5. **Test/Coverage** - Test artifacts and reports (language-specific)
+6. **Environment** - Secrets and local configs (universal)
+7. **Logs** - Runtime logs (universal)
+
+**Universal entries** (include in all projects):
 
 ```gitignore
-# Dependencies
-node_modules/
-.venv/
-venv/
-__pycache__/
-*.pyc
-
-# Build outputs
-dist/
-build/
-*.egg-info/
-.eggs/
-
 # IDE
 .idea/
 .vscode/
@@ -31,16 +30,7 @@ build/
 .DS_Store
 Thumbs.db
 
-# Test/Coverage
-coverage/
-htmlcov/
-.coverage
-*.lcov
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-
-# Environment
+# Environment (never commit secrets)
 .env
 .env.local
 .env.*.local
@@ -50,14 +40,14 @@ htmlcov/
 *.log
 logs/
 
-# Editor configs (keep team configs, ignore personal)
+# Keep team configs
 !.editorconfig
 .claude/settings.local.json
 ```
 
-### .editorconfig
+### .editorconfig Principles
 
-Ensure consistent formatting across editors:
+Use `.editorconfig` for cross-editor consistency:
 
 ```ini
 root = true
@@ -68,20 +58,14 @@ insert_final_newline = true
 trim_trailing_whitespace = true
 charset = utf-8
 
-[*.{ts,tsx,js,jsx,json,yml,yaml}]
-indent_style = space
-indent_size = 2
-
-[*.py]
-indent_style = space
-indent_size = 4
-
 [*.md]
 trim_trailing_whitespace = false
 
 [Makefile]
 indent_style = tab
 ```
+
+**Language-specific indent rules** belong in language reference files.
 
 ## README Template
 
@@ -168,68 +152,49 @@ Use tools that support incremental checking:
 - **lint-staged** (JS/TS): Only lint staged files
 - **pre-commit** (Python): Caches environments, only runs on changed files
 
-### Skip Hooks When Needed
-
-```bash
-# Skip all hooks (use sparingly)
-git commit --no-verify -m "WIP: incomplete work"
-
-# Skip specific hook (pre-commit)
-SKIP=pytest git commit -m "Quick fix"
-```
-
 ## CI/CD Patterns
 
 ### Matrix Testing
 
-Test across multiple versions:
+Test across multiple runtime versions to ensure compatibility:
 
 ```yaml
-# GitHub Actions
+# GitHub Actions pattern
 jobs:
   test:
     strategy:
       matrix:
-        node-version: [18, 20, 22]
-        # or
-        python-version: ['3.11', '3.12', '3.13']
+        runtime-version: [LTS, current]
 ```
 
-### Caching
+**Language-specific matrix configs** are in language reference files.
 
-Always cache dependencies:
+### Caching Principles
 
-```yaml
-# Node.js with pnpm
-- uses: pnpm/action-setup@v4
-- uses: actions/setup-node@v4
-  with:
-    cache: 'pnpm'
+Always cache dependencies to speed up CI:
 
-# Python with uv
-- uses: astral-sh/setup-uv@v3
-  with:
-    enable-cache: true
-```
+- Use language-specific caching actions (see language reference files)
+- Cache based on lock file hash
+- Consider caching build artifacts for large projects
 
 ### Check Order in CI
 
+Run checks in order of speed for fast feedback:
+
 ```yaml
 steps:
-  # Fast checks first
-  - name: Type check
-    run: npm run typecheck
+  # 1. Fast checks first (seconds)
+  - name: Format check    # Fastest - pure text analysis
+  - name: Lint            # Fast - static analysis
 
-  - name: Lint
-    run: npm run lint
+  # 2. Medium checks (seconds to minutes)
+  - name: Type check      # Requires parsing, slower than lint
 
-  - name: Format check
-    run: npm run format:check
-
-  # Slow checks last
-  - name: Test
-    run: npm run test:coverage
+  # 3. Slow checks last (minutes)
+  - name: Test            # Slowest - runs actual code
 ```
+
+This order ensures quick feedback on simple issues before running expensive tests.
 
 ## Testing Philosophy (Language-Agnostic)
 
@@ -275,6 +240,7 @@ def test_user_creation():
 ### Mocking Rules
 
 **Mock at boundaries:**
+
 - HTTP requests (network)
 - File system (I/O)
 - Time/Date (non-determinism)
@@ -282,6 +248,7 @@ def test_user_creation():
 - Third-party APIs
 
 **Don't mock:**
+
 - Your own code (test the real thing)
 - Database in integration tests (use test DB)
 - Internal implementation details
@@ -388,55 +355,48 @@ Keep a CHANGELOG.md:
 
 ### Update Strategy
 
-```bash
-# Check for updates regularly
-npm outdated        # Node.js
-uv pip list --outdated  # Python
+Update dependencies conservatively:
 
-# Update conservatively
-# 1. Update dev dependencies first (lower risk)
-# 2. Update patch versions
-# 3. Update minor versions with testing
-# 4. Update major versions carefully (breaking changes)
-```
+1. **Dev dependencies first** - Lower risk, easier to fix
+2. **Patch versions** - Bug fixes only, safe to update
+3. **Minor versions** - New features, test thoroughly
+4. **Major versions** - Breaking changes, review changelog
+
+**Language-specific update commands** are in language reference files.
 
 ### Lock Files
 
-Always commit lock files:
+Always commit lock files to ensure reproducible builds:
 
-- `package-lock.json` or `pnpm-lock.yaml` (Node.js)
-- `uv.lock` (Python with uv)
-
-Ensures reproducible builds across environments.
+- Lock files pin exact versions of all dependencies (including transitive)
+- CI should use frozen/locked installs to match local environment
+- Update lock files explicitly, not implicitly during installs
 
 ## Security Basics
 
 ### Dependency Scanning
 
-```yaml
-# GitHub Actions: Enable Dependabot
-# .github/dependabot.yml
-version: 2
-updates:
-  - package-ecosystem: "npm"  # or "pip"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-```
+Enable automated dependency updates:
+
+- Use Dependabot or Renovate for automated PRs
+- Configure weekly scanning schedule
+- Review and merge security updates promptly
+
+**Language-specific Dependabot configs** are in language reference files.
 
 ### Secret Scanning
 
-- Enable GitHub secret scanning
-- Use `.gitignore` to prevent accidental commits
-- Audit history if secrets were ever committed
+- Enable GitHub secret scanning (repository settings)
+- Use `.gitignore` to prevent accidental commits of `.env` files
+- If secrets were ever committed, rotate them immediately
+- Consider pre-commit hooks to catch secrets before commit
 
 ### Vulnerability Checking
 
-```bash
-# Node.js
-npm audit
-pnpm audit
+Run security audits regularly:
 
-# Python
-pip-audit  # or safety
-```
+- Integrate into CI pipeline (fail on high/critical vulnerabilities)
+- Review and update vulnerable dependencies promptly
+- Document accepted risks for unfixable vulnerabilities
+
+**Language-specific audit commands** are in language reference files.
