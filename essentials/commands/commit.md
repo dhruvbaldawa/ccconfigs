@@ -1,5 +1,5 @@
 ---
-model: haiku
+model: claude-haiku-4-5
 allowed-tools: Bash(git:*)
 argument-hint: "[optional: description or specific files]"
 description: "Smart commit workflow - adapts to change size"
@@ -9,7 +9,7 @@ description: "Smart commit workflow - adapts to change size"
 
 Quick overview of changes:
 
-!`git status --short && echo "" && echo "=== STATS ===" && git diff HEAD --numstat | awk '{add+=$1; del+=$2; files++} END {print "Files changed: " files " | Lines added: " add " | Lines deleted: " del}'`
+!`git status --short && echo "" && echo "=== STATS ===" && git diff HEAD --numstat`
 
 ## Analysis Strategy
 

@@ -1,7 +1,7 @@
 ---
 name: research-technical
 description: Official documentation research for API references and technical specifications
-model: haiku
+model: claude-haiku-4-5
 color: green
 ---
 

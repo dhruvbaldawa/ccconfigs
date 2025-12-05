@@ -41,7 +41,6 @@
   },
   "enabledPlugins": {
     "essentials@ccconfigs": true,
-    "todoist@ccconfigs": true,
     "experimental@ccconfigs": true
   },
   "alwaysThinkingEnabled": true

@@ -1,7 +1,7 @@
 ---
 name: research-depth
 description: Deep-dive research into specific URLs for detailed technical analysis and implementation patterns
-model: haiku
+model: claude-haiku-4-5
 color: purple
 ---
 

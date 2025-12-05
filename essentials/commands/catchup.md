@@ -1,5 +1,5 @@
 ---
-model: haiku
+model: claude-haiku-4-5
 description: "Review all changes between current branch and main"
 allowed-tools: Bash(git:*), Read
 ---
