@@ -1,6 +1,6 @@
 ---
 name: claude-md-authoring
-description: Write effective CLAUDE.md files for Claude Code. Use when creating or reviewing project-level or user-level configuration files. Applies HumanLayer guidelines for instruction budgets, universal applicability, and progressive disclosure.
+description: Creates and reviews CLAUDE.md configuration files for Claude Code. Applies HumanLayer guidelines including instruction budgets (~50 user-level, ~100 project-level), WHAT/WHY/HOW framework, and progressive disclosure. Identifies anti-patterns like using Claude as a linter for style rules.
 ---
 
 # CLAUDE.md Authoring
@@ -189,6 +189,27 @@ Before finalizing, verify:
 - Quick one-off projects (just use defaults)
 - Projects with existing, well-maintained CLAUDE.md
 - When the team already has established patterns
+
+## Example: Before/After
+
+**Before** (problematic user-level):
+```markdown
+## Naming
+NEVER use names like ZodValidator, MCPWrapper, JSONParser...
+[20 more lines of specific examples]
+
+## Comments
+All files MUST start with ABOUTME: header...
+```
+
+**After** (improved user-level):
+```markdown
+## Code Style
+Names should describe purpose, not implementation details.
+Use project linters for formatting; don't rely on manual enforcement.
+```
+
+*Why better*: Philosophy over specifics. Linter handles enforcement deterministically.
 
 ## Integration
 
