@@ -84,6 +84,13 @@ While tasks remain:
 
 ### 5. Commit
 
+**Before commit (both modes):**
+1. Append completion metadata to task file using Edit tool (add to end of file):
+   ```markdown
+   **completed:**
+   - Session: [ISO timestamp]
+   ```
+
 **With `--auto`:** Commit automatically, continue to next task.
 
 **Without `--auto` (default):**
@@ -92,16 +99,6 @@ While tasks remain:
 3. **STOP and WAIT** - each task needs its own confirmation
 4. Stage code + task file: `git add . .plans/{{ARGS}}/completed/NNN-*.md`
 5. Commit, then continue to next task
-
-**After commit (both modes):**
-1. Get commit hash: `git rev-parse --short HEAD`
-2. Append completion metadata to task file using Edit tool (add to end of file):
-   ```markdown
-   **completed:**
-   - Commit: [hash]
-   - Session: [ISO timestamp]
-   ```
-3. This uncommitted change will be included in the next task's commit (or final cleanup commit)
 
 ### 6. Progress
 Report: `Progress: X/Y completed | Z in-flight | W pending`
@@ -124,7 +121,7 @@ Final Test Coverage: XX%
 - **End-to-end per task**: implement → test → review → commit → next
 - **Per-task commit confirmation**: Previous "yes" does NOT carry over to subsequent tasks
 - **Task files committed**: Code + task file in each commit (git history shows project progress)
-- **Completion metadata**: After each commit, append commit hash + session timestamp to task file
+- **Completion metadata**: Before commit, append session timestamp to task file (commit hash available via git history)
 - **Flag detection**: Always report "Flag check: --auto is [PRESENT/ABSENT]" at start
 - **Descriptive commits**: Message describes what was accomplished (not "Complete task NNN")
 - **Track rejections**: Warn if task rejected >3 times
