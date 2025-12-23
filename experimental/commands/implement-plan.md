@@ -47,7 +47,11 @@ This prevents cascading failures where new work compounds bugs from previous ses
 
 ## Main Loop
 
-**CRITICAL: Do NOT stop between stages. Execute the full loop (implementation → testing → review → commit) for each task without pausing for user input, unless STUCK or --auto is absent at commit step.**
+**Flow:** Continue through stages automatically when things proceed normally. Stop and ask for input when:
+- Task is STUCK or blocked
+- Unexpected issues discovered (failing tests, security concerns, architectural questions)
+- Commit confirmation needed (without `--auto` flag)
+- Review finds CRITICAL issues worth discussing before fix
 
 While tasks remain:
 
@@ -55,29 +59,28 @@ While tasks remain:
 - Find next task with met dependencies
 - Move: `pending/NNN-*.md → implementation/`
 - Create todos from task's Validation checklist
-- **→ Immediately continue to step 2**
 
 ### 2. Implementation
 - Report: `🔨 Implementing Task X/Y: [name]`
 - Invoke skill: `implementing-tasks`
 - Check task's Status field:
   - If STUCK: Stop, show blocker, ask user
-  - If READY_FOR_TESTING: Move to `testing/` and **→ immediately continue to step 3**
-  - If READY_FOR_REVIEW: Move to `review/` and **→ immediately continue to step 4**
+  - If READY_FOR_TESTING: Move to `testing/` → step 3
+  - If READY_FOR_REVIEW: Move to `review/` → step 4
 
 ### 3. Testing
 - Report: `🧪 Testing Task X/Y: [name]`
 - Invoke skill: `testing`
 - Check task's Status field:
-  - If NEEDS_FIX: Move back to `implementation/`, **→ loop back to step 2**
-  - If READY_FOR_REVIEW: Move to `review/` and **→ immediately continue to step 4**
+  - If NEEDS_FIX: Move back to `implementation/` → step 2
+  - If READY_FOR_REVIEW: Move to `review/` → step 4
 
 ### 4. Review
 - Report: `🔍 Reviewing Task X/Y: [name]`
 - Invoke skill: `reviewing-code` (launches 3 review agents in parallel)
 - Check task's Status field:
-  - If REJECTED: Move back to `implementation/`, **→ loop back to step 2**
-  - If APPROVED: Move to `completed/` and **→ immediately continue to step 5**
+  - If REJECTED: Move back to `implementation/` → step 2
+  - If APPROVED: Move to `completed/` → step 5
 
 ### 5. Commit
 
@@ -116,7 +119,7 @@ Final Test Coverage: XX%
 
 ## Key Behaviors
 
-- **Continuous execution**: Do NOT pause between stages. Flow through implementation → testing → review → commit without stopping (unless STUCK or waiting for commit confirmation without --auto)
+- **Smooth flow with checkpoints**: Continue between stages when proceeding normally. Stop for user input when stuck, unexpected issues arise, or decisions are needed
 - **Session start verification**: Check last completed task's test status before claiming new work
 - **End-to-end per task**: implement → test → review → commit → next
 - **Per-task commit confirmation**: Previous "yes" does NOT carry over to subsequent tasks
