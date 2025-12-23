@@ -47,30 +47,37 @@ This prevents cascading failures where new work compounds bugs from previous ses
 
 ## Main Loop
 
+**CRITICAL: Do NOT stop between stages. Execute the full loop (implementation → testing → review → commit) for each task without pausing for user input, unless STUCK or --auto is absent at commit step.**
+
 While tasks remain:
 
 ### 1. Claim Task
 - Find next task with met dependencies
 - Move: `pending/NNN-*.md → implementation/`
 - Create todos from task's Validation checklist
+- **→ Immediately continue to step 2**
 
 ### 2. Implementation
 - Report: `🔨 Implementing Task X/Y: [name]`
-- **Invoke implementing-tasks skill**
-- If STUCK: Stop, show blocker, ask user
-- If READY_FOR_TESTING: Move to `testing/`
+- **Use the Skill tool to invoke "implementing-tasks"** - this loads the skill's detailed instructions
+- Wait for skill to complete, then check task's Status field:
+  - If STUCK: Stop, show blocker, ask user
+  - If READY_FOR_TESTING: Move to `testing/` and **→ immediately continue to step 3**
+  - If READY_FOR_REVIEW: Move to `review/` and **→ immediately continue to step 4**
 
 ### 3. Testing
 - Report: `🧪 Testing Task X/Y: [name]`
-- **Invoke testing skill**
-- If NEEDS_FIX: Move back to `implementation/`, loop
-- If READY_FOR_REVIEW: Move to `review/`
+- **Use the Skill tool to invoke "testing"** - this loads the skill's detailed instructions
+- Wait for skill to complete, then check task's Status field:
+  - If NEEDS_FIX: Move back to `implementation/`, **→ loop back to step 2**
+  - If READY_FOR_REVIEW: Move to `review/` and **→ immediately continue to step 4**
 
 ### 4. Review
 - Report: `🔍 Reviewing Task X/Y: [name]`
-- **Invoke reviewing-code skill** (launches 3 review agents in parallel)
-- If REJECTED: Move back to `implementation/`, fix issues, loop
-- If APPROVED: Move to `completed/`
+- **Use the Skill tool to invoke "reviewing-code"** - this loads the skill's detailed instructions (launches 3 review agents in parallel)
+- Wait for skill to complete, then check task's Status field:
+  - If REJECTED: Move back to `implementation/`, **→ loop back to step 2**
+  - If APPROVED: Move to `completed/` and **→ immediately continue to step 5**
 
 ### 5. Commit
 
@@ -85,14 +92,11 @@ While tasks remain:
 
 **After commit (both modes):**
 1. Get commit hash: `git rev-parse --short HEAD`
-2. Append completion metadata to task file:
-   ```bash
-   cat >> "$task_file" <<EOF
-
+2. Append completion metadata to task file using Edit tool (add to end of file):
+   ```markdown
    **completed:**
    - Commit: [hash]
    - Session: [ISO timestamp]
-   EOF
    ```
 3. This uncommitted change will be included in the next task's commit (or final cleanup commit)
 
@@ -112,6 +116,8 @@ Final Test Coverage: XX%
 
 ## Key Behaviors
 
+- **Continuous execution**: Do NOT pause between stages. Flow through implementation → testing → review → commit without stopping (unless STUCK or waiting for commit confirmation without --auto)
+- **Skill invocation**: Always use the Skill tool to invoke skills (e.g., `Skill("implementing-tasks")`). This loads the skill's detailed instructions into the conversation.
 - **Session start verification**: Check last completed task's test status before claiming new work
 - **End-to-end per task**: implement → test → review → commit → next
 - **Per-task commit confirmation**: Previous "yes" does NOT carry over to subsequent tasks

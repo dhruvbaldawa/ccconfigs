@@ -26,10 +26,8 @@ Given task file path `.plans/<project>/testing/NNN-task.md`:
 5. Update task status using Edit tool:
    - Find: `**Status:** [current status]`
    - Replace: `**Status:** READY_FOR_REVIEW`
-6. Append testing notes:
-   ```bash
-   cat >> "$task_file" <<EOF
-
+6. Append testing notes using Edit tool (add to end of task file):
+   ```markdown
    **testing:**
    Validated [N] tests (behavior-focused)
 
@@ -41,7 +39,6 @@ Given task file path `.plans/<project>/testing/NNN-task.md`:
    Coverage: Statements: XX% | Branches: XX% | Functions: XX% | Lines: XX%
    Full suite: XXX/XXX passing
    Working Result verified: ✓ [description]
-   EOF
    ```
 7. Report completion
 
@@ -58,15 +55,19 @@ If tests fail or coverage <80%:
 - Fix test scenarios first
 - If code bug found:
   - Update status using Edit tool: Find `**Status:** [current status]` → Replace `**Status:** NEEDS_FIX`
-  - Append notes:
-    ```bash
-    cat >> "$task_file" <<EOF
-
+  - Append notes using Edit tool (append to end of file):
+    ```markdown
     **testing:**
     Found issues:
     - [Specific issue]
     - [Specific issue]
 
     Requires code fixes. Moving back to implementation.
-    EOF
     ```
+
+## Completion
+
+When testing is complete (status updated to READY_FOR_REVIEW or NEEDS_FIX):
+- Report: `✅ Testing complete. Status: [STATUS]`
+- **Return control to the calling command** - do NOT stop or wait for user input
+- The calling workflow will move the task file and continue to the next stage
