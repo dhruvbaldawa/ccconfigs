@@ -47,6 +47,12 @@ This prevents cascading failures where new work compounds bugs from previous ses
 
 ## Main Loop
 
+**Flow:** Continue through stages automatically when things proceed normally. Stop and ask for input when:
+- Task is STUCK or blocked
+- Unexpected issues discovered (failing tests, security concerns, architectural questions)
+- Commit confirmation needed (without `--auto` flag)
+- Review finds CRITICAL issues worth discussing before fix
+
 While tasks remain:
 
 ### 1. Claim Task
@@ -56,23 +62,34 @@ While tasks remain:
 
 ### 2. Implementation
 - Report: `🔨 Implementing Task X/Y: [name]`
-- **Invoke implementing-tasks skill**
-- If STUCK: Stop, show blocker, ask user
-- If READY_FOR_TESTING: Move to `testing/`
+- Invoke skill: `implementing-tasks`
+- Check task's Status field:
+  - If STUCK: Stop, show blocker, ask user
+  - If READY_FOR_TESTING: Move to `testing/` → step 3
+  - If READY_FOR_REVIEW: Move to `review/` → step 4
 
 ### 3. Testing
 - Report: `🧪 Testing Task X/Y: [name]`
-- **Invoke testing skill**
-- If NEEDS_FIX: Move back to `implementation/`, loop
-- If READY_FOR_REVIEW: Move to `review/`
+- Invoke skill: `testing`
+- Check task's Status field:
+  - If NEEDS_FIX: Move back to `implementation/` → step 2
+  - If READY_FOR_REVIEW: Move to `review/` → step 4
 
 ### 4. Review
 - Report: `🔍 Reviewing Task X/Y: [name]`
-- **Invoke reviewing-code skill** (launches 3 review agents in parallel)
-- If REJECTED: Move back to `implementation/`, fix issues, loop
-- If APPROVED: Move to `completed/`
+- Invoke skill: `reviewing-code` (launches 3 review agents in parallel)
+- Check task's Status field:
+  - If REJECTED: Move back to `implementation/` → step 2
+  - If APPROVED: Move to `completed/` → step 5
 
 ### 5. Commit
+
+**Before commit (both modes):**
+1. Append completion metadata to task file using Edit tool (add to end of file):
+   ```markdown
+   **completed:**
+   - Session: [ISO timestamp]
+   ```
 
 **With `--auto`:** Commit automatically, continue to next task.
 
@@ -82,19 +99,6 @@ While tasks remain:
 3. **STOP and WAIT** - each task needs its own confirmation
 4. Stage code + task file: `git add . .plans/{{ARGS}}/completed/NNN-*.md`
 5. Commit, then continue to next task
-
-**After commit (both modes):**
-1. Get commit hash: `git rev-parse --short HEAD`
-2. Append completion metadata to task file:
-   ```bash
-   cat >> "$task_file" <<EOF
-
-   **completed:**
-   - Commit: [hash]
-   - Session: [ISO timestamp]
-   EOF
-   ```
-3. This uncommitted change will be included in the next task's commit (or final cleanup commit)
 
 ### 6. Progress
 Report: `Progress: X/Y completed | Z in-flight | W pending`
@@ -112,11 +116,12 @@ Final Test Coverage: XX%
 
 ## Key Behaviors
 
+- **Smooth flow with checkpoints**: Continue between stages when proceeding normally. Stop for user input when stuck, unexpected issues arise, or decisions are needed
 - **Session start verification**: Check last completed task's test status before claiming new work
 - **End-to-end per task**: implement → test → review → commit → next
 - **Per-task commit confirmation**: Previous "yes" does NOT carry over to subsequent tasks
 - **Task files committed**: Code + task file in each commit (git history shows project progress)
-- **Completion metadata**: After each commit, append commit hash + session timestamp to task file
+- **Completion metadata**: Before commit, append session timestamp to task file (commit hash available via git history)
 - **Flag detection**: Always report "Flag check: --auto is [PRESENT/ABSENT]" at start
 - **Descriptive commits**: Message describes what was accomplished (not "Complete task NNN")
 - **Track rejections**: Warn if task rejected >3 times

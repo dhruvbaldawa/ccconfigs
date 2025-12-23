@@ -28,10 +28,8 @@ Convert each step from the task's LLM Prompt into a todo. Mark completed as you 
 3. Update task status using Edit tool:
    - Find: `**Status:** [current status]`
    - Replace: `**Status:** READY_FOR_REVIEW`
-4. Append implementation notes using bash:
-   ```bash
-   cat >> "$task_file" <<EOF
-
+4. Append implementation notes using Edit tool (add to end of task file):
+   ```markdown
    **implementation:**
    - Followed LLM Prompt steps 1-N
    - Implemented [key functionality]
@@ -39,7 +37,6 @@ Convert each step from the task's LLM Prompt into a todo. Mark completed as you 
    - Full test suite: [M]/[M] passing
    - Working Result verified: ✓ [description]
    - Files: [list with brief descriptions]
-   EOF
    ```
 5. Mark validation checkboxes: `[ ]` → `[x]` using Edit tool
 6. Report completion
@@ -52,15 +49,12 @@ When blocked during implementation:
 - Update status using Edit tool:
   - Find: `**Status:** [current status]`
   - Replace: `**Status:** STUCK`
-- Append notes:
-  ```bash
-  cat >> "$task_file" <<EOF
-
+- Append notes using Edit tool (add to end of task file):
+  ```markdown
   **implementation:**
   - Attempted [what tried]
   - BLOCKED: [specific issue]
   - Launching research agents to investigate...
-  EOF
   ```
 
 ### 2. Launch Research Agents
@@ -98,10 +92,8 @@ Use research-synthesis skill (from essentials) to:
 - Identify concrete path forward
 - Extract actionable implementation guidance
 
-Update task file with research findings:
-```bash
-cat >> "$task_file" <<EOF
-
+Update task file with research findings using Edit tool (add to end of task file):
+```markdown
 **research findings:**
 - [Agent 1]: [key insights]
 - [Agent 2]: [key insights]
@@ -109,7 +101,6 @@ cat >> "$task_file" <<EOF
 
 **resolution:**
 [Concrete path forward based on research]
-EOF
 ```
 
 ### 4. Continue or Escalate
@@ -121,20 +112,14 @@ EOF
 
 **If still stuck after research:**
 - Keep status as `STUCK`
-- Append escalation notes
-- STOP and report blocker with research context
-
-```bash
-cat >> "$task_file" <<EOF
-
-**escalation:**
-- Research completed but blocker remains
-- Reason: [why research didn't unblock]
-- Need: [what's needed - human decision, missing requirement, etc.]
-EOF
-```
-
-Then STOP and report blocker with full context.
+- Append escalation notes using Edit tool (add to end of task file):
+  ```markdown
+  **escalation:**
+  - Research completed but blocker remains
+  - Reason: [why research didn't unblock]
+  - Need: [what's needed - human decision, missing requirement, etc.]
+  ```
+- Then STOP and report blocker with full context.
 
 ## Rejection Handling
 
@@ -149,3 +134,10 @@ If task moved back from review:
    - Fixed [issue 2]
    - Re-ran tests: [M]/[M] passing
    ```
+
+## Completion
+
+When implementation is complete (status updated to READY_FOR_REVIEW or READY_FOR_TESTING):
+- Report: `✅ Implementation complete. Status: [STATUS]`
+- **Return control to the calling command** - do NOT stop or wait for user input
+- The calling workflow will move the task file and continue to the next stage
