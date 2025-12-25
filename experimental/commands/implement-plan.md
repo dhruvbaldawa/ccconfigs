@@ -63,7 +63,7 @@ While tasks remain:
 ### 2. Implementation
 - Report: `🔨 Implementing Task X/Y: [name]`
 - Invoke skill: `implementing-tasks`
-- Check task's Status field:
+- When skill reports `✅ Implementation complete`, immediately check Status and proceed:
   - If STUCK: Stop, show blocker, ask user
   - If READY_FOR_TESTING: Move to `testing/` → step 3
   - If READY_FOR_REVIEW: Move to `review/` → step 4
@@ -71,14 +71,14 @@ While tasks remain:
 ### 3. Testing
 - Report: `🧪 Testing Task X/Y: [name]`
 - Invoke skill: `testing`
-- Check task's Status field:
+- When skill reports `✅ Testing complete`, immediately check Status and proceed:
   - If NEEDS_FIX: Move back to `implementation/` → step 2
   - If READY_FOR_REVIEW: Move to `review/` → step 4
 
 ### 4. Review
 - Report: `🔍 Reviewing Task X/Y: [name]`
 - Invoke skill: `reviewing-code` (launches 3 review agents in parallel)
-- Check task's Status field:
+- When skill reports `✅ Review complete`, immediately check Status and proceed:
   - If REJECTED: Move back to `implementation/` → step 2
   - If APPROVED: Move to `completed/` → step 5
 

@@ -139,5 +139,3 @@ If task moved back from review:
 
 When implementation is complete (status updated to READY_FOR_REVIEW or READY_FOR_TESTING):
 - Report: `✅ Implementation complete. Status: [STATUS]`
-- **Return control to the calling command** - do NOT stop or wait for user input
-- The calling workflow will move the task file and continue to the next stage
