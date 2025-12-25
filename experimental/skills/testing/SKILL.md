@@ -69,5 +69,3 @@ If tests fail or coverage <80%:
 
 When testing is complete (status updated to READY_FOR_REVIEW or NEEDS_FIX):
 - Report: `✅ Testing complete. Status: [STATUS]`
-- **Return control to the calling command** - do NOT stop or wait for user input
-- The calling workflow will move the task file and continue to the next stage

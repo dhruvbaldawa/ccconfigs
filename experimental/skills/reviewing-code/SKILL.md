@@ -166,5 +166,3 @@ REJECTED → implementation
 
 When review is complete (status updated to APPROVED or REJECTED):
 - Report: `✅ Review complete. Status: [STATUS]`
-- **Return control to the calling command** - do NOT stop or wait for user input
-- The calling workflow will move the task file and continue to the next stage
