@@ -1,6 +1,6 @@
 {
   "name": "todoist",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Integrate Claude Code sessions with Todoist task management. Automatically moves tasks between sections (To Do → In Progress → For Review) as you work.",
   "author": {
     "name": "Dhruv Baldawa"

@@ -1,7 +1,7 @@
 {
   "name": "writing",
   "description": "Blog writing plugin with Dhruv's distinctive style and voice",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "author": {
     "name": "Dhruv Baldawa"
   }
