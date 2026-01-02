@@ -12,7 +12,9 @@
 
 **`/fix-quality [FILES OR PATTERN]`**: Systematically fix linting, type errors, and quality issues following root-cause-first philosophy. Priority order: (1) Fix root cause (remove unused imports, fix types), (2) Apply safety/reliability improvements (type guards, error handling), (3) Use local ignores only when necessary (inline > file > pattern > global). Documents why ignores are needed. Validates all checks pass and tests remain green. Emphasizes fixing problems over suppressing warnings.
 
-**Key pattern**: `/breakdown` and `/do` work with shared state in a spec document. Breakdown creates the plan, do executes tasks one by one while maintaining state in the document.
+**`/interview [TOPIC or FILE (optional)]`**: Systematic interview to deeply understand what you're trying to achieve. Use when there's ambiguity, unclear requirements, or hidden complexity. Asks **non-obvious questions** that probe the "why", constraints, edge cases, tradeoffs, and assumptions. Follows threads organically until saturation. No required output - the understanding is the value.
+
+**Key pattern**: `/breakdown` and `/do` work with shared state in a spec document. `/interview` can be used anytime to clarify requirements or thinking. Breakdown creates the plan, do executes tasks one by one while maintaining state in the document.
 
 ## Skills
 
