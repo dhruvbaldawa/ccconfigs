@@ -15,7 +15,7 @@
   },
   "python": {
     "command": "pnpx",
-    "args": ["pyright-langserver", "--stdio"],
+    "args": ["--package", "pyright", "pyright-langserver", "--stdio"],
     "extensionToLanguage": {
       ".py": "python",
       ".pyi": "python"
@@ -25,7 +25,7 @@
   },
   "json": {
     "command": "pnpx",
-    "args": ["vscode-json-language-server", "--stdio"],
+    "args": ["--package", "vscode-langservers-extracted", "-c", "vscode-json-language-server --stdio"],
     "extensionToLanguage": {
       ".json": "json",
       ".jsonc": "jsonc"
@@ -50,7 +50,7 @@
   },
   "css": {
     "command": "pnpx",
-    "args": ["vscode-css-language-server", "--stdio"],
+    "args": ["--package", "vscode-langservers-extracted", "-c", "vscode-css-language-server --stdio"],
     "extensionToLanguage": {
       ".css": "css",
       ".scss": "scss",
@@ -59,7 +59,7 @@
   },
   "html": {
     "command": "pnpx",
-    "args": ["vscode-html-language-server", "--stdio"],
+    "args": ["--package", "vscode-langservers-extracted", "-c", "vscode-html-language-server --stdio"],
     "extensionToLanguage": {
       ".html": "html",
       ".htm": "html"
