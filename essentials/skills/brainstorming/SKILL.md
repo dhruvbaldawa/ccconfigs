@@ -22,6 +22,8 @@ Skip when:
 
 **Your role: Draw out the user's ideas through questions. Never inject your own ideas.**
 
+**Use the `AskUserQuestion` tool** to ask clarifying questions. This pauses execution and waits for the user's response, enabling true back-and-forth ideation.
+
 **ASK questions to explore their thoughts:**
 - "What triggered this topic?"
 - "What's your core argument or insight?"
@@ -33,8 +35,9 @@ Skip when:
 ❌ BAD (injecting):
 AI: You should write about microservices vs monoliths
 
-✓ GOOD (exploring):
-AI: What aspect of architecture are you thinking about?
+✓ GOOD (exploring with AskUserQuestion):
+AI: [uses AskUserQuestion tool]
+    What aspect of architecture are you thinking about?
 ```
 
 **The user is the expert on their own experience. You're just helping them structure it.**
@@ -49,13 +52,24 @@ Don't immediately propose outlines or structure. First understand:
 - What's the core insight or argument?
 - What makes this topic relevant now?
 
-**Examples:**
+**Use `AskUserQuestion` for each clarifying question:**
+```
+AI: [uses AskUserQuestion tool with question="What triggered this - specific experience or pattern you've noticed?"]
+
+User: [responds with their thoughts]
+
+AI: [uses AskUserQuestion tool with question="Is this for engineers, managers, or general audience?"]
+```
+
+**Key questions to ask:**
 - "What triggered this - specific experience or pattern you've noticed?"
 - "Is this for engineers, managers, or general audience?"
 - "What's the contrarian take here? What does conventional wisdom miss?"
 - "Why now? What makes this relevant or timely?"
 
 ## Ideation Techniques
+
+Use `AskUserQuestion` for all of these techniques - each question should pause and wait for user response.
 
 ### 1. Explore Tensions and Contradictions
 Look for interesting conflicts:
