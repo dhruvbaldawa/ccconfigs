@@ -1,0 +1,31 @@
+{
+  "name": "notifications",
+  "version": "0.2.2",
+  "description": "Send notifications via Apprise when Claude Code needs input",
+  "author": {
+    "name": "Dhruv Baldawa"
+  },
+  "hooks": {
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/notify.sh"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "idle_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/notify.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

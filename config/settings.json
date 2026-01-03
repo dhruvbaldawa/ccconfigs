@@ -1,14 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "Skill(essentials:*)",
-      "Bash(docker compose:*)",
       "Bash(cat:*)",
       "Bash(chmod:*)",
       "Bash(curl:*)",
+      "Bash(docker compose:*)",
       "Bash(echo:*)",
       "Bash(find:*)",
       "Bash(gh:*)",
+      "Bash(ghostty:*)",
       "Bash(git add:*)",
       "Bash(git check-ignore:*)",
       "Bash(git commit:*)",
@@ -25,9 +25,11 @@
       "Bash(tree:*)",
       "Bash(uv run:*)",
       "Bash(uv sync:*)",
+      "Skill",
+      "Skill(essentials:*)",
       "WebFetch(domain:*)",
       "WebSearch",
-      "Skill"
+      "mcp__plugin_essentials_parallel-search__web_search_preview"
     ],
     "ask": [
       "Bash(docker compose down:*)",
@@ -41,7 +43,8 @@
   },
   "enabledPlugins": {
     "essentials@ccconfigs": true,
-    "experimental@ccconfigs": true
+    "experimental@ccconfigs": true,
+    "notifications@ccconfigs": true
   },
   "alwaysThinkingEnabled": true
 }

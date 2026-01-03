@@ -23,6 +23,11 @@
       "name": "todoist",
       "source": "./todoist",
       "description": "Todoist integration - link Claude Code sessions to tasks and automatically track progress"
+    },
+    {
+      "name": "notifications",
+      "source": "./notifications",
+      "description": "Send notifications via Apprise when Claude Code needs input"
     }
   ]
 }
