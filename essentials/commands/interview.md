@@ -37,7 +37,9 @@ Use this when:
 - Challenge assumptions: "You mentioned X, but what about Y?"
 - Go where the interesting problems are
 
-**Use the AskUserQuestion tool** to conduct the interview. Continue until saturation - when answers stop revealing new information or we've reached clarity.
+**Batch related questions** - ask 2-4 questions per turn that explore different angles of the same area. This reduces back-and-forth while keeping focus.
+
+**Use the AskUserQuestion tool** with multiple questions formatted as a numbered list. Continue until saturation - when answers stop revealing new information or we've reached clarity.
 
 ## Begin
 
