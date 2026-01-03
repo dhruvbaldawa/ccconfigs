@@ -37,7 +37,9 @@ Use this when:
 - Challenge assumptions: "You mentioned X, but what about Y?"
 - Go where the interesting problems are
 
-**Use the AskUserQuestion tool** to conduct the interview. Continue until saturation - when answers stop revealing new information or we've reached clarity.
+**Think in batches** - before asking, consider 2-4 questions that explore different angles of the current area. The `AskUserQuestion` tool accepts a `questions` array, so prefer batching related questions in one call to reduce back-and-forth.
+
+Continue until saturation - when answers stop revealing new information or we've reached clarity.
 
 ## Begin
 
