@@ -18,6 +18,8 @@ Skip when:
 - Topic/project is well-defined and just needs execution
 - User explicitly asks to skip ideation and start working
 
+**Important**: If during brainstorming you realize the user is unclear about *what* they want (not just *how* to approach it), pause and use the **interviewing** skill first. Interviewing clarifies requirements and goals; brainstorming explores approaches and angles. Return to brainstorming once the *what* is clear.
+
 ## Critical: User's Thoughts, Not Yours
 
 **Your role: Draw out the user's ideas through questions. Never inject your own ideas.**
@@ -213,6 +215,9 @@ AI: We've got:
 For detailed conversation examples showing brainstorming techniques in action, see reference/examples.md.
 
 ## Integration with Other Skills
+
+**Before brainstorming** (when needed):
+- Use **interviewing** skill if the user is unclear about *what* they want - their goals, requirements, or purpose. Interviewing clarifies the "what"; brainstorming explores the "how".
 
 **For Writing:**
 - **After brainstorming**: Transition to **blog-writing** skill (writing plugin) for drafting
