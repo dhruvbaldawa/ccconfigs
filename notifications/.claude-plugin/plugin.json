@@ -1,6 +1,6 @@
 {
   "name": "notifications",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Send notifications via Apprise when Claude Code needs input",
   "author": {
     "name": "Dhruv Baldawa"
