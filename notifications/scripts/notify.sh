@@ -53,6 +53,17 @@ summarize_tool_input() {
     "Glob"|"Grep")
       echo "$input" | jq -r '.pattern // empty' 2>/dev/null
       ;;
+    "AskUserQuestion")
+      # Show the question being asked, truncate if too long
+      local question=$(echo "$input" | jq -r '.question // empty' 2>/dev/null)
+      if [ -n "$question" ]; then
+        if [ ${#question} -gt 100 ]; then
+          echo "${question:0:97}..."
+        else
+          echo "$question"
+        fi
+      fi
+      ;;
     *)
       # For other tools, just indicate tool name is enough
       echo ""
@@ -63,8 +74,13 @@ summarize_tool_input() {
 # Determine notification title and details
 case "$HOOK_EVENT" in
   "PermissionRequest")
-    TITLE="🔐 Claude Code needs permission"
-    if [ -n "$TOOL_NAME" ]; then
+    if [ "$TOOL_NAME" = "AskUserQuestion" ]; then
+      # Special handling for questions - show a different title
+      TITLE="❓ Claude Code has a question"
+      TOOL_SUMMARY=$(summarize_tool_input "$TOOL_NAME" "$TOOL_INPUT")
+      DETAIL="${TOOL_SUMMARY:-Question pending}"
+    elif [ -n "$TOOL_NAME" ]; then
+      TITLE="🔐 Claude Code needs permission"
       TOOL_SUMMARY=$(summarize_tool_input "$TOOL_NAME" "$TOOL_INPUT")
       if [ -n "$TOOL_SUMMARY" ]; then
         DETAIL="🔧 ${TOOL_NAME}: ${TOOL_SUMMARY}"
@@ -72,6 +88,7 @@ case "$HOOK_EVENT" in
         DETAIL="🔧 ${TOOL_NAME}"
       fi
     else
+      TITLE="🔐 Claude Code needs permission"
       DETAIL="${MESSAGE:-Permission required}"
     fi
     ;;
@@ -92,11 +109,20 @@ if [ -z "${APPRISE_URLS:-}" ]; then
 fi
 
 # Build notification body (project@host is in bot name, so just branch + detail)
-BODY="🌿 ${BRANCH}"
+BODY=""
+
+# Only show branch if it's known
+if [ -n "$BRANCH" ] && [ "$BRANCH" != "unknown" ]; then
+  BODY="🌿 ${BRANCH}"
+fi
 
 if [ -n "$DETAIL" ]; then
-  BODY="${BODY}
+  if [ -n "$BODY" ]; then
+    BODY="${BODY}
 ${DETAIL}"
+  else
+    BODY="$DETAIL"
+  fi
 fi
 
 # Build bot name from project and host
