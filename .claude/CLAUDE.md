@@ -61,6 +61,13 @@ bun scripts/manage-permissions.ts
 **Agents**: Create `.md` files in `[plugin]/agents/` with YAML frontmatter
 - Docs: https://code.claude.com/docs/en/sub-agents
 
+## Plugin Versioning
+
+**Always update the version** in `.claude-plugin/plugin.json` when modifying a plugin:
+- Bump patch (0.0.X) for bug fixes
+- Bump minor (0.X.0) for new features
+- Bump major (X.0.0) for breaking changes
+
 ## Plugin Documentation
 
 Detailed documentation for each plugin in `.claude/reference/`:
