@@ -10,6 +10,7 @@
       "Bash(chmod:*)",
       "Bash(curl:*)",
       "Bash(docker compose:*)",
+      "Bash(du:*)",
       "Bash(echo:*)",
       "Bash(find:*)",
       "Bash(gh:*)",
@@ -23,11 +24,13 @@
       "Bash(git push:*)",
       "Bash(git stash:*)",
       "Bash(git status:*)",
+      "Bash(git rev-parse:*)",
       "Bash(grep:*)",
       "Bash(just:*)",
       "Bash(ls:*)",
       "Bash(mkdir:*)",
       "Bash(pnpm:*)",
+      "Bash(python3:*)",
       "Bash(python:*)",
       "Bash(rg:*)",
       "Bash(source:*)",
@@ -35,11 +38,24 @@
       "Bash(tree:*)",
       "Bash(uv run:*)",
       "Bash(uv sync:*)",
+      "Bash(uv:*)",
       "Skill",
       "Skill(essentials:*)",
-      "WebFetch(domain:*)",
+      "Skill(experimental:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:pypi.org)",
+      "WebFetch(domain:raw.githubusercontent.com)",
       "WebSearch",
-      "mcp__plugin_essentials_parallel-search__web_search_preview"
+      "mcp__plugin_essentials_context7__get-library-docs",
+      "mcp__plugin_essentials_context7__query-docs",
+      "mcp__plugin_essentials_context7__resolve-library-id",
+      "mcp__plugin_essentials_firecrawl__firecrawl_scrape",
+      "mcp__plugin_essentials_firecrawl__firecrawl_search",
+      "mcp__plugin_essentials_parallel-search__web_fetch",
+      "mcp__plugin_essentials_parallel-search__web_search_preview",
+      "mcp__plugin_essentials_perplexity__reason",
+      "mcp__plugin_essentials_perplexity__search",
+      "mcp__plugin_essentials_sequential-thinking__sequentialthinking"
     ],
     "ask": [
       "Bash(docker compose down:*)",
@@ -67,5 +83,5 @@
     "experimental@ccconfigs": true,
     "notifications@ccconfigs": true
   },
-  "alwaysThinkingEnabled": true
+  "syntaxHighlightingDisabled": false
 }
