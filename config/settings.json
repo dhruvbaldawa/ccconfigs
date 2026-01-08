@@ -1,4 +1,9 @@
 {
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true,
+    "excludedCommands": ["docker", "docker-compose", "ssh", "git"]
+  },
   "permissions": {
     "allow": [
       "Bash(cat:*)",
@@ -9,11 +14,16 @@
       "Bash(echo:*)",
       "Bash(find:*)",
       "Bash(gh:*)",
-      "Bash(ghostty:*)",
       "Bash(git add:*)",
       "Bash(git check-ignore:*)",
       "Bash(git commit:*)",
+      "Bash(git diff:*)",
+      "Bash(git fetch:*)",
+      "Bash(git log:*)",
+      "Bash(git pull:*)",
       "Bash(git push:*)",
+      "Bash(git stash:*)",
+      "Bash(git status:*)",
       "Bash(git rev-parse:*)",
       "Bash(grep:*)",
       "Bash(just:*)",
@@ -32,7 +42,6 @@
       "Skill",
       "Skill(essentials:*)",
       "Skill(experimental:*)",
-      "WebFetch(domain:*)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:pypi.org)",
       "WebFetch(domain:raw.githubusercontent.com)",
@@ -50,10 +59,20 @@
     ],
     "ask": [
       "Bash(docker compose down:*)",
-      "Bash(docker-compose down:*)"
+      "Bash(docker-compose down:*)",
+      "Bash(git branch -d:*)",
+      "Bash(git branch -D:*)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)",
+      "Bash(git rebase:*)",
+      "Bash(git reset:*)",
+      "Bash(git rm:*)"
+    ],
+    "deny": [
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)"
     ]
   },
-  "model": "sonnet",
   "statusLine": {
     "type": "command",
     "command": "bunx -y ccstatusline@latest",
