@@ -1,11 +1,11 @@
 ---
-description: Execute tasks from pending/ through Kanban flow (implementation → testing → review)
+description: Execute tasks from pending/ through development loop (implementation → testing → review)
 argument-hint: [PROJECT] [--auto]
 ---
 
 # Implement Plan
 
-Execute tasks from `.plans/{{ARGS}}/pending/` through Kanban flow.
+Execute tasks from `.plans/{{ARGS}}/pending/` through the development loop.
 
 ## Usage
 
@@ -15,7 +15,21 @@ Execute tasks from `.plans/{{ARGS}}/pending/` through Kanban flow.
 ```
 
 **Flags:**
-- `--auto`: Auto-commit after each task and continue. Without flag, prompt for commit confirmation per task.
+- `--auto`: Full development loop - execute all tasks continuously, auto-commit, only stop on hard failure or completion
+
+## Autonomy Levels
+
+```
+--auto:
+  - Full development loop
+  - Execute all tasks continuously
+  - Only stop on: hard failure with dependencies, or all tasks done
+  - Commit automatically after each task
+
+(no flag) - DEFAULT:
+  - Auto-flow within each task (implement → test → review → commit)
+  - Pause between tasks using "commit/yes, skip, edit" prompt
+```
 
 ## Setup
 
@@ -43,53 +57,97 @@ Before claiming any task, verify baseline state:
    Progress: X completed | Y pending
    ```
 
-This prevents cascading failures where new work compounds bugs from previous sessions.
+## Development Loop
 
-## Main Loop
+The loop executes tasks autonomously. Within a task, flow through all stages without stopping.
 
-**Flow:** Continue through stages automatically when things proceed normally. Stop and ask for input when:
-- Task is STUCK or blocked
-- Unexpected issues discovered (failing tests, security concerns, architectural questions)
-- Commit confirmation needed (without `--auto` flag)
-- Review finds CRITICAL issues worth discussing before fix
+```
+WHILE unblocked tasks remain:
+  1. Pick next task (by priority, then task number)
+  2. Execute task through all stages (no stopping between stages)
+  3. On success: run decision checkpoint, commit, move to completed/
+  4. On failure after 3 retries:
+     - Persist failure context to task file
+     - Check if other tasks depend on this one
+     - If dependencies exist: STOP loop, report
+     - If isolated: Mark BLOCKED, continue to next task
+  5. Check autonomy level for pause point
+```
 
-While tasks remain:
+## State Machine
+
+Execute transitions immediately. Do NOT pause between stages within a task.
+
+### IMPLEMENTATION Stage
+```
+READY_FOR_TESTING → mv to testing/, invoke testing skill
+READY_FOR_REVIEW  → mv to review/, invoke reviewing-code skill
+STUCK             → increment retry count, persist context, retry or escalate
+(other status)    → treat as error, stop and report
+```
+
+### TESTING Stage
+```
+READY_FOR_REVIEW → mv to review/, invoke reviewing-code skill
+NEEDS_FIX        → mv to implementation/, invoke implementing-tasks skill
+                   (track cycle count in task file)
+```
+
+### REVIEW Stage
+```
+APPROVED → run completion checklist, mv to completed/, commit, next task
+REJECTED → run findings checklist, mv to implementation/, invoke implementing-tasks skill
+           (track cycle count in task file)
+```
+
+**MAX CYCLES:** 3 per stage type (3 test fixes, 3 review rejections)
+After max cycles: persist failure context, check dependencies, decide continue/stop
+
+## Main Loop Steps
 
 ### 1. Claim Task
-- Find next task with met dependencies
+- Find next task with met dependencies (check `Dependencies:` field)
 - Move: `pending/NNN-*.md → implementation/`
 - Create todos from task's Validation checklist
+- Report: `🔨 Implementing Task X/Y: [name]`
 
 ### 2. Implementation
-- Report: `🔨 Implementing Task X/Y: [name]`
 - Invoke skill: `implementing-tasks`
-- When skill reports `✅ Implementation complete`, immediately check Status and proceed:
-  - If STUCK: Stop, show blocker, ask user
-  - If READY_FOR_TESTING: Move to `testing/` → step 3
-  - If READY_FOR_REVIEW: Move to `review/` → step 4
+- When skill reports `✅ Implementation complete`, check Status and transition immediately
 
 ### 3. Testing
 - Report: `🧪 Testing Task X/Y: [name]`
 - Invoke skill: `testing`
-- When skill reports `✅ Testing complete`, immediately check Status and proceed:
-  - If NEEDS_FIX: Move back to `implementation/` → step 2
-  - If READY_FOR_REVIEW: Move to `review/` → step 4
+- When skill reports `✅ Testing complete`, check Status and transition immediately
 
 ### 4. Review
 - Report: `🔍 Reviewing Task X/Y: [name]`
 - Invoke skill: `reviewing-code` (launches 3 review agents in parallel)
-- When skill reports `✅ Review complete`, immediately check Status and proceed:
-  - If REJECTED: Move back to `implementation/` → step 2
-  - If APPROVED: Move to `completed/` → step 5
+- When skill reports `✅ Review complete`, check Status and transition immediately
 
-### 5. Commit
+### 5. Completion Checkpoint
 
-**Before commit (both modes):**
-1. Append completion metadata to task file using Edit tool (add to end of file):
-   ```markdown
-   **completed:**
-   - Session: [ISO timestamp]
-   ```
+Before moving task to `completed/`, verify:
+
+```markdown
+## Completion Checklist
+- [ ] All items in task's Validation section are checked
+- [ ] Working Result criteria is fully met (not partially)
+- [ ] All CRITICAL and HIGH review findings were addressed (not just acknowledged)
+- [ ] No TODO/FIXME comments in new code
+- [ ] Tests actually test the behavior, not just pass
+```
+
+If any checkbox fails → do not proceed, address the gap first.
+
+### 6. Commit
+
+**Before commit:**
+Append completion metadata to task file using Edit tool:
+```markdown
+**completed:**
+- Session: [ISO timestamp]
+```
 
 **With `--auto`:** Commit automatically, continue to next task.
 
@@ -100,31 +158,116 @@ While tasks remain:
 4. Stage code + task file: `git add . .plans/{{ARGS}}/completed/NNN-*.md`
 5. Commit, then continue to next task
 
-### 6. Progress
-Report: `Progress: X/Y completed | Z in-flight | W pending`
+### 7. Progress
+Report: `Progress: X/Y completed | Z blocked | W pending`
+
+## Findings Checklist (After Rejection)
+
+Before re-submitting after rejection:
+
+```markdown
+## Findings Checklist
+- [ ] Each CRITICAL finding has a code change (not just a comment saying "noted")
+- [ ] Each HIGH finding is either fixed OR has explicit justification in task file
+- [ ] No "will fix later" deferrals on security issues
+```
+
+If any checkbox fails → do not proceed, address the gap first.
+
+## Failure Context Format
+
+When a task fails, append to task file:
+
+```markdown
+## Attempt Log
+### Attempt [N] - [ISO timestamp]
+- Stage: [implementation/testing/review]
+- Error: [what failed]
+- Tried: [what was attempted]
+- Result: [NEEDS_FIX/REJECTED/STUCK]
+```
+
+This enables informed retries and full resume across sessions.
+
+## Stop-and-Report Protocol
+
+When hitting a hard stop (stuck, max retries, blocking error):
+
+```markdown
+## STOP - Workflow Halted
+
+**Task:** [NNN - title]
+**Stage:** [implementation/testing/review]
+**Attempts:** [N of 3]
+
+**What was being attempted:**
+[specific action]
+
+**What failed:**
+[error message or description]
+
+**What was tried:**
+1. [attempt 1]
+2. [attempt 2]
+3. [attempt 3]
+
+**Suggested next steps:**
+- [concrete suggestion]
+- [alternative approach]
+
+**To resume:** `/implement-plan [project]` or `/implement-plan [project] --auto`
+```
+
+No vague "I'm stuck." No asking "what should I do?" Clear report, then stop.
+
+## Development Loop Rules
+
+CRITICAL RULES during execution:
+
+1. **Execute, don't explain** - Prefer running commands, editing files, invoking skills.
+   Minimize "I'm about to..." messages.
+
+2. **No permission between stages** - Within a task, flow through stages automatically.
+   Pause points are ONLY at autonomy-level checkpoints (between tasks).
+
+3. **Environment-anchored decisions** - Tests pass/fail. Linter passes/fails.
+   Use concrete signals, not self-critique.
+
+4. **Persist failure context** - Every retry attempt logged to task file.
+   This enables informed retries and full resume.
+
+5. **Dependency-aware continuation** - After a task fails:
+   - Check if remaining tasks depend on it
+   - If yes: stop loop
+   - If no: mark BLOCKED, continue with unblocked tasks
+
+6. **Clear completion** - Loop ends when:
+   - All tasks in completed/ (success)
+   - Hard stop triggered (failure with dependencies)
+   - All remaining tasks are BLOCKED (partial success)
 
 ## Final Summary
 
 ```
-✅ Implementation Complete
+✅ Development Loop Complete
 
 Project: {{ARGS}}
-Completed: X/X tasks | Commits: X
+Completed: X/X tasks | Blocked: Y | Commits: Z
 Average Review Scores: Security: XX | Quality: XX | Tests: XX
 Final Test Coverage: XX%
 ```
 
 ## Key Behaviors
 
-- **Smooth flow with checkpoints**: Continue between stages when proceeding normally. Stop for user input when stuck, unexpected issues arise, or decisions are needed
-- **Session start verification**: Check last completed task's test status before claiming new work
-- **End-to-end per task**: implement → test → review → commit → next
-- **Per-task commit confirmation**: Previous "yes" does NOT carry over to subsequent tasks
-- **Task files committed**: Code + task file in each commit (git history shows project progress)
-- **Completion metadata**: Before commit, append session timestamp to task file (commit hash available via git history)
-- **Flag detection**: Always report "Flag check: --auto is [PRESENT/ABSENT]" at start
-- **Descriptive commits**: Message describes what was accomplished (not "Complete task NNN")
-- **Track rejections**: Warn if task rejected >3 times
+- **Smooth flow**: Continue between stages automatically. Stop only at autonomy checkpoints or on failure
+- **Session verification**: Check last completed task's test status before claiming new work
+- **End-to-end per task**: implement → test → review → checkpoint → commit → next
+- **Per-task confirmation** (default mode): Previous "yes" does NOT carry over
+- **Task files committed**: Code + task file in each commit
+- **Completion checkpoint**: Verify work is actually done before marking complete
+- **Findings checkpoint**: Verify findings are actually addressed before re-submitting
+- **Failure persistence**: All attempts logged to task file for resume
+- **Descriptive commits**: Message describes what was accomplished
+- **Cycle limits**: Max 3 rejections or test fixes before stop-and-report
 - **Skills run in main conversation**: Full visibility into implementation/review
-- **Orchestrator moves files**: Based on Status field in task file
 - **State persists**: Resume anytime with `/implement-plan {{ARGS}}`
