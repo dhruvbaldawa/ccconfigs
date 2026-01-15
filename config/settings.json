@@ -1,9 +1,4 @@
 {
-  "sandbox": {
-    "enabled": true,
-    "autoAllowBashIfSandboxed": true,
-    "excludedCommands": ["docker", "docker-compose", "ssh", "git"]
-  },
   "permissions": {
     "allow": [
       "Bash(cat:*)",
@@ -57,6 +52,10 @@
       "mcp__plugin_essentials_perplexity__search",
       "mcp__plugin_essentials_sequential-thinking__sequentialthinking"
     ],
+    "deny": [
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)"
+    ],
     "ask": [
       "Bash(docker compose down:*)",
       "Bash(docker-compose down:*)",
@@ -67,10 +66,6 @@
       "Bash(git rebase:*)",
       "Bash(git reset:*)",
       "Bash(git rm:*)"
-    ],
-    "deny": [
-      "Bash(git push --force:*)",
-      "Bash(git push -f:*)"
     ]
   },
   "statusLine": {
@@ -81,7 +76,28 @@
   "enabledPlugins": {
     "essentials@ccconfigs": true,
     "experimental@ccconfigs": true,
-    "notifications@ccconfigs": true
+    "notifications@ccconfigs": true,
+    "code-simplifier@claude-plugins-official": true
+  },
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true,
+    "excludedCommands": [
+      "docker",
+      "docker-compose",
+      "ssh",
+      "git",
+      "gpg",
+      "gpg-agent"
+    ],
+    "network": {
+        "allowUnixSockets": [
+            "~/.gnupg/S.gpg-agent",
+            "~/.gnupg/S.gpg-agent.extra",
+            "/run/user/*/gnupg/S.gpg-agent",
+            "/run/user/*/gnupg/S.gpg-agent.extra"
+        ]
+    }
   },
   "syntaxHighlightingDisabled": false
 }
