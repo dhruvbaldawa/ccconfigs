@@ -2,7 +2,15 @@
   "sandbox": {
     "enabled": true,
     "autoAllowBashIfSandboxed": true,
-    "excludedCommands": ["docker", "docker-compose", "ssh", "git"]
+    "excludedCommands": ["docker", "docker-compose", "ssh", "git", "gpg", "gpg-agent"],
+    "network": {
+      "allowUnixSockets": [
+        "~/.gnupg/S.gpg-agent",
+        "~/.gnupg/S.gpg-agent.extra",
+        "/run/user/*/gnupg/S.gpg-agent",
+        "/run/user/*/gnupg/S.gpg-agent.extra"
+      ]
+    }
   },
   "permissions": {
     "allow": [
