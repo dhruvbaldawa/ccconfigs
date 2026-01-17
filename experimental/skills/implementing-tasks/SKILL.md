@@ -18,7 +18,7 @@ Given task file path `.plans/<project>/implementation/NNN-task.md`:
 ☐ Write tests for new functionality
 ☐ Run full test suite
 ☐ Mark validation checkboxes
-☐ Update status to READY_FOR_REVIEW
+☐ Update status to READY_FOR_TESTING
 ```
 
 Convert each step from the task's LLM Prompt into a todo. Mark completed as you progress.
@@ -26,8 +26,8 @@ Convert each step from the task's LLM Prompt into a todo. Mark completed as you 
 1. Read task file - LLM Prompt, Working Result, Validation, Files
 2. Follow LLM Prompt step-by-step, write code + tests, run full suite
 3. Update task status using Edit tool:
-   - Find: `**Status:** [current status]`
-   - Replace: `**Status:** READY_FOR_REVIEW`
+   - For initial implementation: `**Status:** READY_FOR_TESTING`
+   - For revision after rejection: `**Status:** READY_FOR_REVIEW` (skip testing, go back to review)
 4. Append implementation notes using Edit tool (add to end of task file):
    ```markdown
    **implementation:**
@@ -123,10 +123,10 @@ Update task file with research findings using Edit tool (add to end of task file
 
 ## Rejection Handling
 
-If task moved back from review:
-1. Read review notes for issues
-2. Fix all blocking issues
-3. Update status to `READY_FOR_REVIEW` again
+If task moved back from review (check for `**review:**` notes in task file):
+1. Read review notes for blocking issues
+2. Fix all CRITICAL and HIGH issues
+3. Update status to `READY_FOR_REVIEW` (go back to review, skip testing)
 4. Append revision notes:
    ```
    **implementation (revision):**
@@ -135,7 +135,24 @@ If task moved back from review:
    - Re-ran tests: [M]/[M] passing
    ```
 
+## Test Fix Handling
+
+If task moved back from testing (check for `**testing:**` notes with NEEDS_FIX):
+1. Read testing notes for failures
+2. Fix the failing tests or code
+3. Update status to `READY_FOR_TESTING` (go back to testing)
+4. Append fix notes:
+   ```
+   **implementation (test fix):**
+   - Fixed [test issue]
+   - Re-ran tests: [M]/[M] passing
+   ```
+
 ## Completion
 
-When implementation is complete (status updated to READY_FOR_REVIEW or READY_FOR_TESTING):
-- Report: `✅ Implementation complete. Status: [STATUS]`
+When implementation is complete:
+- Initial implementation: Status = `READY_FOR_TESTING`
+- After review rejection: Status = `READY_FOR_REVIEW`
+- After test failure: Status = `READY_FOR_TESTING`
+
+Report: `✅ Implementation complete. Status: [STATUS]`
