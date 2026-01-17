@@ -49,6 +49,21 @@ Technical-planning asks clarifying questions, creates risk-prioritized tasks, th
 /implement-plan user-auth  # Resume
 ```
 
+### Pattern 5: Enrich Plan Before Implementation
+
+```bash
+/plan-feature user-auth           # Create plan
+/deepen-plan user-auth            # Add research insights
+/implement-plan user-auth         # Execute enriched plan
+```
+
+### Pattern 6: Convert Review Findings to Tasks
+
+```bash
+/triage user-auth --from-task 003  # Process findings from task review
+/triage user-auth --from-review    # Process from review-findings.md
+```
+
 ## Command Reference
 
 | Command | Purpose |
@@ -56,8 +71,11 @@ Technical-planning asks clarifying questions, creates risk-prioritized tasks, th
 | `/plan-feature <request>` | Sprint planning (initial or continuing) |
 | `/plan-feature <project>` | Continue existing project |
 | `/add-task <project> <desc>` | Add single task without planning |
+| `/deepen-plan <project>` | Enrich plan with research + learnings |
 | `/implement-plan <project>` | Execute tasks through Kanban |
 | `/implement-plan <project> --auto` | Auto-commit per task |
+| `/implement-plan <project> --express "task"` | Quick change without kanban |
+| `/triage <project> --from-task NNN` | Convert findings to todos |
 | `/orchestrate <request>` | Plan + implement end-to-end |
 | `/research <task-file>` | Research stuck task |
 
@@ -101,11 +119,35 @@ Outcome-focused (WHAT/WHY, not HOW):
 
 **Single agent:** Simple changes, 1-2 files, standard CRUD
 
+## Knowledge Compounding
+
+The workflow captures and reuses learnings automatically.
+
+**Automatic capture triggers:**
+- STUCK → resolved (blocker unblocked)
+- REJECTED → approved (review issues fixed)
+- Phrases: "that worked", "it's fixed", "figured it out"
+
+**Learnings stored in:** `.plans/<project>/learnings/`
+
+**Critical patterns:** High-confidence learnings promoted to `critical-patterns.md` are enforced during implementation and review.
+
+## Two-Tier Review
+
+Reviews are routed based on complexity and severity:
+
+| Tier | When | What |
+|------|------|------|
+| LIGHTWEIGHT | Simple changes, no security/complexity indicators | Quick scan, no agents |
+| FULL | Auth, crypto, payments, external APIs, was STUCK | 3 parallel review agents |
+
 ## Tips
 
 - **Stuck?** Use `/research <task-file>`
 - **Too many tasks?** Consolidate in plan.md
 - **Slow planning?** Answer questions directly, defer non-critical items
+- **Before complex features?** Run `/deepen-plan` to add research insights
+- **After review with findings?** Run `/triage` to create actionable todos
 
 ## Example Flow
 

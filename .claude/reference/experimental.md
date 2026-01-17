@@ -32,6 +32,7 @@ Multi-skill workflow system using kanban file movement for complex, high-value t
 **Capture agents** used when:
 - Task moves from STUCK to resolved (automatic)
 - Task moves from REJECTED to approved after fixing issues (automatic)
+- Phrase triggers detected: "that worked", "it's fixed", "figured it out", etc. (prompts user)
 
 See `essentials/skills/research-synthesis/reference/multi-agent-invocation.md` for detailed multi-agent patterns.
 
@@ -56,6 +57,10 @@ Features:
 
 **`/orchestrate [REQUEST]`**: End-to-end workflow from planning through completion. Combines `/plan-feature` and `/implement-plan` in single command with user confirmation between phases.
 
+**`/deepen-plan [PROJECT]`**: Enriches existing plan with parallel research, institutional learnings, and best practices. Adds "Research Insights" subsections to each plan section. Run before `/implement-plan` for complex features.
+
+**`/triage [PROJECT] [--from-task NNN | --from-review]`**: Converts review findings into actionable todo files. Presents each finding for yes/next/custom decision. Creates properly formatted task files in pending/.
+
 ## Skills
 
 **implementing-tasks**: Invoked by `/implement-plan` for tasks in implementation/.
@@ -76,6 +81,7 @@ Features:
 
 **Learnings** (`.plans/<project>/learnings/`):
 - Auto-captured when blockers are resolved
+- Phrase-triggered: "that worked", "it's fixed" → prompts for capture
 - Structured format: problem, solution, root cause, prevention
 - Searchable index in `learnings/index.md`
 - YAML frontmatter with category, tags, confidence
@@ -90,6 +96,9 @@ Features:
 
 - **Two-tier review**: Thorough when needed (security, complexity), fast when appropriate (simple changes)
 - **Knowledge compounding**: Capture solutions when problems are solved, compound team knowledge
+- **Phrase triggers**: Capture knowledge when it's fresh - detect resolution phrases during implementation
+- **Plan enrichment**: Research before implementing - `/deepen-plan` adds institutional learnings and best practices
+- **Finding→Todo pipeline**: Review findings become actionable tasks via `/triage` command
 - **Express mode**: Skip ceremony for trivial work - `--express` for quick changes
 - **Session checkpoints**: Periodic reflection to combat drift and tunnel vision
 - **Critical patterns**: Learn once, enforce everywhere

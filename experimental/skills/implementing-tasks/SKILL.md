@@ -208,3 +208,38 @@ Before setting final status, collect metadata for review triage:
 This metadata enables the review skill to route to LIGHTWEIGHT or FULL review.
 
 Report: `✅ Implementation complete. Status: [STATUS]`
+
+## Phrase-Based Learning Capture
+
+During implementation, watch for phrases that indicate problem resolution:
+- "that worked"
+- "it's fixed"
+- "figured it out"
+- "problem solved"
+- "got it working"
+
+When detected:
+1. Pause implementation
+2. Ask: "Capture this as a learning? (y/n)"
+3. If yes, invoke knowledge-capturer:
+   ```
+   Task(
+     description: "Capture learning from resolution",
+     prompt: "Extract the learning from this problem resolution.
+
+     Context:
+     - What was being attempted: [from recent conversation]
+     - What was tried: [approaches that failed]
+     - What worked: [the resolution]
+     - Task: [task file path]
+
+     Generate a learning document following the template in experimental/templates/learning.md.
+     Save to: .plans/<project>/learnings/[YYYYMMDD-NNN-slug].md
+     Update: .plans/<project>/learnings/index.md with new entry",
+     subagent_type: "general-purpose",
+     model: "haiku"
+   )
+   ```
+4. Resume implementation
+
+This captures solutions while context is fresh, before details are forgotten.
