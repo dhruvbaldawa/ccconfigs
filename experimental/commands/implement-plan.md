@@ -47,11 +47,13 @@ This prevents cascading failures where new work compounds bugs from previous ses
 
 ## Main Loop
 
-**Flow:** Continue through stages automatically when things proceed normally. Stop and ask for input when:
+**CRITICAL: DO NOT STOP between stages.** Skills run inline - when a skill reports completion, immediately continue to the next stage. The only valid stopping points are:
 - Task is STUCK or blocked
 - Unexpected issues discovered (failing tests, security concerns, architectural questions)
 - Commit confirmation needed (without `--auto` flag)
 - Review finds CRITICAL issues worth discussing before fix
+
+If none of these apply, **you must continue** to the next stage. Do not stop after a skill reports completion.
 
 While tasks remain:
 
@@ -116,7 +118,7 @@ Final Test Coverage: XX%
 
 ## Key Behaviors
 
-- **Smooth flow with checkpoints**: Continue between stages when proceeding normally. Stop for user input when stuck, unexpected issues arise, or decisions are needed
+- **Continuous flow**: Skills run inline, not as separate invocations. When a skill reports `✅ complete`, immediately continue to the next stage - do not stop. Only stop at explicit checkpoints (STUCK, commit confirmation without --auto, CRITICAL issues)
 - **Session start verification**: Check last completed task's test status before claiming new work
 - **End-to-end per task**: implement → test → review → commit → next
 - **Per-task commit confirmation**: Previous "yes" does NOT carry over to subsequent tasks
@@ -125,6 +127,5 @@ Final Test Coverage: XX%
 - **Flag detection**: Always report "Flag check: --auto is [PRESENT/ABSENT]" at start
 - **Descriptive commits**: Message describes what was accomplished (not "Complete task NNN")
 - **Track rejections**: Warn if task rejected >3 times
-- **Skills run in main conversation**: Full visibility into implementation/review
 - **Orchestrator moves files**: Based on Status field in task file
 - **State persists**: Resume anytime with `/implement-plan {{ARGS}}`
