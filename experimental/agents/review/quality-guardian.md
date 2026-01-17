@@ -1,7 +1,6 @@
 ---
 name: quality-guardian
 description: Reviews code quality, error handling, readability, and maintainability with clear accountability
-model: claude-haiku-4-5
 color: yellow
 ---
 

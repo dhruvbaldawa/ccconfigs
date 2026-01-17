@@ -93,6 +93,20 @@ Deliverables:
 
 Status tracked via file location: `pending/` → `implementation/` → `review/` → `testing/` → `completed/`
 
+Learnings captured in: `learnings/` (auto-generated when blockers resolved)
+
+---
+
+## Learnings
+
+Knowledge captured from resolved blockers and non-trivial fixes. See `learnings/index.md` for searchable index.
+
+**High-Confidence Learnings** (proven, reusable):
+- {{List learnings as they're captured}}
+
+**Critical Patterns** (promoted to `critical-patterns.md`):
+- {{Patterns that all agents must follow}}
+
 ---
 
 ## Next Planning Cycle

@@ -101,6 +101,20 @@ Deliverables:
 
 Status tracked via file location: `pending/` → `implementation/` → `review/` → `testing/` → `completed/`
 
+Learnings captured in: `learnings/` (auto-generated when blockers resolved)
+
+---
+
+## Learnings
+
+Knowledge captured from resolved blockers and non-trivial fixes. See `learnings/index.md` for searchable index.
+
+**High-Confidence Learnings** (proven, reusable):
+- {{List learnings as they're captured}}
+
+**Critical Patterns** (promoted to `critical-patterns.md`):
+- {{Patterns that all agents must follow}}
+
 ---
 
 ## Next Planning Cycle
@@ -121,6 +135,8 @@ Status tracked via file location: `pending/` → `implementation/` → `review/`
 ## Supporting Documents
 
 - `milestones.md` - Detailed milestone breakdown with iterations and task dependencies
+- `learnings/` - Knowledge captured from resolved blockers
+- `critical-patterns.md` - Patterns all agents must follow (promoted from learnings)
 - `architecture.md` (if complex) - System design decisions and evolution
 - `technical-spec.md` (if needed) - Detailed technical requirements
 

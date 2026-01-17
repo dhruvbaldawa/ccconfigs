@@ -1,6 +1,6 @@
 ---
 description: Execute tasks from pending/ through development loop (implementation → testing → review)
-argument-hint: [PROJECT] [--auto]
+argument-hint: [PROJECT] [--auto] [--express "task"]
 ---
 
 # Implement Plan
@@ -12,10 +12,12 @@ Execute tasks from `.plans/{{ARGS}}/pending/` through the development loop.
 ```
 /implement-plan user-authentication
 /implement-plan realtime-notifications --auto
+/implement-plan user-auth --express "add logging to login function"
 ```
 
 **Flags:**
 - `--auto`: Full development loop - execute all tasks continuously, auto-commit, only stop on hard failure or completion
+- `--express "description"`: Lightweight mode for simple changes - no task file created, quick validation, direct commit
 
 ## Autonomy Levels
 
@@ -29,7 +31,69 @@ Execute tasks from `.plans/{{ARGS}}/pending/` through the development loop.
 (no flag) - DEFAULT:
   - Auto-flow within each task (implement → test → review → commit)
   - Pause between tasks using "commit/yes, skip, edit" prompt
+
+--express "description":
+  - Lightweight mode for simple, single-item changes
+  - No task file created (ephemeral)
+  - Quick validation (tests + self-review, no agents)
+  - Direct commit with descriptive message
 ```
+
+---
+
+## Express Mode
+
+For simple changes that don't warrant full kanban ceremony.
+
+**When to use:**
+- Single, well-defined change
+- No dependencies on other work
+- Low risk (not security-sensitive, not architectural)
+- Estimated < 30 minutes
+
+**Express Flow:**
+
+1. **Parse description:**
+   - Extract task from `--express "description"`
+   - Report: `⚡ Express mode: [description]`
+
+2. **Load context:**
+   - Read critical-patterns.md if exists (still apply patterns)
+   - Check current branch is clean
+
+3. **Implement directly:**
+   - Make the requested change
+   - Follow any applicable critical patterns
+   - No task file created
+
+4. **Validate:**
+   - Run full test suite (required - cannot skip)
+   - Quick self-review (check for obvious issues)
+   - If tests fail → fix immediately or abort
+   - If obvious issues found → fix before proceeding
+
+5. **Commit:**
+   - Draft descriptive commit message
+   - `git add .` + `git commit`
+   - Report: `✅ Express complete: [summary]`
+
+**Express does NOT:**
+- Create task files
+- Move files through kanban directories
+- Launch review agents
+- Track in plan.md
+
+**Escape hatch - escalate to full workflow if:**
+- More than 5 files need changes
+- Changes touch auth/security/payment code (severity indicators)
+- Tests fail after first fix attempt
+- Implementation requires 3+ edit cycles
+- Research agents would be helpful
+
+When escalating:
+- Report: `⚠️ Complexity detected. Escalating to full workflow.`
+- Create task file in pending/
+- Continue with normal /implement-plan flow
 
 ## Setup
 
@@ -161,6 +225,40 @@ Append completion metadata to task file using Edit tool:
 ### 7. Progress
 Report: `Progress: X/Y completed | Z blocked | W pending`
 
+### 8. Session Checkpoint (Every 3 Tasks)
+
+After every 3 completed tasks, pause and evaluate:
+
+```markdown
+## Session Checkpoint
+
+Tasks completed this session: [N]
+Total progress: [X/Y]
+
+Health indicators:
+- Review rejection rate: [R/N] ([%]) [OK | ⚠️ if >30%]
+- Test fix cycles: [N] total [OK | ⚠️ if >3 per task average]
+- STUCK occurrences: [N] [OK | ⚠️ if >1 per 3 tasks]
+- Learnings captured: [N]
+
+Recommendation: [CONTINUE | PAUSE | ESCALATE]
+```
+
+**Decision logic:**
+- **CONTINUE**: All indicators OK, momentum is good
+- **PAUSE**: 2+ warning indicators, suggest taking a break to avoid drift
+- **ESCALATE**: Pattern of rejections or STUCK states suggests systemic issue
+
+**With `--auto`:** Log checkpoint but continue (no pause).
+
+**Without `--auto`:** Show checkpoint, ask:
+```
+Session checkpoint reached. [CONTINUE | PAUSE | ESCALATE]?
+1. Continue to next task
+2. Take a break (context saved, resume with /implement-plan)
+3. Escalate blockers to human
+```
+
 ## Findings Checklist (After Rejection)
 
 Before re-submitting after rejection:
@@ -261,6 +359,7 @@ Final Test Coverage: XX%
 
 - **Smooth flow**: Continue between stages automatically. Stop only at autonomy checkpoints or on failure
 - **Session verification**: Check last completed task's test status before claiming new work
+- **Session checkpoints**: Every 3 tasks, evaluate health indicators and recommend CONTINUE/PAUSE/ESCALATE
 - **End-to-end per task**: implement → test → review → checkpoint → commit → next
 - **Per-task confirmation** (default mode): Previous "yes" does NOT carry over
 - **Task files committed**: Code + task file in each commit
@@ -269,5 +368,6 @@ Final Test Coverage: XX%
 - **Failure persistence**: All attempts logged to task file for resume
 - **Descriptive commits**: Message describes what was accomplished
 - **Cycle limits**: Max 3 rejections or test fixes before stop-and-report
+- **Express mode**: `--express "task"` for simple changes without kanban ceremony
 - **Skills run in main conversation**: Full visibility into implementation/review
 - **State persists**: Resume anytime with `/implement-plan {{ARGS}}`

@@ -9,6 +9,13 @@ Given task file path `.plans/<project>/implementation/NNN-task.md`:
 
 ## Process
 
+### Load Critical Patterns (if exists)
+
+Before starting implementation, check for `.plans/<project>/critical-patterns.md`:
+- If exists, read and internalize all patterns
+- Apply matching patterns during implementation
+- Violations will be flagged as CRITICAL in review
+
 **Use TodoWrite to track implementation progress:**
 ```
 ☐ Read task file (LLM Prompt, Working Result, Validation)
@@ -107,6 +114,27 @@ Update task file with research findings using Edit tool (add to end of task file
 
 **If unblocked:**
 - Update status back to `IN_PROGRESS`
+- **Capture the learning** (auto-invoked):
+  ```
+  Task(
+    description: "Capture learning from blocker resolution",
+    prompt: "Extract the learning from this resolved blocker.
+
+    Problem context:
+    - STUCK notes: [from task file]
+    - Research findings: [from task file]
+
+    Resolution:
+    - What worked: [resolution notes]
+    - Task: [task file path]
+
+    Generate a learning document following the template in experimental/templates/learning.md.
+    Save to: .plans/<project>/learnings/[YYYYMMDD-NNN-slug].md
+    Update: .plans/<project>/learnings/index.md with new entry",
+    subagent_type: "general-purpose",
+    model: "haiku"
+  )
+  ```
 - Resume implementation following research guidance
 - Complete normally as per main Process section
 
@@ -154,5 +182,29 @@ When implementation is complete:
 - Initial implementation: Status = `READY_FOR_TESTING`
 - After review rejection: Status = `READY_FOR_REVIEW`
 - After test failure: Status = `READY_FOR_TESTING`
+
+### Collect Implementation Metadata
+
+Before setting final status, collect metadata for review triage:
+
+```markdown
+**implementation_metadata:**
+- files_changed: [count from git diff --stat]
+- lines_changed: [insertions + deletions from git diff --stat]
+- was_stuck: [true/false - was task ever marked STUCK?]
+- research_agents_used: [list agents invoked, or 'none']
+- severity_indicators: [list any detected: auth, crypto, payment, database-migration, etc.]
+- complexity_indicators: [list any detected: state-machine, external-api, async-patterns, etc.]
+```
+
+**Detection rules for severity_indicators:**
+- Scan Files for: `auth`, `login`, `password`, `session`, `token`, `jwt`, `crypto`, `encrypt`, `secret`, `payment`, `billing`, `migration`, `permission`, `api_key`
+- If any found, add to severity_indicators list
+
+**Detection rules for complexity_indicators:**
+- Check for: state machines, external API calls, async/await patterns, database queries, caching logic
+- If any found, add to complexity_indicators list
+
+This metadata enables the review skill to route to LIGHTWEIGHT or FULL review.
 
 Report: `✅ Implementation complete. Status: [STATUS]`

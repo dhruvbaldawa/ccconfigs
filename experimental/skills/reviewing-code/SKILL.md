@@ -7,35 +7,127 @@ description: Reviews implemented code for security, quality, performance, and te
 
 Given task file path `.plans/<project>/review/NNN-task.md`:
 
-## Review Approach
+## Review Agents
 
-Launch 3 review agents. Each has a CLEAR ROLE and is ACCOUNTABLE for their domain.
+Launch 3 specialized agents in parallel (FULL review only):
+- **Security Gatekeeper** (`security-reviewer`): OWASP Top 10, injection, auth, secrets
+- **Quality Guardian** (`quality-guardian`): Error handling, edge cases, maintainability
+- **Test Auditor** (`test-coverage-analyzer`): Coverage gaps, test quality, behavioral coverage
 
-### 1. Security Gatekeeper
+Each agent has full instructions in its agent file. They are accountable for their domain.
 
-**ROLE:** "You are the security gatekeeper. If insecure code ships, it's YOUR responsibility. You will be held accountable for any security vulnerabilities that make it to production."
+---
 
-**CHECK:** injection, auth bypass, data exposure, OWASP Top 10, secrets handling, rate limiting
+## Review Triage
 
-**STANCE:** Assume vulnerabilities exist until proven otherwise. Your job is to BLOCK unsafe code.
+**FIRST**, read `**implementation_metadata:**` from task file and determine review tier.
 
-### 2. Quality Guardian
+### FULL Review Triggers
 
-**ROLE:** "You are the quality guardian. If buggy, unmaintainable code ships, it's YOUR responsibility. You will be held accountable for code that causes production issues or slows down future development."
+Route to FULL review (all 3 agents) if ANY of these are true:
 
-**CHECK:** error handling, edge cases, readability, maintainability, coupling, magic values, code clarity
+**Severity-based:**
+- `severity_indicators` contains: auth, password, token, session, jwt, crypto, encrypt, secret, payment, billing, migration, permission, api_key
 
-**STANCE:** Assume there are problems. Real bugs ship when reviewers are too nice.
+**Complexity-based:**
+- `complexity_indicators` contains: state-machine, external-api, async-patterns, database-migration
 
-### 3. Test Auditor
+**History-based:**
+- `was_stuck: true`
+- `research_agents_used` is not empty/none
 
-**ROLE:** "You are the test auditor. If inadequate tests let bugs through, it's YOUR responsibility. You will be held accountable for test suites that give false confidence."
+**Quantitative (supporting):**
+- `files_changed >= 10`
+- `lines_changed >= 500`
 
-**CHECK:** missing edge cases, mocked-away complexity, brittle assertions, actual behavior coverage
+### LIGHTWEIGHT Review Triggers
 
-**STANCE:** Assume tests are insufficient until proven comprehensive.
+Route to LIGHTWEIGHT review (quick scan, no agents) if ALL of these are true:
+- No severity_indicators present
+- No complexity_indicators present
+- `was_stuck: false`
+- `research_agents_used: none`
+- `files_changed < 10`
+- `lines_changed < 500`
 
-## Process
+**Report triage decision:**
+```
+Review tier: [LIGHTWEIGHT | FULL]
+Reason: [why this tier was selected]
+```
+
+---
+
+## LIGHTWEIGHT Review Process
+
+Quick validation without launching specialized agents. Faster but catches obvious issues.
+
+0. **Load Critical Patterns (if exists):**
+   - Check for `.plans/<project>/critical-patterns.md`
+   - If exists, check implementation against ALL patterns
+   - Any violation = CRITICAL finding → escalate to FULL review
+
+1. **Baseline checks:**
+   - Run `git diff` on Files listed
+   - Run tests to verify passing
+   - Check Validation checkboxes marked [x]
+   - Score (0-100 each): Security, Quality, Performance, Tests
+
+2. **Quick scan for obvious issues:**
+   - Empty catch blocks: `catch \(.*\) \{\s*\}`
+   - Hardcoded secrets: `password\s*=\s*["']`, `api_key\s*=\s*["']`, `secret\s*=\s*["']`
+   - Console.log in production code (not in tests)
+   - Missing error handling on critical paths (try without catch, Promise without .catch)
+   - Magic numbers/strings without explanation in business logic
+
+3. **Escalation check:**
+   - If any HIGH or CRITICAL issues found → Escalate to FULL review
+   - Report: `⚠️ Escalating to FULL review: [reason]`
+   - Then proceed to FULL Review Process below
+
+4. **LIGHTWEIGHT Approval/Rejection:**
+   - If no HIGH/CRITICAL issues → APPROVE
+   - Update status and append notes (see LIGHTWEIGHT formats below)
+   - Report: `✅ Review complete (LIGHTWEIGHT). Status: [STATUS]`
+
+### LIGHTWEIGHT Approval Format
+
+```markdown
+**review (LIGHTWEIGHT):**
+Security: [N]/100 | Quality: [N]/100 | Performance: [N]/100 | Tests: [N]/100
+
+Review tier: LIGHTWEIGHT
+Reason: [No severity/complexity indicators, small scope]
+
+Working Result verified: ✓ [description]
+Validation: [N]/[N] passing
+Full test suite: [M]/[M] passing
+Diff: [N] lines
+
+Quick scan: PASSED
+- No empty catch blocks
+- No hardcoded secrets
+- No console.log in production code
+- Error handling present
+
+APPROVED → completed
+```
+
+### LIGHTWEIGHT Rejection Format (Escalates to FULL)
+
+If LIGHTWEIGHT finds issues, it escalates to FULL review rather than rejecting directly.
+
+---
+
+## FULL Review Process
+
+Launch all 3 specialized agents for comprehensive review. Use for security-sensitive, complex, or high-risk changes.
+
+0. **Load Critical Patterns (if exists):**
+   - Check for `.plans/<project>/critical-patterns.md`
+   - If exists, verify implementation follows ALL patterns
+   - Any violation = CRITICAL finding (blocks approval)
+   - Include pattern violations in agent context for thorough review
 
 1. **Initial Review**:
    - Run `git diff` on Files listed
@@ -77,111 +169,36 @@ Launch 3 review agents. Each has a CLEAR ROLE and is ACCOUNTABLE for their domai
 
 ## Invoking Specialized Agents
 
-After initial review, invoke agents in parallel using the Task tool:
+After initial review, invoke all three agents in parallel using the Task tool.
+
+**Required output format (all agents):**
+- Decision: APPROVE or REJECT
+- Signed: "I, [Role], certify this code is [APPROVED/REJECTED] because..."
+- Findings: file:line, Severity/Criticality, Confidence, Description, Fix
 
 ```
-Launch all three agents simultaneously using Task tool:
-
 Task(
   description: "Security review",
-  prompt: "You are the SECURITY GATEKEEPER.
-
-ROLE: You are the security gatekeeper. If insecure code ships, it's YOUR responsibility.
-You will be held accountable for any security vulnerabilities that make it to production.
-
-STANCE: Assume vulnerabilities exist until proven otherwise. Your job is to BLOCK unsafe code.
-
-Task file: [task_file_path]
-Implementation files: [list impl files]
-
-CHECK FOR:
-- Injection vulnerabilities (SQL, command, XSS)
-- Authentication/authorization bypasses
-- Data exposure and information leakage
-- OWASP Top 10 vulnerabilities
-- Secrets in code or logs
-- Rate limiting gaps
-
-OUTPUT FORMAT:
-1. Your decision: APPROVE or REJECT
-2. Signed statement: 'I, Security Gatekeeper, certify this code is [APPROVED/REJECTED] because...'
-3. Findings list with:
-   - file:line reference
-   - Severity: CRITICAL/HIGH/MEDIUM/LOW
-   - Confidence: 0-100%
-   - Description
-   - Suggested fix",
-  subagent_type: "general-purpose"
+  prompt: "Task file: [path] | Files: [list] | Use standard output format.",
+  subagent_type: "experimental:review:security-reviewer"
 )
 
 Task(
   description: "Quality review",
-  prompt: "You are the QUALITY GUARDIAN.
-
-ROLE: You are the quality guardian. If buggy, unmaintainable code ships, it's YOUR responsibility.
-You will be held accountable for code that causes production issues or slows down future development.
-
-STANCE: Assume there are problems. Real bugs ship when reviewers are too nice.
-
-Task file: [task_file_path]
-Implementation files: [list impl files]
-
-CHECK FOR:
-- Error handling gaps and silent failures
-- Edge cases not handled
-- Readability issues - would a new developer struggle?
-- Maintainability issues - is this code easy to change?
-- Tight coupling and magic values
-- Code clarity and naming
-
-OUTPUT FORMAT:
-1. Your decision: APPROVE or REJECT
-2. Signed statement: 'I, Quality Guardian, certify this code is [APPROVED/REJECTED] because...'
-3. Findings list with:
-   - file:line reference
-   - Severity: CRITICAL/HIGH/MEDIUM/LOW
-   - Confidence: 0-100%
-   - Description
-   - Suggested fix",
-  subagent_type: "general-purpose"
+  prompt: "Task file: [path] | Files: [list] | Use standard output format.",
+  subagent_type: "experimental:review:quality-guardian"
 )
 
 Task(
   description: "Test coverage review",
-  prompt: "You are the TEST AUDITOR.
-
-ROLE: You are the test auditor. If inadequate tests let bugs through, it's YOUR responsibility.
-You will be held accountable for test suites that give false confidence.
-
-STANCE: Assume tests are insufficient until proven comprehensive.
-
-Task file: [task_file_path]
-Test files: [list test files]
-Implementation files: [list impl files]
-
-CHECK FOR:
-- Missing edge case coverage
-- Mocked-away complexity that hides real behavior
-- Brittle assertions that pass but don't verify
-- Tests that test implementation details, not behavior
-- Critical paths without test coverage
-- Error paths without test coverage
-
-OUTPUT FORMAT:
-1. Your decision: APPROVE or REJECT
-2. Signed statement: 'I, Test Auditor, certify this code is [APPROVED/REJECTED] because...'
-3. Findings list with:
-   - file:line reference
-   - Criticality: 1-10 (9-10 = blocks approval)
-   - Description of gap
-   - Suggested test to add",
-  subagent_type: "general-purpose"
+  prompt: "Task file: [path] | Test files: [list] | Impl files: [list] | Use standard output format.",
+  subagent_type: "experimental:review:test-coverage-analyzer"
 )
 ```
 
 Call all three Task invocations in a single message to run them in parallel.
 
-## Approval Format
+### FULL Approval Format
 
 ```markdown
 **review:**
@@ -203,7 +220,7 @@ Diff: [N] lines
 APPROVED → completed
 ```
 
-## Rejection Format
+### FULL Rejection Format
 
 ```markdown
 **review:**
@@ -270,4 +287,5 @@ This creates a permanent record of all review findings across the project.
 ## Completion
 
 When review is complete (status updated to APPROVED or REJECTED):
-- Report: `✅ Review complete. Status: [STATUS]`
+- LIGHTWEIGHT: Report `✅ Review complete (LIGHTWEIGHT). Status: [STATUS]`
+- FULL: Report `✅ Review complete (FULL). Status: [STATUS]`
