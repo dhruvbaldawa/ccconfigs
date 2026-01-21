@@ -7,29 +7,31 @@ argument-hint: <task description>
 
 **Task:** $ARGS
 
-Enter plan mode and create a plan following this structure:
+**FIRST**: Use the EnterPlanMode tool immediately.
 
-## Plan Format Requirements
+Follow plan mode's normal workflow (explore, design, review). When writing your final plan, include an **Atomic Commits** section at the end with this structure:
 
-1. **Atomic Commits**: Break work into discrete commits where each:
-   - Makes one logical change
-   - Leaves the codebase in a working state
-   - Has a clear, descriptive commit message
+## Atomic Commits Section Requirements
 
-2. **Per-Commit Verification**: Each commit step must include:
-   - What to implement
-   - How to verify (tests to run, manual checks)
-   - Expected outcome
+Each commit must:
+- Make one logical change (feature, bugfix, or refactor)
+- Leave the codebase in a working state
+- Have a clear commit message
 
-3. **Multi-Repo Sequencing**: If work spans multiple repositories:
-   - Complete ALL commits in one repo before moving to the next
-   - Document the repo order and dependencies between them
+**Right-sized commits** group related changes together:
+- Implementation + tests + imports + error handling = ONE commit
+- Refactor + all affected call sites = ONE commit
 
-## Plan Template
+**Avoid overly granular commits** like:
+- Separate commits for imports, function, tests, error handling
+- One commit per file when files are related
+- One commit per step in implementation
 
-For each commit:
+For each commit, specify:
 
 ### Commit N: <description>
 - **Changes**: What files/code to modify
-- **Verify**: How to confirm it works
+- **Verify**: How to confirm it works (tests, manual checks)
 - **Commit message**: The actual message to use
+
+If work spans multiple repositories, complete ALL commits in one repo before moving to the next.
