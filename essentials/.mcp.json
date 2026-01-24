@@ -1,38 +1,31 @@
 {
   "mcpServers": {
     "context7": {
-      "type": "stdio",
-      "command": "pnpx",
-      "args": [
-        "@upstash/context7-mcp@latest"
-      ],
-      "env": {}
+      "type": "sse",
+      "url": "${MCP_PROXY_HOST}/servers/context7/sse",
+      "headers": {
+        "Authorization": "Basic ${MCP_PROXY_AUTH}"
+      }
     },
     "sequential-thinking": {
-      "type": "stdio",
-      "command": "pnpx",
-      "args": [
-         "@modelcontextprotocol/server-sequential-thinking"
-      ],
-      "env": {}
+      "type": "sse",
+      "url": "${MCP_PROXY_HOST}/servers/sequential-thinking/sse",
+      "headers": {
+        "Authorization": "Basic ${MCP_PROXY_AUTH}"
+      }
     },
     "parallel-search": {
-      "type": "stdio",
-      "command": "pnpx",
-      "args": [
-        "mcp-remote",
-        "https://search-mcp.parallel.ai/mcp",
-        "--header", "authorization: Bearer ${PARALLEL_API_KEY}"
-      ]
+      "type": "sse",
+      "url": "${MCP_PROXY_HOST}/servers/parallel-search/sse",
+      "headers": {
+        "Authorization": "Basic ${MCP_PROXY_AUTH}"
+      }
     },
     "perplexity": {
-      "type": "stdio",
-      "command": "pnpx",
-      "args": [
-        "perplexity-mcp"
-      ],
-      "env": {
-        "PERPLEXITY_API_KEY": "${PERPLEXITY_API_KEY}"
+      "type": "sse",
+      "url": "${MCP_PROXY_HOST}/servers/perplexity/sse",
+      "headers": {
+        "Authorization": "Basic ${MCP_PROXY_AUTH}"
       }
     }
   }

@@ -82,6 +82,14 @@
   "sandbox": {
     "enabled": true,
     "autoAllowBashIfSandboxed": true,
+    "network": {
+      "allowUnixSockets": [
+        "~/.gnupg/S.gpg-agent",
+        "~/.gnupg/S.gpg-agent.extra",
+        "/run/user/*/gnupg/S.gpg-agent",
+        "/run/user/*/gnupg/S.gpg-agent.extra"
+      ]
+    },
     "excludedCommands": [
       "docker",
       "docker-compose",
@@ -89,15 +97,8 @@
       "git",
       "gpg",
       "gpg-agent"
-    ],
-    "network": {
-        "allowUnixSockets": [
-            "~/.gnupg/S.gpg-agent",
-            "~/.gnupg/S.gpg-agent.extra",
-            "/run/user/*/gnupg/S.gpg-agent",
-            "/run/user/*/gnupg/S.gpg-agent.extra"
-        ]
-    }
+    ]
   },
-  "syntaxHighlightingDisabled": false
+  "syntaxHighlightingDisabled": false,
+  "autoUpdatesChannel": "latest"
 }
