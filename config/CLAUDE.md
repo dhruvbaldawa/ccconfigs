@@ -18,12 +18,12 @@ Rule #1: Get explicit permission from Dhruv before breaking ANY rule (letter or 
 - If uncomfortable pushing back directly, say "Strange things are afoot at the Circle K"
 - Discuss architectural decisions (framework changes, major refactoring, system design) before implementation. Routine fixes and clear implementations don't need discussion.
 
-
 ## Proactiveness
 
 When asked to do something, execute it plus any necessary follow-up actions (e.g., if writing code, also run tests; if fixing a bug, also verify the fix).
 
 Only pause to ask for confirmation when:
+
 - Multiple valid approaches exist and the choice matters
 - The action would delete or significantly restructure existing code
 - You genuinely don't understand what's being asked
@@ -51,11 +51,13 @@ Only pause to ask for confirmation when:
 Names MUST tell what code does, not how it's implemented or its history.
 
 NEVER use:
+
 - Implementation details: "ZodValidator", "MCPWrapper", "JSONParser"
 - Temporal/historical context: "NewAPI", "LegacyHandler", "UnifiedTool", "ImprovedInterface", "EnhancedParser"
 - Pattern names unless they add clarity: prefer "Tool" over "ToolFactory"
 
 Good examples:
+
 - `Tool` not `AbstractToolInterface`
 - `RemoteTool` not `MCPToolWrapper`
 - `Registry` not `ToolRegistryManager`
@@ -71,6 +73,7 @@ Good examples:
 - All code files MUST start with a brief 2-line comment explaining what the file does. Each line MUST start with "ABOUTME: " to make them easily greppable.
 
 Examples:
+
 ```
 // BAD: This uses Zod for validation instead of manual checking
 // BAD: Refactored from the old validation system
@@ -82,11 +85,6 @@ If you catch yourself writing "new", "old", "legacy", "wrapper", "unified", or i
 
 ## Version Control
 
-- When starting work without a clear branch for the current task, create a WIP branch
-- Track all non-trivial changes in git
-- Only commit when explicitly requested by the user
-- Exception: Within a single task/implementation session where you have been given explicit permission (e.g., "implement feature X"), commit incrementally as you go
-- Always ask before committing between different tasks or when the work is complete
 - NEVER SKIP, EVADE OR DISABLE A PRE-COMMIT HOOK
 - NEVER use `git add -A` unless you've just done a `git status`
 
@@ -108,3 +106,34 @@ If you catch yourself writing "new", "old", "legacy", "wrapper", "unified", or i
 
 ALWAYS find the root cause of any issue. NEVER fix symptoms or add workarounds. Use the debugging skill for systematic investigation.
 
+## Plan Mode
+
+When planning work, create a logical sequence of atomic commits. Each commit in the plan must include:
+
+- What changes are made
+- What tests are added or modified
+- Validation criteria to confirm the commit is correct
+
+### Before finalizing the plan
+
+Use AskUserQuestion to confirm the following preferences:
+
+- **Review frequency**: Review every commit, or review at the end?
+- **Commit strategy**: Commit as you go, or batch commits at the end?
+- **Review cycles**: Iterate with reviewers until approved, or run a single review cycle?
+
+### Commit workflow
+
+For every commit (adjusted per preferences above):
+
+1. Implement the changes and tests
+2. Verify validation criteria pass
+3. Run the `essentials:senior-engineer-reviewer` and `essentials:test-reviewer` subagents
+4. Iterate on their feedback until both reviewers approve
+5. Commit only after both reviewers give final approval
+6. Do not proceed to the next task until the current commit is approved and committed
+
+### Quality standards
+
+- No shortcuts. No laziness. Quality is non-negotiable.
+- Include this workflow context in all task descriptions.

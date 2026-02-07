@@ -8,12 +8,9 @@
         "color": "cyan"
       },
       {
-        "id": "5",
-        "type": "git-branch",
-        "color": "magenta",
-        "metadata": {
-          "hideNoGit": "false"
-        }
+        "id": "91713446-1dfa-4218-a8bb-8bbac404e1f9",
+        "type": "context-percentage-usable",
+        "backgroundColor": "bgBrightGreen"
       }
     ],
     [
@@ -24,8 +21,14 @@
         "commandPath": "echo \"${PROVIDER:-ANT}\""
       },
       {
+        "id": "b69a6cbf-eefc-4cce-8877-532c3f5e3850",
+        "type": "custom-command",
+        "backgroundColor": "bgBrightWhite",
+        "commandPath": "basename \"$(pwd)\""
+      },
+      {
         "id": "e68d1f88-a5e7-4fd6-b947-867db5b0c6f7",
-        "type": "context-percentage-usable",
+        "type": "git-branch",
         "backgroundColor": "bgBrightBlack"
       }
     ],

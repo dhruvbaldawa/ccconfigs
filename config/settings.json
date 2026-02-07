@@ -41,6 +41,8 @@
       "WebFetch(domain:pypi.org)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebSearch",
+      "Read(*)",
+      "Search(*)",
       "mcp__plugin_essentials_context7__get-library-docs",
       "mcp__plugin_essentials_context7__query-docs",
       "mcp__plugin_essentials_context7__resolve-library-id",

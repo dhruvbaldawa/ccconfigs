@@ -7,13 +7,6 @@
         "Authorization": "Basic ${MCP_PROXY_AUTH}"
       }
     },
-    "sequential-thinking": {
-      "type": "sse",
-      "url": "${MCP_PROXY_HOST}/servers/sequential-thinking/sse",
-      "headers": {
-        "Authorization": "Basic ${MCP_PROXY_AUTH}"
-      }
-    },
     "parallel-search": {
       "type": "sse",
       "url": "${MCP_PROXY_HOST}/servers/parallel-search/sse",
