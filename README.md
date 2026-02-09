@@ -21,6 +21,27 @@ Personal configuration repository for Claude Code - a plugin marketplace contain
    # Install "essentials", "writing", and optionally "experimental" from ccconfigs
    ```
 
+## OpenCode Integration
+
+Reuse this repository's Claude assets in OpenCode with minimal duplication.
+
+```bash
+# Interactive (recommended)
+bun scripts/manage-opencode.ts
+
+# Global baseline
+bun scripts/manage-opencode.ts --scope global --set essentials
+
+# Repo-local add-ons
+bun scripts/manage-opencode.ts --scope repo --set writing,experimental
+```
+
+OpenCode merges global and local config. A practical setup is:
+- Keep global plugin packs minimal (for example, `essentials`)
+- Enable specialized packs per repository (`writing`, `experimental`)
+
+See `docs/guides/opencode-workflow.md` for the full workflow.
+
 ## Installation
 
 ### Environment Variables
@@ -139,6 +160,8 @@ Pre-configured integrations with Model Context Protocol servers. Built-in tools 
 
 **`manage-permissions.ts`**: Interactive tool for managing Claude Code permissions across projects. Auto-discovers projects by recursively scanning for `.claude/settings.local.json` files. Two modes: **promote** (default) moves permissions to global config, or **cleanup** removes permissions from project locals.
 
+**`manage-opencode.ts`**: Interactive and CLI tool for enabling OpenCode plugin packs by scope (global or repository-local). Reuses Claude assets by generating OpenCode command/agent adapters, symlinking skills, and translating MCP config.
+
 **Promote permissions to global:**
 ```bash
 bun scripts/manage-permissions.ts                    # From home dir
@@ -151,6 +174,14 @@ bun scripts/manage-permissions.ts --dry-run          # Preview only
 bun scripts/manage-permissions.ts --cleanup          # Remove permissions
 bun scripts/manage-permissions.ts --cleanup ~/Code   # From specific root
 bun scripts/manage-permissions.ts --cleanup --dry-run  # Preview only
+```
+
+**Manage OpenCode plugin packs:**
+```bash
+bun scripts/manage-opencode.ts                                 # Interactive
+bun scripts/manage-opencode.ts --scope global --set essentials # Global baseline
+bun scripts/manage-opencode.ts --scope repo --set writing      # Repo-local
+bun scripts/manage-opencode.ts --scope repo --set essentials --dry-run
 ```
 
 #### Skills
@@ -229,8 +260,13 @@ ccconfigs/
 │   ├── CLAUDE.md                   # Global working rules
 │   └── settings.json               # Global settings
 ├── setup-symlinks.sh               # Idempotent setup script for global config
+├── opencode/                        # OpenCode plugin-pack registry
+│   └── packs.json                  # Plugin source mapping for OpenCode sync
 ├── scripts/                        # Utility scripts
-│   └── manage-permissions.ts       # Interactive permission management
+│   ├── manage-permissions.ts       # Interactive permission management
+│   ├── manage-opencode.ts          # Interactive OpenCode plugin scope manager
+│   ├── opencode-sync.ts            # OpenCode sync engine (global/repo)
+│   └── opencode-adapter-core.ts    # Shared OpenCode adapter helpers
 ├── .claude/                        # Project-specific configuration
 │   └── CLAUDE.md                  # Project instructions
 ├── essentials/                     # The essentials plugin

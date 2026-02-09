@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "plugins": {
+    "essentials": {
+      "description": "Core development workflows, MCP integrations, and review agents",
+      "commands": "essentials/commands",
+      "agents": "essentials/agents",
+      "skills": "essentials/skills",
+      "mcp": "essentials/.mcp.json",
+      "instructions": [
+        "config/CLAUDE.md"
+      ]
+    },
+    "writing": {
+      "description": "Conversation-first writing workflows and blog skills",
+      "commands": "writing/commands",
+      "skills": "writing/skills",
+      "instructions": [
+        "config/CLAUDE.md"
+      ]
+    },
+    "experimental": {
+      "description": "Research and review-oriented multi-agent workflows",
+      "commands": "experimental/commands",
+      "agents": "experimental/agents",
+      "skills": "experimental/skills",
+      "instructions": [
+        "config/CLAUDE.md"
+      ]
+    }
+  }
+}
