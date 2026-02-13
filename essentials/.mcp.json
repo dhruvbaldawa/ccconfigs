@@ -2,21 +2,21 @@
   "mcpServers": {
     "context7": {
       "type": "sse",
-      "url": "${MCP_PROXY_HOST}/servers/context7/sse",
+      "url": "${MCP_PROXY_HOST}/context7/sse",
       "headers": {
         "Authorization": "Basic ${MCP_PROXY_AUTH}"
       }
     },
     "parallel-search": {
       "type": "sse",
-      "url": "${MCP_PROXY_HOST}/servers/parallel-search/sse",
+      "url": "${MCP_PROXY_HOST}/parallel-search/sse",
       "headers": {
         "Authorization": "Basic ${MCP_PROXY_AUTH}"
       }
     },
     "perplexity": {
       "type": "sse",
-      "url": "${MCP_PROXY_HOST}/servers/perplexity/sse",
+      "url": "${MCP_PROXY_HOST}/perplexity/sse",
       "headers": {
         "Authorization": "Basic ${MCP_PROXY_AUTH}"
       }
