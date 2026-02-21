@@ -14,9 +14,9 @@
         "Authorization": "Basic ${MCP_PROXY_AUTH}"
       }
     },
-    "parallel-research": {
+    "brave-search": {
       "type": "sse",
-      "url": "${MCP_PROXY_HOST}/parallel-research/sse",
+      "url": "${MCP_PROXY_HOST}/brave-search/sse",
       "headers": {
         "Authorization": "Basic ${MCP_PROXY_AUTH}"
       }
