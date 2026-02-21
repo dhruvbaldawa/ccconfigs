@@ -54,10 +54,7 @@
       "mcp__plugin_essentials_perplexity__search",
       "mcp__plugin_essentials_sequential-thinking__sequentialthinking"
     ],
-    "deny": [
-      "Bash(git push --force:*)",
-      "Bash(git push -f:*)"
-    ],
+    "deny": ["Bash(git push --force:*)", "Bash(git push -f:*)"],
     "ask": [
       "Bash(docker compose down:*)",
       "Bash(docker-compose down:*)",
@@ -79,7 +76,10 @@
     "essentials@ccconfigs": true,
     "experimental@ccconfigs": true,
     "notifications@ccconfigs": true,
-    "code-simplifier@claude-plugins-official": true
+    "code-simplifier@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true,
+    "php-lsp@claude-plugins-official": true
   },
   "sandbox": {
     "enabled": true,
@@ -102,5 +102,6 @@
     ]
   },
   "syntaxHighlightingDisabled": false,
-  "autoUpdatesChannel": "latest"
+  "autoUpdatesChannel": "latest",
+  "skipDangerousModePermissionPrompt": true
 }

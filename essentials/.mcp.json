@@ -14,9 +14,9 @@
         "Authorization": "Basic ${MCP_PROXY_AUTH}"
       }
     },
-    "perplexity": {
+    "parallel-research": {
       "type": "sse",
-      "url": "${MCP_PROXY_HOST}/perplexity/sse",
+      "url": "${MCP_PROXY_HOST}/parallel-research/sse",
       "headers": {
         "Authorization": "Basic ${MCP_PROXY_AUTH}"
       }
