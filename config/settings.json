@@ -1,4 +1,8 @@
 {
+  "env": {
+    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "40",
+    "ENABLE_LSP_TOOL": "1"
+  },
   "permissions": {
     "allow": [
       "Bash(cat:*)",
@@ -54,7 +58,10 @@
       "mcp__plugin_essentials_perplexity__search",
       "mcp__plugin_essentials_sequential-thinking__sequentialthinking"
     ],
-    "deny": ["Bash(git push --force:*)", "Bash(git push -f:*)"],
+    "deny": [
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)"
+    ],
     "ask": [
       "Bash(docker compose down:*)",
       "Bash(docker-compose down:*)",
@@ -79,7 +86,8 @@
     "code-simplifier@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
     "pyright-lsp@claude-plugins-official": true,
-    "php-lsp@claude-plugins-official": true
+    "php-lsp@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true
   },
   "sandbox": {
     "enabled": true,
@@ -92,6 +100,7 @@
         "/run/user/*/gnupg/S.gpg-agent.extra"
       ]
     },
+    "enableWeakerNetworkIsolation": true,
     "excludedCommands": [
       "docker",
       "docker-compose",
@@ -99,7 +108,8 @@
       "git",
       "gpg",
       "gpg-agent"
-    ]
+    ],
+    "allowRead": true
   },
   "syntaxHighlightingDisabled": false,
   "autoUpdatesChannel": "latest",

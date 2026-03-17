@@ -40,8 +40,11 @@
       },
       {
         "id": "2057d1aa-85ea-428c-bad0-f16a22f6d990",
-        "type": "block-timer",
-        "backgroundColor": "bgYellow"
+        "type": "reset-timer",
+        "backgroundColor": "bgYellow",
+        "metadata": {
+          "display": "time"
+        }
       }
     ]
   ],
