@@ -43,6 +43,7 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:pypi.org)",
       "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:registry.npmjs.org)",
       "WebSearch",
       "Read(*)",
       "Search(*)",
@@ -55,12 +56,14 @@
       "mcp__plugin_essentials_parallel-search__web_search_preview",
       "mcp__plugin_essentials_perplexity__reason",
       "mcp__plugin_essentials_perplexity__search",
-      "mcp__plugin_essentials_sequential-thinking__sequentialthinking"
+      "mcp__plugin_essentials_sequential-thinking__sequentialthinking",
+      "mcp__plugin_discord_discord__reply",
+      "mcp__plugin_discord_discord__react",
+      "mcp__plugin_discord_discord__edit_message",
+      "mcp__plugin_discord_discord__fetch_messages",
+      "mcp__plugin_discord_discord__download_attachment"
     ],
-    "deny": [
-      "Bash(git push --force:*)",
-      "Bash(git push -f:*)"
-    ],
+    "deny": ["Bash(git push --force:*)", "Bash(git push -f:*)"],
     "ask": [
       "Bash(docker compose down:*)",
       "Bash(docker-compose down:*)",
@@ -73,6 +76,7 @@
       "Bash(git rm:*)"
     ]
   },
+  "model": "opus[1m]",
   "statusLine": {
     "type": "command",
     "command": "bunx -y ccstatusline@latest",
@@ -86,9 +90,9 @@
     "typescript-lsp@claude-plugins-official": true,
     "pyright-lsp@claude-plugins-official": true,
     "php-lsp@claude-plugins-official": true,
-    "skill-creator@claude-plugins-official": true
+    "skill-creator@claude-plugins-official": true,
+    "discord@claude-plugins-official": true
   },
-  "showClearContextOnPlanAccept": true,
   "sandbox": {
     "enabled": true,
     "autoAllowBashIfSandboxed": true,
@@ -112,7 +116,17 @@
     "allowRead": true
   },
   "syntaxHighlightingDisabled": false,
+  "effortLevel": "high",
+  "showClearContextOnPlanAccept": true,
   "autoUpdatesChannel": "latest",
   "showThinkingSummaries": true,
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "extraKnownMarketplaces": {
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      }
+    }
+  }
 }
