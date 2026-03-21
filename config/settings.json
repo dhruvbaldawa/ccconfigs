@@ -1,6 +1,5 @@
 {
   "env": {
-    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "40",
     "ENABLE_LSP_TOOL": "1"
   },
   "permissions": {
@@ -89,6 +88,7 @@
     "php-lsp@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true
   },
+  "showClearContextOnPlanAccept": true,
   "sandbox": {
     "enabled": true,
     "autoAllowBashIfSandboxed": true,
@@ -113,5 +113,6 @@
   },
   "syntaxHighlightingDisabled": false,
   "autoUpdatesChannel": "latest",
+  "showThinkingSummaries": true,
   "skipDangerousModePermissionPrompt": true
 }
