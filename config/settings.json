@@ -120,6 +120,7 @@
   "showClearContextOnPlanAccept": true,
   "autoUpdatesChannel": "latest",
   "showThinkingSummaries": true,
+  "tmuxPassthrough": true,
   "skipDangerousModePermissionPrompt": true,
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
