@@ -11,6 +11,11 @@
         "id": "91713446-1dfa-4218-a8bb-8bbac404e1f9",
         "type": "context-percentage-usable",
         "backgroundColor": "bgBrightGreen"
+      },
+      {
+        "id": "bcc2d8f2-d522-4cc2-81f6-d4d78c4280bf",
+        "type": "session-cost",
+        "backgroundColor": "bgBrightBlack"
       }
     ],
     [
@@ -35,7 +40,7 @@
     [
       {
         "id": "849bf999-c6b1-4ebb-9e75-7e2e985ca4e6",
-        "type": "session-cost",
+        "type": "session-usage",
         "backgroundColor": "bgBrightYellow"
       },
       {
@@ -45,6 +50,11 @@
         "metadata": {
           "display": "time"
         }
+      },
+      {
+        "id": "5d005ac1-5d2f-4b01-9a3f-dfc6dc75b310",
+        "type": "weekly-usage",
+        "backgroundColor": "bgBrightBlue"
       }
     ]
   ],

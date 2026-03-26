@@ -63,7 +63,10 @@
       "mcp__plugin_discord_discord__fetch_messages",
       "mcp__plugin_discord_discord__download_attachment"
     ],
-    "deny": ["Bash(git push --force:*)", "Bash(git push -f:*)"],
+    "deny": [
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)"
+    ],
     "ask": [
       "Bash(docker compose down:*)",
       "Bash(docker-compose down:*)",
