@@ -1,6 +1,7 @@
 {
   "env": {
-    "ENABLE_LSP_TOOL": "1"
+    "ENABLE_LSP_TOOL": "1",
+    "CLAUDE_CODE_DISABLE_1M_CONTEXT": "1"
   },
   "permissions": {
     "allow": [
@@ -79,7 +80,6 @@
       "Bash(git rm:*)"
     ]
   },
-  "model": "opus[1m]",
   "statusLine": {
     "type": "command",
     "command": "bunx -y ccstatusline@latest",
@@ -95,6 +95,14 @@
     "php-lsp@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true,
     "discord@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      }
+    }
   },
   "sandbox": {
     "enabled": true,
@@ -123,14 +131,6 @@
   "showClearContextOnPlanAccept": true,
   "autoUpdatesChannel": "latest",
   "showThinkingSummaries": true,
-  "tmuxPassthrough": true,
   "skipDangerousModePermissionPrompt": true,
-  "extraKnownMarketplaces": {
-    "claude-plugins-official": {
-      "source": {
-        "source": "github",
-        "repo": "anthropics/claude-plugins-official"
-      }
-    }
-  }
+  "tmuxPassthrough": true
 }
