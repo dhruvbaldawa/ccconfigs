@@ -78,8 +78,10 @@
       "Bash(git rebase:*)",
       "Bash(git reset:*)",
       "Bash(git rm:*)"
-    ]
+    ],
+    "defaultMode": "auto"
   },
+  "model": "opusplan",
   "statusLine": {
     "type": "command",
     "command": "bunx -y ccstatusline@latest",
@@ -127,10 +129,25 @@
     "allowRead": true
   },
   "syntaxHighlightingDisabled": false,
-  "effortLevel": "high",
+  "effortLevel": "medium",
   "showClearContextOnPlanAccept": true,
   "autoUpdatesChannel": "latest",
+  "autoDreamEnabled": true,
   "showThinkingSummaries": true,
   "skipDangerousModePermissionPrompt": true,
-  "tmuxPassthrough": true
+  "skipAutoPermissionPrompt": true,
+  "tmuxPassthrough": true,
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/dhruv/.claude/hooks/rtk-rewrite.sh"
+          }
+        ]
+      }
+    ]
+  }
 }
