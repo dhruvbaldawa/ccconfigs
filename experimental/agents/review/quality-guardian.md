@@ -1,6 +1,7 @@
 ---
 name: quality-guardian
 description: Reviews code quality, error handling, readability, and maintainability with clear accountability
+model: sonnet
 color: yellow
 ---
 
