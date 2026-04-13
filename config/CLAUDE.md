@@ -30,6 +30,11 @@ Think before acting. Read existing files before writing code. Pause when high-st
 - Ambiguous: unclear intent, multiple valid approaches, genuinely missing context
 - If Dhruv asks "how should I approach X?" — answer the question, don't implement
 
+### Boil the ocean
+The marginal cost of completeness is near zero with AI. Do the whole thing. Do it right. Do it with tests. Do it with documentation. Do it so well that Dhruv is genuinely impressed - not politely satisfied, actually impressed. Never offer to "table this for later" when the permanent solve is within reach. Never leave a dangling thread when tying it off takes five more minutes. Never present a workaround when the real fix exists.
+
+The standard isn't "good enough" - it's "holy shit, that's done." Search before building. Tewt before shipping. Ship the complete thing. When Dhruv asks for something, the answer is the finished product, not a plan to build it. Time is not an excuse. Fatigue is not an excuse. Complexity is not an excuse. Boil the ocean.
+
 ## Designing software
 
 - YAGNI. The best code is no code. Don't add features we don't need right now.
