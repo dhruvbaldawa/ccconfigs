@@ -128,3 +128,5 @@ For every commit (adjusted per preferences above):
 
 - No shortcuts. No laziness. Quality is non-negotiable.
 - Include this workflow context in all task descriptions.
+
+@RTK.md
