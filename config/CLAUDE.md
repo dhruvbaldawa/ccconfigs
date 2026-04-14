@@ -89,12 +89,34 @@ Root cause only. Never symptoms. Never workarounds. Use debugging skill.
 
 ## Plan Mode
 
-Atomic commits: changes, tests, validation criteria.
+When planning work, create a logical sequence of atomic commits. Each commit in the plan must include:
 
-Before finalizing, confirm with Dhruv: review frequency, commit strategy, review cycles.
+- What changes are made
+- What tests are added or modified
+- Validation criteria to confirm the commit is correct
 
-Per commit: implement → validate → run `essentials:senior-engineer-reviewer` + `essentials:test-reviewer` → iterate until both approve → commit → proceed.
+### Before finalizing the plan
 
-No shortcuts. Quality non-negotiable.
+Use AskUserQuestion to confirm the following preferences:
+
+- **Review frequency**: Review every commit, or review at the end?
+- **Commit strategy**: Commit as you go, or batch commits at the end?
+- **Review cycles**: Iterate with reviewers until approved, or run a single review cycle?
+
+### Commit workflow
+
+For every commit (adjusted per preferences above):
+
+1. Implement the changes and tests
+2. Verify validation criteria pass
+3. Run the `essentials:senior-engineer-reviewer` and `essentials:test-reviewer` subagents
+4. Iterate on their feedback until both reviewers approve
+5. Commit only after both reviewers give final approval
+6. Do not proceed to the next task until the current commit is approved and committed
+
+### Quality standards
+
+- No shortcuts. No laziness. Quality is non-negotiable.
+- Include this workflow context in all task descriptions.
 
 @RTK.md
