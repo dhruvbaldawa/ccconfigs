@@ -54,23 +54,11 @@ YAGNI. Best code is no code. Extensible when it doesn't conflict.
 
 WHAT it does, not HOW or history. No "ZodValidator", "NewAPI", "LegacyHandler", unnecessary "Factory".
 
-## Comments
+## Comments (antirez style)
 
-Follow antirez's commenting philosophy. Write comments that belong to one of these categories:
+Six valid comment types: **function** (what it does, returns, side effects — every function), **design** (why X not Y), **why** (non-obvious reasoning), **teacher** (domain/algorithm explanation), **checklist** (easy-to-miss maintenance notes), **guide** (logical section markers).
 
-1. **Function comments**: Top-of-function block explaining what it does, what it returns, and side effects. Every function gets one.
-2. **Design comments**: Explain *why* a design decision was made. "We use X instead of Y because..." — the reasoning that would be lost without the comment.
-3. **Why comments**: Explain why code does something non-obvious. If a reader would ask "why not do it the simpler way?", answer preemptively.
-4. **Teacher comments**: Explain what the code does when the domain or algorithm is complex. Help the reader who knows the language but not the problem space.
-5. **Checklist comments**: Note something that's easy to miss or forget during maintenance. "Don't forget to update X when changing Y."
-6. **Guide comments**: High-level roadmap comments that split code into logical sections. "--- Parsing phase ---" style markers.
-
-Never write:
-- Trivial comments that restate the code (`i++ // increment i`)
-- Temporal context ("improved", "refactored from", "was previously")
-- Instructions ("copy this pattern", "do the same as above")
-
-Never remove comments unless provably false. When refactoring, remove old comments — don't add ones explaining the refactoring. All files start with 2-line `ABOUTME:`.
+Never: trivial (`i++ // increment i`), temporal ("improved", "refactored from"), instructions ("copy this pattern"). Never remove unless provably false. All files start with 2-line `ABOUTME:`.
 
 ## Git
 
