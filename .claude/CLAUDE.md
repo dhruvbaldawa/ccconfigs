@@ -1,81 +1,45 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code when working with this repository.
+Plugin marketplace for Claude Code: essentials, writing, experimental.
 
-## Repository Purpose
-
-Personal Claude Code plugin marketplace containing:
-- **essentials** - Development workflows, MCP servers, slash commands, and skills
-- **writing** - Blog writing with conversation-driven workflow
-- **experimental** - Multi-skill kanban workflow system with specialized agents
-
-## Repository Structure
+## Structure
 
 ```
-ccconfigs/
-├── .claude-plugin/marketplace.json   # Register new plugins here
-├── config/                          # Global config (symlinked to ~/.claude/)
-├── .claude/                         # Project config
-│   ├── CLAUDE.md                   # This file
-│   └── reference/                  # Detailed plugin documentation
-├── essentials/                      # Commands, skills, MCP servers
-├── writing/                         # Blog writing workflow
-├── experimental/                    # Kanban workflow + agents
-└── scripts/                        # Utility scripts
+.claude-plugin/marketplace.json   # Plugin registry
+config/                          # Global config → ~/.claude/
+essentials/                      # Commands, skills, MCP servers
+writing/                         # Blog writing workflow
+experimental/                    # Kanban workflow + agents
+scripts/                        # Utilities
+.claude/reference/              # Plugin docs
 ```
 
-## Essential Commands
-
-No build system - configuration files only (JSON and Markdown).
+## Commands
 
 ```bash
-# Validate JSON syntax
-cat [file].json | jq .
-
-# Setup global config symlinks (run after cloning)
-./setup-symlinks.sh
-
-# Manage permissions across projects
-bun scripts/manage-permissions.ts
+cat [file].json | jq .              # Validate JSON
+./setup-symlinks.sh                 # Setup after clone
+bun scripts/manage-permissions.ts   # Manage permissions
 ```
 
-## Git Workflow
+## Git
 
-- Commit plugin configurations and global config
-- `.claude/settings.local.json` is gitignored
-- Global config in `config/` is symlinked to `~/.claude/`
+- Commit configs and global config
+- `.claude/settings.local.json` gitignored
+- `config/` symlinked to `~/.claude/`
 
-## Adding to This Repository
+## Adding Things
 
-**New plugins**: Create directory, add `.claude-plugin/plugin.json`, register in marketplace.json
+- **Plugin**: dir + `.claude-plugin/plugin.json` + register in marketplace.json
+- **MCP server**: `essentials/.mcp.json`, use `pnpx`
+- **Command**: `.md` in `[plugin]/commands/`, YAML frontmatter
+- **Skill**: `[plugin]/skills/[name]/SKILL.md`, optional `reference/`
+- **Agent**: `.md` in `[plugin]/agents/`, YAML frontmatter
 
-**MCP servers**: Add to `essentials/.mcp.json` using `pnpx` pattern
+## Versioning
 
-**Slash commands**: Add `.md` files to `[plugin]/commands/` with YAML frontmatter
-- Docs: https://code.claude.com/docs/en/slash-commands
+Bump `.claude-plugin/plugin.json` version on every change: patch/minor/major.
 
-**Skills**: Create `[plugin]/skills/[name]/SKILL.md` with optional `reference/` subdirectory
-- Docs: https://code.claude.com/docs/en/skills
-- Best practices: https://docs.claude.com/en/docs/agents-and-tools/agent-skills/best-practices
+## Reference Docs
 
-**Agents**: Create `.md` files in `[plugin]/agents/` with YAML frontmatter
-- Docs: https://code.claude.com/docs/en/sub-agents
-
-## Plugin Versioning
-
-**Always update the version** in `.claude-plugin/plugin.json` when modifying a plugin:
-- Bump patch (0.0.X) for bug fixes
-- Bump minor (0.X.0) for new features
-- Bump major (X.0.0) for breaking changes
-
-## Plugin Documentation
-
-Detailed documentation for each plugin in `.claude/reference/`:
-
-- **essentials.md** - Slash commands (/breakdown, /do, /research, /fix-quality), skills (brainstorming, debugging, technical-planning, research-synthesis, claude-md-authoring), MCP servers
-- **writing.md** - Two-document workflow (braindump.md + draft.md), /new-post, /polish commands, blog-writing skill
-- **experimental.md** - Kanban workflow, research agents (breadth/depth/technical), review agents (test-coverage/error-handling/security), /plan-feature, /implement-plan commands
-- **architecture.md** - Design decisions: commands vs skills vs agents, stateful commands, parallel agent invocation, tool integration patterns
-- **utility-scripts.md** - manage-permissions.ts usage and architecture
-
-Read the relevant reference file when working on a specific plugin.
+In `.claude/reference/`: essentials.md, writing.md, experimental.md, architecture.md, utility-scripts.md. Read before modifying a plugin.
