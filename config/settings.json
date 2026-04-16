@@ -1,8 +1,7 @@
 {
   "env": {
     "ENABLE_LSP_TOOL": "1",
-    "CLAUDE_CODE_DISABLE_1M_CONTEXT": "1",
-    "CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING": "1"
+    "CLAUDE_CODE_DISABLE_1M_CONTEXT": "1"
   },
   "permissions": {
     "allow": [
@@ -82,7 +81,6 @@
     ],
     "defaultMode": "auto"
   },
-  "model": "opusplan",
   "hooks": {
     "PreToolUse": [
       {
@@ -155,7 +153,8 @@
     "allowRead": true
   },
   "syntaxHighlightingDisabled": false,
-  "effortLevel": "high",
+  "effortLevel": "xhigh",
+  "model": "opusplan",
   "advisorModel": "opus",
   "showClearContextOnPlanAccept": true,
   "autoUpdatesChannel": "latest",
