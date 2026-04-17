@@ -36,11 +36,19 @@ Evaluate the draft against:
 - [ ] Varies sentence length for rhythm
 - [ ] Uses bold text for key insights (not excessively)
 - [ ] Works well in web and email formats
+- [ ] Stage-setting beat present: situation, complication/stakes, and vocabulary established before the argument begins
+- [ ] Every term the post relies on is introduced (one-liner or link) before it's used, not after
+- [ ] A reader with no prior context can follow the first 25% of the post without external lookups
+- [ ] For posts in a series: prior-post context bridged in 1–2 sentences, not assumed
+- [ ] Concepts build in dependency order—each one rests on what's already been introduced
+- [ ] Smart-general-reader test: would a reader outside the immediate circle follow the intro?
+- [ ] Read the intro aloud—does anything catch?
 
 **4. Identify Improvements**
 
 Look for:
 - **Structural issues**: Missing TL;DR, weak hook, no engagement question
+- **Stage-setting issues**: Missing situation/stakes, jargon introduced without priming, sequel that doesn't bridge to new readers, concepts used before defined, horizontal (writer-centric) narration where vertical (reader-centric) value is needed
 - **Voice issues**: Too formal, corporate language, AI phrases
 - **Style issues**: Long paragraphs, monotonous rhythm, missing emphasis
 - **Content issues**: Unsupported claims, missing examples, no citations

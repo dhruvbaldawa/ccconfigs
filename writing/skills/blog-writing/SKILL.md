@@ -119,19 +119,57 @@ When working on a blog post, you'll interact with two files:
 - Acknowledge complexity; avoid oversimplification
 - Focus on practical implications, not purely theoretical discussions
 
+## Structural Principles
+
+These are the load-bearing principles for how a post holds together. The Core Voice principles above are about *sound*; these are about *shape*. Sources compiled in `references/writing-principles.md`.
+
+**Reader-centric, not writer-centric** (McEnerney)
+- Writers use text to think horizontally—a record of their process. Readers consume it vertically—value delivered. Stage-setting must answer the reader's question, not narrate your thinking.
+- Test before drafting: what problem does my reader have? What do they value? The intro answers those before the argument begins.
+
+**Progressive Disclosure**
+- Never rely on a concept you haven't introduced. If the reader meets a term for the first time mid-argument, you've lost them.
+- Introduce concepts at the point of first need—not earlier, not later. Don't front-load a glossary; don't delay the definition until after third use.
+- Simplest mental model first; build complexity in layers. Each layer should make sense on its own before the next one depends on it.
+
+**Fight the curse of knowledge** (Pinker; Heath brothers)
+- You know the topic too well to judge what's obvious to the reader. Read each draft as a newcomer. What am I using without introducing?
+- Smart-general-reader test: would someone outside your immediate circle know this term? If no, prime it at first use.
+
+**Surprise before argument** (Graham)
+- Lead with what contradicts reader assumption. Curiosity before case.
+- "You probably think X. Actually, Y. Here's why." lands better than "I want to argue Y."
+
+**Outcome before mechanism; concrete before abstract** (Evans, McKenzie)
+- State what the reader will understand or be able to do, then explain how.
+- Real scenario first, extracted principle second. Not the other way around.
+
 ## Structure Template
 
 ### Title
 Clear, compelling, works as email subject line
 
 ### TL;DR
-3-4 bullet points summarizing core takeaways
+3-4 bullet points summarizing core takeaways. Write bullets for a cold reader: avoid in-group terms you can't prime in one line. If a term is essential, a parenthetical gloss beats a jargon wall. The TL;DR sits above stage-setting—it has to stand on its own.
 
 ### Introduction
 Hook the reader with one of:
 - Personal anecdote that illustrates the problem
 - Problem statement that resonates with reader experience
 - Rhetorical question that frames the discussion
+
+### Stage-Setting (1–3 short paragraphs after the hook)
+Before the argument begins, ground the reader. Use SCQA as a scaffold (Minto, *The Pyramid Principle*):
+
+- **Situation**—the baseline the reader already accepts
+- **Complication**—what changed or broke, why it matters *now*
+- **Question**—what naturally emerges from the complication
+- **Vocabulary**—for any term the post will rely on (e.g. "subagents", "Plan Mode", "skills", "MCP"), give a one-liner on first use. Link to a deeper primer rather than inlining a long definition. Don't front-load a glossary; don't defer the definition until after you've used the term three times.
+- **Prior context (for series posts)**—briefly bridge what a new reader needs from earlier posts in 1–2 sentences. Don't assume they've read them.
+
+The Answer (your argument) starts in the Body. Stage-setting is the runway, not the takeoff.
+
+See `references/writing-principles.md` for the sources this beat draws from.
 
 ### Body
 - Use clear H2/H3 headings that guide the reader
@@ -208,16 +246,26 @@ Before finalizing a blog post, verify:
 - [ ] Varies sentence length for rhythm and interest
 - [ ] Uses bold text for key insights (but not excessively)
 - [ ] Works well in both web and email formats
+- [ ] Stage-setting beat present: situation, complication/stakes, and vocabulary established before the argument begins
+- [ ] Every term the post relies on is introduced (one-liner or link) before it's used, not after
+- [ ] A reader with no prior context can follow the first 25% of the post without external lookups
+- [ ] For posts in a series: prior-post context bridged in 1–2 sentences, not assumed
+- [ ] Concepts build in dependency order—each one rests on what's already been introduced
+- [ ] Smart-general-reader test: would a reader outside my immediate circle follow the intro?
+- [ ] Read the intro aloud—does anything catch?
 
 ## Common Pitfalls to Avoid
 
 1. **Sounding Too Corporate**: Avoid phrases like "leverage," "synergy," "best practices" without irony
 2. **AI Tell-Tale Signs**: Don't write "in conclusion," "in today's fast-paced world," or use excessive lists of adjectives
 3. **Lecturing Tone**: Don't talk down to readers; invite them into a conversation
-4. **Burying the Lede**: Don't save insights for the end; front-load value
+4. **Burying the Lede vs. Skipping the Setup**: Don't save insights for the end; front-load value. But front-loading is not the same as skipping stage-setting. The reader needs enough context to understand the insight when they hit it. A two-paragraph setup that lands the insight beats a one-line hook that loses the reader.
 5. **Oversimplification**: Don't pretend complex problems have simple solutions
 6. **Missing the Personal Touch**: Don't write generic advice without grounding in experience
 7. **Forgetting the Question**: Always end with reader engagement, not just a summary
+8. **In-Group Vocabulary**: Using terms like "Plan Mode", "subagents", "skills", "MCP", "CLAUDE.md" without a one-liner on first use. You know what these mean. Your reader might not. Priming takes one sentence.
+9. **Sequel Syndrome**: Writing a post that only makes sense if the reader read the previous one. Every post should be a legitimate entry point, even within a series. Bridge the context; don't assume it.
+10. **Horizontal Thinking on the Page** (McEnerney): Narrating your own process of figuring something out, rather than delivering what the reader came for. Drafts often need to be rewritten from the reader's vertical—what they value—not the writer's horizontal.
 
 ## Writing Philosophy
 
