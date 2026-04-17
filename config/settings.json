@@ -28,9 +28,12 @@
       "Bash(just:*)",
       "Bash(ls:*)",
       "Bash(mkdir:*)",
+      "Bash(obsidian-cli files:*)",
+      "Bash(obsidian-cli links:*)",
       "Bash(pnpm:*)",
       "Bash(python3:*)",
       "Bash(python:*)",
+      "Bash(qmd search:*)",
       "Bash(rg:*)",
       "Bash(source:*)",
       "Bash(test:*)",
@@ -62,7 +65,8 @@
       "mcp__plugin_discord_discord__react",
       "mcp__plugin_discord_discord__edit_message",
       "mcp__plugin_discord_discord__fetch_messages",
-      "mcp__plugin_discord_discord__download_attachment"
+      "mcp__plugin_discord_discord__download_attachment",
+      "mcp__qmd__query"
     ],
     "deny": [
       "Bash(git push --force:*)",
