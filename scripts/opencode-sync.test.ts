@@ -239,4 +239,55 @@ describe('syncPluginPacks', () => {
     expect(config.theme).toBe('opencode');
     expect(config.mcp.context7).toBeDefined();
   });
+
+  test('preserves unmanaged mcp and instructions during managed cleanup', () => {
+    const sourceRoot = createFixtureSourceRoot();
+    const repoPath = createTempPath('ccconfigs-repo-');
+
+    write(
+      join(repoPath, 'opencode.json'),
+      JSON.stringify(
+        {
+          mcp: {
+            local: {
+              type: 'local',
+              command: ['custom-mcp'],
+            },
+          },
+          instructions: ['/custom/instructions.md'],
+        },
+        null,
+        2
+      ) + '\n'
+    );
+
+    syncPluginPacks({
+      sourceRoot,
+      scope: 'repo',
+      repoPath,
+      plugins: ['essentials'],
+    });
+
+    const syncedConfig = JSON.parse(readFileSync(join(repoPath, 'opencode.json'), 'utf8'));
+    expect(syncedConfig.mcp.local).toBeDefined();
+    expect(syncedConfig.mcp.context7).toBeDefined();
+    expect(syncedConfig.instructions).toContain('/custom/instructions.md');
+    expect(syncedConfig.instructions).toContain(join(sourceRoot, 'config', 'CLAUDE.md'));
+
+    syncPluginPacks({
+      sourceRoot,
+      scope: 'repo',
+      repoPath,
+      plugins: [],
+    });
+
+    const cleanedConfig = JSON.parse(readFileSync(join(repoPath, 'opencode.json'), 'utf8'));
+    expect(cleanedConfig.mcp).toEqual({
+      local: {
+        type: 'local',
+        command: ['custom-mcp'],
+      },
+    });
+    expect(cleanedConfig.instructions).toEqual(['/custom/instructions.md']);
+  });
 });

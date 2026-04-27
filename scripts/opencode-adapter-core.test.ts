@@ -155,4 +155,16 @@ describe('parseJsonc', () => {
     expect(parsed.theme).toBe('opencode');
     expect(parsed.mcp.context7).toBeDefined();
   });
+
+  test('preserves comment-like tokens inside strings', () => {
+    const parsed = parseJsonc<{ url: string; quoted: string }>([
+      '{',
+      '  "url": "https://example.com/path//not-a-comment",',
+      '  "quoted": "escaped \\\"/* not a comment */\\\" value",',
+      '}',
+    ].join('\n'));
+
+    expect(parsed.url).toBe('https://example.com/path//not-a-comment');
+    expect(parsed.quoted).toBe('escaped "/* not a comment */" value');
+  });
 });

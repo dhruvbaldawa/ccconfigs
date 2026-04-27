@@ -6,39 +6,33 @@ import {
   lstatSync,
   mkdirSync,
   readFileSync,
-  readdirSync,
   readlinkSync,
   rmSync,
   symlinkSync,
   writeFileSync,
 } from 'fs';
 import { homedir } from 'os';
-import { basename, dirname, join, resolve } from 'path';
+import { dirname, join, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
+import {
+  collectClaudePluginAssets,
+  loadPluginRegistry as loadSharedPluginRegistry,
+  normalizePluginList,
+  readJsoncObject,
+  type PluginRegistry,
+} from './ccconfigs-assets';
+import { parseJsonc } from './ccconfigs-json';
 import {
   adaptAgentMarkdown,
   adaptClaudeMcpConfig,
   adaptCommandMarkdown,
   parseFrontmatter,
-  parseJsonc,
 } from './opencode-adapter-core';
 
+export type { PluginPack, PluginRegistry } from './ccconfigs-assets';
+
 export type PluginScope = 'global' | 'repo';
-
-export interface PluginPack {
-  description?: string;
-  commands?: string;
-  agents?: string;
-  skills?: string;
-  mcp?: string;
-  instructions?: string[];
-}
-
-export interface PluginRegistry {
-  version: number;
-  plugins: Record<string, PluginPack>;
-}
 
 export interface ManagedArtifacts {
   commands: string[];
@@ -117,72 +111,6 @@ function emptyArtifacts(): ManagedArtifacts {
 
 function isNonEmptyObject(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value);
-}
-
-function normalizePluginList(plugins: string[]): string[] {
-  return Array.from(
-    new Set(plugins.map(plugin => plugin.trim()).filter(Boolean))
-  ).sort();
-}
-
-function listMarkdownFiles(path: string, recursive: boolean): string[] {
-  if (!existsSync(path)) {
-    return [];
-  }
-
-  const entries = readdirSync(path, { withFileTypes: true });
-  const files: string[] = [];
-
-  for (const entry of entries) {
-    const absolutePath = join(path, entry.name);
-
-    if (entry.isDirectory() && recursive) {
-      files.push(...listMarkdownFiles(absolutePath, true));
-      continue;
-    }
-
-    if (entry.isFile() && entry.name.endsWith('.md')) {
-      files.push(absolutePath);
-    }
-  }
-
-  return files.sort();
-}
-
-function listSkillDirectories(path: string): string[] {
-  if (!existsSync(path)) {
-    return [];
-  }
-
-  const entries = readdirSync(path, { withFileTypes: true });
-  const directories: string[] = [];
-
-  for (const entry of entries) {
-    if (!entry.isDirectory()) {
-      continue;
-    }
-
-    const absolutePath = join(path, entry.name);
-    if (existsSync(join(absolutePath, 'SKILL.md'))) {
-      directories.push(absolutePath);
-    }
-  }
-
-  return directories.sort();
-}
-
-function readJsoncObject(path: string): Record<string, unknown> {
-  if (!existsSync(path)) {
-    return {};
-  }
-
-  const raw = readFileSync(path, 'utf8');
-  const parsed = parseJsonc<unknown>(raw);
-  if (!isNonEmptyObject(parsed)) {
-    return {};
-  }
-
-  return parsed;
 }
 
 function sortRecordKeys(value: Record<string, unknown>): Record<string, unknown> {
@@ -354,17 +282,7 @@ export function getDefaultSourceRoot(): string {
 }
 
 export function loadPluginRegistry(sourceRoot = DEFAULT_SOURCE_ROOT): PluginRegistry {
-  const registryPath = join(sourceRoot, REGISTRY_FILE);
-  const parsed = readJsoncObject(registryPath);
-
-  if (typeof parsed.version !== 'number' || !isNonEmptyObject(parsed.plugins)) {
-    throw new Error(`Invalid plugin registry: ${registryPath}`);
-  }
-
-  return {
-    version: parsed.version,
-    plugins: parsed.plugins as Record<string, PluginPack>,
-  };
+  return loadSharedPluginRegistry(sourceRoot, REGISTRY_FILE);
 }
 
 export function resolveScopePaths(scope: PluginScope, repoPath?: string): ScopePaths {
@@ -432,63 +350,50 @@ function collectGeneratedAssets(
   const skillMap = new Map<string, string>();
   const mcpMap: Record<string, unknown> = {};
   const instructions = new Set<string>();
+  const loadedPlugins = collectClaudePluginAssets(sourceRoot, registry, plugins);
 
-  for (const pluginName of plugins) {
-    const plugin = registry.plugins[pluginName];
-    if (!plugin) {
-      throw new Error(`Unknown plugin pack: ${pluginName}`);
-    }
-
-    if (plugin.commands) {
-      const commandsDir = join(sourceRoot, plugin.commands);
-
-      for (const commandPath of listMarkdownFiles(commandsDir, false)) {
-        const commandName = basename(commandPath, '.md');
+  for (const loadedPlugin of loadedPlugins) {
+    if (loadedPlugin.plugin.commands) {
+      for (const command of loadedPlugin.commands) {
+        const commandName = command.name;
         if (commandMap.has(commandName)) {
           throw new Error(`Command name conflict: ${commandName}`);
         }
 
-        const source = readFileSync(commandPath, 'utf8');
-        const adapted = adaptCommandMarkdown(source, `${commandName} command`);
+        const adapted = adaptCommandMarkdown(command.markdown, `${commandName} command`);
         commandMap.set(commandName, adapted.markdown);
       }
     }
 
-    if (plugin.agents) {
-      const agentsDir = join(sourceRoot, plugin.agents);
-
-      for (const agentPath of listMarkdownFiles(agentsDir, true)) {
-        const source = readFileSync(agentPath, 'utf8');
-        const parsed = parseFrontmatter(source);
-        const agentName = parsed.frontmatter.name || basename(agentPath, '.md');
+    if (loadedPlugin.plugin.agents) {
+      for (const agent of loadedPlugin.agents) {
+        const parsed = parseFrontmatter(agent.markdown);
+        const agentName = parsed.frontmatter.name || agent.name;
 
         if (agentMap.has(agentName)) {
           throw new Error(`Agent name conflict: ${agentName}`);
         }
 
-        const adapted = adaptAgentMarkdown(source, `${agentName} agent`);
+        const adapted = adaptAgentMarkdown(agent.markdown, `${agentName} agent`);
         agentMap.set(agentName, adapted.markdown);
       }
     }
 
-    if (plugin.skills) {
-      const skillsDir = join(sourceRoot, plugin.skills);
-
-      for (const skillDir of listSkillDirectories(skillsDir)) {
-        const skillName = basename(skillDir);
+    if (loadedPlugin.plugin.skills) {
+      for (const skill of loadedPlugin.skills) {
+        const skillName = skill.name;
         const existing = skillMap.get(skillName);
 
-        if (existing && resolve(existing) !== resolve(skillDir)) {
+        if (existing && resolve(existing) !== resolve(skill.path)) {
           throw new Error(`Skill name conflict: ${skillName}`);
         }
 
-        skillMap.set(skillName, skillDir);
+        skillMap.set(skillName, skill.path);
       }
     }
 
-    if (plugin.mcp) {
-      const mcpPath = join(sourceRoot, plugin.mcp);
-      const mcpConfig = adaptClaudeMcpConfig(readJsoncObject(mcpPath));
+    if (loadedPlugin.mcp) {
+      const mcpConfig = adaptClaudeMcpConfig(loadedPlugin.mcp);
 
       for (const [serverName, serverConfig] of Object.entries(mcpConfig)) {
         if (mcpMap[serverName]) {
@@ -499,8 +404,8 @@ function collectGeneratedAssets(
       }
     }
 
-    for (const instructionPath of plugin.instructions || []) {
-      instructions.add(resolve(sourceRoot, instructionPath));
+    for (const instructionPath of loadedPlugin.instructions) {
+      instructions.add(instructionPath);
     }
   }
 
