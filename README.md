@@ -1,6 +1,6 @@
 # ccconfigs
 
-Personal configuration repository for Claude Code - a plugin marketplace containing essential tools and workflows.
+Personal configuration repository for Claude Code, OpenCode, and Codex. Claude plugin assets are canonical; other targets are generated from them.
 
 ## Quick Start
 
@@ -21,26 +21,38 @@ Personal configuration repository for Claude Code - a plugin marketplace contain
    # Install "essentials", "writing", and optionally "experimental" from ccconfigs
    ```
 
-## OpenCode Integration
+## Target Sync
 
-Reuse this repository's Claude assets in OpenCode with minimal duplication.
+Reuse this repository's Claude assets in OpenCode and Codex with one CLI.
 
 ```bash
-# Interactive (recommended)
-bun scripts/manage-opencode.ts
+# List available plugin packs
+bun scripts/ccconfigs.ts list
 
-# Global baseline
-bun scripts/manage-opencode.ts --scope global --set essentials
+# Sync both OpenCode and Codex into the current repo
+bun scripts/ccconfigs.ts sync --target all --plugins essentials,writing
 
-# Repo-local add-ons
-bun scripts/manage-opencode.ts --scope repo --set writing,experimental
+# Check drift without writing files
+bun scripts/ccconfigs.ts check --target all --plugins essentials,writing
+
+# OpenCode global baseline
+bun scripts/ccconfigs.ts sync --target opencode --scope global --plugins essentials
+
+# Codex repo-local target only
+bun scripts/ccconfigs.ts sync --target codex --plugins essentials,experimental
 ```
 
-OpenCode merges global and local config. A practical setup is:
-- Keep global plugin packs minimal (for example, `essentials`)
-- Enable specialized packs per repository (`writing`, `experimental`)
+OpenCode supports `--scope global` and `--scope repo`. Codex sync is repository-local and writes `config.toml`, `AGENTS.md`, and `.codex/skills/`.
 
-See `docs/guides/opencode-workflow.md` for the full workflow.
+Managed observability is enabled by default:
+
+- OpenCode adds the `@devtheops/opencode-plugin-otel` plugin entry.
+- Codex writes native `[otel]` config with endpoint values referenced by environment variable name.
+- Collector tokens and OTLP headers are not stored in this repo or generated config.
+
+Use `--no-observability` to remove managed observability for a target.
+
+See `docs/guides/opencode-workflow.md` for the full target sync workflow.
 
 ## Installation
 
@@ -160,7 +172,9 @@ Pre-configured integrations with Model Context Protocol servers. Built-in tools 
 
 **`manage-permissions.ts`**: Interactive tool for managing Claude Code permissions across projects. Auto-discovers projects by recursively scanning for `.claude/settings.local.json` files. Two modes: **promote** (default) moves permissions to global config, or **cleanup** removes permissions from project locals.
 
-**`manage-opencode.ts`**: Interactive and CLI tool for enabling OpenCode plugin packs by scope (global or repository-local). Reuses Claude assets by generating OpenCode command/agent adapters, symlinking skills, and translating MCP config.
+**`ccconfigs.ts`**: Unified CLI for OpenCode and Codex target sync. Reuses Claude assets by generating target adapters, symlinking skills, translating MCP config, and wiring managed observability.
+
+**`manage-opencode.ts`**: Legacy interactive OpenCode-only manager. Prefer `ccconfigs.ts` for scriptable setup across machines.
 
 **Promote permissions to global:**
 ```bash
@@ -176,12 +190,12 @@ bun scripts/manage-permissions.ts --cleanup ~/Code   # From specific root
 bun scripts/manage-permissions.ts --cleanup --dry-run  # Preview only
 ```
 
-**Manage OpenCode plugin packs:**
+**Sync target configs:**
 ```bash
-bun scripts/manage-opencode.ts                                 # Interactive
-bun scripts/manage-opencode.ts --scope global --set essentials # Global baseline
-bun scripts/manage-opencode.ts --scope repo --set writing      # Repo-local
-bun scripts/manage-opencode.ts --scope repo --set essentials --dry-run
+bun scripts/ccconfigs.ts list
+bun scripts/ccconfigs.ts sync --target all --plugins essentials,writing
+bun scripts/ccconfigs.ts check --target all --plugins essentials,writing
+bun scripts/ccconfigs.ts doctor --target all
 ```
 
 #### Skills
@@ -260,13 +274,15 @@ ccconfigs/
 │   ├── CLAUDE.md                   # Global working rules
 │   └── settings.json               # Global settings
 ├── setup-symlinks.sh               # Idempotent setup script for global config
-├── opencode/                        # OpenCode plugin-pack registry
-│   └── packs.json                  # Plugin source mapping for OpenCode sync
+├── opencode/                        # Target plugin-pack registry
+│   └── packs.json                  # Plugin source mapping for target sync
 ├── scripts/                        # Utility scripts
+│   ├── ccconfigs.ts                # Unified OpenCode/Codex sync CLI
+│   ├── codex-sync.ts               # Codex sync engine (repo-local)
 │   ├── manage-permissions.ts       # Interactive permission management
-│   ├── manage-opencode.ts          # Interactive OpenCode plugin scope manager
+│   ├── manage-opencode.ts          # Legacy OpenCode plugin scope manager
 │   ├── opencode-sync.ts            # OpenCode sync engine (global/repo)
-│   └── opencode-adapter-core.ts    # Shared OpenCode adapter helpers
+│   └── *-adapter-core.ts           # Target adapter helpers
 ├── .claude/                        # Project-specific configuration
 │   └── CLAUDE.md                  # Project instructions
 ├── essentials/                     # The essentials plugin
