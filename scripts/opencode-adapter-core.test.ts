@@ -9,8 +9,10 @@ import {
   adaptCommandMarkdown,
   convertClaudeEnvSyntax,
   normalizeAgentColor,
+  normalizeCommandTemplate,
   parseFrontmatter,
   parseJsonc,
+  toOpenCodeModelId,
 } from './opencode-adapter-core';
 
 describe('parseFrontmatter', () => {
@@ -50,6 +52,28 @@ describe('adaptCommandMarkdown', () => {
     expect(adapted.markdown).toContain('Task: $ARGUMENTS');
     expect(adapted.markdown).toContain('Context: "$ARGUMENTS"');
     expect(adapted.markdown).not.toContain('$ARGS');
+  });
+});
+
+describe('normalizeCommandTemplate', () => {
+  test('rewrites all Claude argument placeholder forms', () => {
+    const normalized = normalizeCommandTemplate([
+      'Task: $ARGS',
+      'Context: ${{{ARGS}}}',
+      'Project: {{ARGS}}',
+    ].join('\n'));
+
+    expect(normalized).toContain('Task: $ARGUMENTS');
+    expect(normalized).toContain('Context: $ARGUMENTS');
+    expect(normalized).toContain('Project: $ARGUMENTS');
+    expect(normalized).not.toContain('{{ARGS}}');
+    expect(normalized).not.toContain('${{{ARGS}}}');
+  });
+});
+
+describe('toOpenCodeModelId', () => {
+  test('normalizes bare Claude model aliases to provider-qualified IDs', () => {
+    expect(toOpenCodeModelId('sonnet')).toBe('anthropic/claude-sonnet-4-5');
   });
 });
 

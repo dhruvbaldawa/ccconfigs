@@ -132,6 +132,7 @@ export function toOpenCodeModelId(model: string): string {
   }
 
   const aliasMap: Record<string, string> = {
+    sonnet: 'anthropic/claude-sonnet-4-5',
     'claude-haiku-4-5': 'anthropic/claude-haiku-4-5',
     'claude-sonnet-4-5': 'anthropic/claude-sonnet-4-5',
     'claude-opus-4-1': 'anthropic/claude-opus-4-1',
@@ -200,6 +201,7 @@ export function normalizeAgentColor(color: string): string | null {
 export function normalizeCommandTemplate(template: string): string {
   return template
     .replace(/\$\{\{\{ARGS\}\}\}/g, '$ARGUMENTS')
+    .replace(/\{\{ARGS\}\}/g, '$ARGUMENTS')
     .replace(/\$ARGS\b/g, '$ARGUMENTS');
 }
 
