@@ -19,7 +19,6 @@ import {
   collectClaudePluginAssets,
   loadPluginRegistry as loadSharedPluginRegistry,
   normalizePluginList,
-  readJsoncObject,
   type PluginRegistry,
 } from './ccconfigs-assets';
 import { parseJsonc } from './ccconfigs-json';
@@ -61,7 +60,7 @@ export interface SyncOptions {
   plugins: string[];
   repoPath?: string;
   sourceRoot?: string;
-  observability?: ResolvedCodexObservability;
+  observability?: ResolvedCodexObservability & { environment?: string };
   dryRun?: boolean;
   check?: boolean;
 }
