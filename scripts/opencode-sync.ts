@@ -23,6 +23,7 @@ import {
   type PluginRegistry,
 } from './ccconfigs-assets';
 import { parseJsonc } from './ccconfigs-json';
+import type { ResolvedOpenCodeObservability } from './ccconfigs-profile';
 import {
   adaptAgentMarkdown,
   adaptClaudeMcpConfig,
@@ -39,6 +40,7 @@ export interface ManagedArtifacts {
   agents: string[];
   skills: string[];
   mcp: string[];
+  configPlugins: string[];
   instructions: string[];
 }
 
@@ -63,6 +65,7 @@ export interface SyncOptions {
   plugins: string[];
   repoPath?: string;
   sourceRoot?: string;
+  observability?: ResolvedOpenCodeObservability;
   dryRun?: boolean;
   check?: boolean;
 }
@@ -81,6 +84,7 @@ interface GeneratedAssets {
   agents: Map<string, string>;
   skills: Map<string, string>;
   mcp: Record<string, unknown>;
+  configPlugins: string[];
   instructions: string[];
 }
 
@@ -105,6 +109,7 @@ function emptyArtifacts(): ManagedArtifacts {
     agents: [],
     skills: [],
     mcp: [],
+    configPlugins: [],
     instructions: [],
   };
 }
@@ -117,6 +122,14 @@ function sortRecordKeys(value: Record<string, unknown>): Record<string, unknown>
   return Object.fromEntries(Object.entries(value).sort(([left], [right]) =>
     left.localeCompare(right)
   ));
+}
+
+function readConfigPluginList(config: Record<string, unknown>): string[] {
+  if (!Array.isArray(config.plugin)) {
+    return [];
+  }
+
+  return config.plugin.filter((entry): entry is string => typeof entry === 'string' && entry.length > 0);
 }
 
 function ensureDirectory(path: string, dryRun: boolean, changes: string[]): void {
@@ -193,6 +206,7 @@ function hasGeneratedArtifacts(artifacts: ManagedArtifacts): boolean {
     artifacts.agents.length > 0 ||
     artifacts.skills.length > 0 ||
     artifacts.mcp.length > 0 ||
+    artifacts.configPlugins.length > 0 ||
     artifacts.instructions.length > 0
   );
 }
@@ -332,6 +346,7 @@ export function readManagedState(path: string): ManagedState | null {
         agents: parsed.generated.agents || [],
         skills: parsed.generated.skills || [],
         mcp: parsed.generated.mcp || [],
+        configPlugins: parsed.generated.configPlugins || [],
         instructions: parsed.generated.instructions || [],
       },
     };
@@ -414,8 +429,32 @@ function collectGeneratedAssets(
     agents: agentMap,
     skills: skillMap,
     mcp: sortRecordKeys(mcpMap),
+    configPlugins: [],
     instructions: Array.from(instructions).sort(),
   };
+}
+
+function resolveManagedConfigPlugins(
+  currentConfig: Record<string, unknown>,
+  previousState: ManagedState | null,
+  observability: ResolvedOpenCodeObservability | undefined
+): string[] {
+  if (!observability) {
+    return previousState?.generated.configPlugins || [];
+  }
+
+  if (!observability.enabled || !observability.plugin) {
+    return [];
+  }
+
+  const previouslyManaged = new Set(previousState?.generated.configPlugins || []);
+  if (previouslyManaged.has(observability.plugin)) {
+    return [observability.plugin];
+  }
+
+  return readConfigPluginList(currentConfig).includes(observability.plugin)
+    ? []
+    : [observability.plugin];
 }
 
 function cleanupManagedArtifacts(
@@ -456,6 +495,7 @@ function mergeManagedConfig(
   currentConfig: Record<string, unknown>,
   previousState: ManagedState | null,
   nextMcp: Record<string, unknown>,
+  nextConfigPlugins: string[],
   nextInstructions: string[]
 ): Record<string, unknown> {
   const merged: Record<string, unknown> = { ...currentConfig };
@@ -465,6 +505,7 @@ function mergeManagedConfig(
   }
 
   const managedMcpNames = new Set(previousState?.generated.mcp || []);
+  const managedConfigPlugins = new Set(previousState?.generated.configPlugins || []);
   const managedInstructions = new Set(previousState?.generated.instructions || []);
 
   const mergedMcp = isNonEmptyObject(merged.mcp)
@@ -483,6 +524,37 @@ function mergeManagedConfig(
     merged.mcp = sortRecordKeys(mergedMcp);
   } else {
     delete merged.mcp;
+  }
+
+  const existingPlugins = Array.isArray(merged.plugin) ? merged.plugin : [];
+  const nextPluginList: unknown[] = [];
+  const nextPluginSet = new Set<string>();
+
+  for (const plugin of existingPlugins) {
+    if (typeof plugin === 'string') {
+      if (managedConfigPlugins.has(plugin) || nextPluginSet.has(plugin)) {
+        continue;
+      }
+
+      nextPluginSet.add(plugin);
+    }
+
+    nextPluginList.push(plugin);
+  }
+
+  for (const plugin of nextConfigPlugins) {
+    if (nextPluginSet.has(plugin)) {
+      continue;
+    }
+
+    nextPluginList.push(plugin);
+    nextPluginSet.add(plugin);
+  }
+
+  if (nextPluginList.length > 0) {
+    merged.plugin = nextPluginList;
+  } else {
+    delete merged.plugin;
   }
 
   const existingInstructions = Array.isArray(merged.instructions)
@@ -519,6 +591,7 @@ function buildManagedState(
       agents: Array.from(assets.agents.keys()).sort(),
       skills: Array.from(assets.skills.keys()).sort(),
       mcp: Object.keys(assets.mcp).sort(),
+      configPlugins: [...assets.configPlugins].sort(),
       instructions: [...assets.instructions],
     },
   };
@@ -549,9 +622,11 @@ export function syncPluginPacks(options: SyncOptions): SyncResult {
   }
 
   const previousState = readManagedState(scopePaths.statePath);
+  const currentConfig = readJsoncObject(scopePaths.configPath);
   const assets = collectGeneratedAssets(sourceRoot, registry, plugins);
+  assets.configPlugins = resolveManagedConfigPlugins(currentConfig, previousState, options.observability);
 
-  if (!previousState && plugins.length === 0) {
+  if (!previousState && plugins.length === 0 && assets.configPlugins.length === 0) {
     return {
       scope: options.scope,
       plugins,
@@ -596,11 +671,11 @@ export function syncPluginPacks(options: SyncOptions): SyncResult {
     );
   }
 
-  const currentConfig = readJsoncObject(scopePaths.configPath);
   const nextConfig = mergeManagedConfig(
     currentConfig,
     previousState,
     assets.mcp,
+    assets.configPlugins,
     assets.instructions
   );
   const nextConfigContent = JSON.stringify(nextConfig, null, 2) + '\n';

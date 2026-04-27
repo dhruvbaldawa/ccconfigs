@@ -14,6 +14,7 @@ import {
 import { tmpdir } from 'os';
 import { join } from 'path';
 
+import { resolveObservabilityProfile } from './ccconfigs-profile';
 import { syncPluginPacks } from './opencode-sync';
 
 const tempPaths: string[] = [];
@@ -289,5 +290,156 @@ describe('syncPluginPacks', () => {
       },
     });
     expect(cleanedConfig.instructions).toEqual(['/custom/instructions.md']);
+  });
+
+  test('merges managed OpenCode observability plugin with unmanaged plugins', () => {
+    const sourceRoot = createFixtureSourceRoot();
+    const repoPath = createTempPath('ccconfigs-repo-');
+    const observability = resolveObservabilityProfile().opencode;
+
+    write(
+      join(repoPath, 'opencode.json'),
+      JSON.stringify(
+        {
+          plugin: ['custom-plugin'],
+        },
+        null,
+        2
+      ) + '\n'
+    );
+
+    const result = syncPluginPacks({
+      sourceRoot,
+      scope: 'repo',
+      repoPath,
+      plugins: [],
+      observability,
+    });
+
+    expect(result.generated.configPlugins).toEqual(['@devtheops/opencode-plugin-otel']);
+
+    const config = JSON.parse(readFileSync(join(repoPath, 'opencode.json'), 'utf8'));
+    expect(config.plugin).toEqual(['custom-plugin', '@devtheops/opencode-plugin-otel']);
+    expect(config.experimental?.openTelemetry).toBeUndefined();
+    expect(JSON.stringify(config)).not.toContain(observability.endpointEnv);
+    expect(JSON.stringify(config)).not.toContain(observability.headersEnv);
+    expect(JSON.stringify(config)).not.toContain(observability.enableTelemetryEnv);
+
+    const statePath = join(repoPath, '.opencode', '.ccconfigs-opencode-state.json');
+    const state = JSON.parse(readFileSync(statePath, 'utf8'));
+    expect(state.generated.configPlugins).toEqual(['@devtheops/opencode-plugin-otel']);
+  });
+
+  test('preserves managed OpenCode observability when observability option is omitted', () => {
+    const sourceRoot = createFixtureSourceRoot();
+    const repoPath = createTempPath('ccconfigs-repo-');
+    const observability = resolveObservabilityProfile().opencode;
+
+    syncPluginPacks({
+      sourceRoot,
+      scope: 'repo',
+      repoPath,
+      plugins: [],
+      observability,
+    });
+
+    syncPluginPacks({
+      sourceRoot,
+      scope: 'repo',
+      repoPath,
+      plugins: [],
+    });
+
+    const config = JSON.parse(readFileSync(join(repoPath, 'opencode.json'), 'utf8'));
+    expect(config.plugin).toEqual(['@devtheops/opencode-plugin-otel']);
+
+    const statePath = join(repoPath, '.opencode', '.ccconfigs-opencode-state.json');
+    const state = JSON.parse(readFileSync(statePath, 'utf8'));
+    expect(state.generated.configPlugins).toEqual(['@devtheops/opencode-plugin-otel']);
+  });
+
+  test('does not adopt a pre-existing unmanaged OpenCode observability plugin', () => {
+    const sourceRoot = createFixtureSourceRoot();
+    const repoPath = createTempPath('ccconfigs-repo-');
+    const observability = resolveObservabilityProfile().opencode;
+
+    write(
+      join(repoPath, 'opencode.json'),
+      JSON.stringify(
+        {
+          plugin: ['@devtheops/opencode-plugin-otel', 'custom-plugin'],
+        },
+        null,
+        2
+      ) + '\n'
+    );
+
+    const enabledRun = syncPluginPacks({
+      sourceRoot,
+      scope: 'repo',
+      repoPath,
+      plugins: [],
+      observability,
+    });
+
+    expect(enabledRun.generated.configPlugins).toEqual([]);
+    expect(existsSync(join(repoPath, '.opencode', '.ccconfigs-opencode-state.json'))).toBe(false);
+
+    syncPluginPacks({
+      sourceRoot,
+      scope: 'repo',
+      repoPath,
+      plugins: [],
+      observability: {
+        ...observability,
+        enabled: false,
+      },
+    });
+
+    const config = JSON.parse(readFileSync(join(repoPath, 'opencode.json'), 'utf8'));
+    expect(config.plugin).toEqual(['@devtheops/opencode-plugin-otel', 'custom-plugin']);
+  });
+
+  test('removes only managed OpenCode observability plugin when disabled', () => {
+    const sourceRoot = createFixtureSourceRoot();
+    const repoPath = createTempPath('ccconfigs-repo-');
+    const observability = resolveObservabilityProfile().opencode;
+
+    write(
+      join(repoPath, 'opencode.json'),
+      JSON.stringify(
+        {
+          plugin: ['custom-plugin'],
+        },
+        null,
+        2
+      ) + '\n'
+    );
+
+    syncPluginPacks({
+      sourceRoot,
+      scope: 'repo',
+      repoPath,
+      plugins: [],
+      observability,
+    });
+
+    syncPluginPacks({
+      sourceRoot,
+      scope: 'repo',
+      repoPath,
+      plugins: [],
+      observability: {
+        ...observability,
+        enabled: false,
+      },
+    });
+
+    const config = JSON.parse(readFileSync(join(repoPath, 'opencode.json'), 'utf8'));
+    expect(config.plugin).toEqual(['custom-plugin']);
+    expect(config.experimental?.openTelemetry).toBeUndefined();
+
+    const statePath = join(repoPath, '.opencode', '.ccconfigs-opencode-state.json');
+    expect(existsSync(statePath)).toBe(false);
   });
 });
