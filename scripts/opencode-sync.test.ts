@@ -328,6 +328,9 @@ describe('syncPluginPacks', () => {
     const statePath = join(repoPath, '.opencode', '.ccconfigs-opencode-state.json');
     const state = JSON.parse(readFileSync(statePath, 'utf8'));
     expect(state.generated.configPlugins).toEqual([observability.plugin]);
+    expect(existsSync(join(repoPath, '.opencode', 'commands'))).toBe(false);
+    expect(existsSync(join(repoPath, '.opencode', 'agents'))).toBe(false);
+    expect(existsSync(join(repoPath, '.opencode', 'skills'))).toBe(false);
   });
 
   test('preserves managed OpenCode observability when observability option is omitted', () => {

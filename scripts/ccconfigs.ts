@@ -297,9 +297,30 @@ function runDoctor(sourceRoot: string, args: CliArgs, output: string[]): void {
     if (target === 'opencode') {
       const paths = resolveOpenCodeScopePaths(args.scope, repoPath);
       output.push(`OpenCode config: ${withHomePrefix(paths.configPath)}`);
+      if (!args.noObservability && observability.opencode.enabled) {
+        pushMissingEnvWarnings('OpenCode', [observability.opencode.endpointEnv, observability.opencode.headersEnv], output);
+      }
     } else {
       const paths = resolveCodexScopePaths(repoPath);
       output.push(`Codex config: ${withHomePrefix(paths.configPath)}`);
+      if (!args.noObservability && observability.codex.enabled) {
+        pushInvalidEndpointWarning('Codex', observability.codex.endpoint, output);
+        pushMissingEnvWarnings('Codex', [observability.codex.authorizationHeaderEnv], output);
+      }
+    }
+  }
+}
+
+function pushInvalidEndpointWarning(target: string, endpoint: string, output: string[]): void {
+  if (!endpoint.startsWith('http://') && !endpoint.startsWith('https://')) {
+    output.push(`Warning: ${target} managed OTel endpoint should start with http:// or https://`);
+  }
+}
+
+function pushMissingEnvWarnings(target: string, envNames: string[], output: string[]): void {
+  for (const envName of envNames) {
+    if (!process.env[envName]) {
+      output.push(`Warning: ${target} managed OTel expects ${envName} to be set`);
     }
   }
 }

@@ -28,8 +28,10 @@ export interface CodexObservabilityProfile {
   exporter?: CodexOtelExporter;
   traceExporter?: CodexOtelExporter;
   metricsExporter?: CodexOtelExporter;
+  endpoint?: string;
   endpointEnv?: string;
   headersEnv?: string;
+  authorizationHeaderEnv?: string;
   httpProtocol?: CodexOtelHttpProtocol;
   logUserPrompt?: boolean;
 }
@@ -71,8 +73,10 @@ export interface ResolvedCodexObservability {
   exporter: CodexOtelExporter;
   traceExporter: CodexOtelExporter;
   metricsExporter: CodexOtelExporter;
+  endpoint: string;
   endpointEnv: string;
   headersEnv: string;
+  authorizationHeaderEnv: string;
   httpProtocol: CodexOtelHttpProtocol;
   logUserPrompt: boolean;
 }
@@ -94,13 +98,13 @@ const DEFAULT_OBSERVABILITY: ResolvedObservability = {
   opencode: {
     enabled: true,
     plugin: DEFAULT_OPENCODE_PLUGIN,
-    endpointEnv: 'OPENCODE_OTLP_ENDPOINT',
-    protocolEnv: 'OPENCODE_OTLP_PROTOCOL',
-    headersEnv: 'OPENCODE_OTLP_HEADERS',
-    resourceAttributesEnv: 'OPENCODE_RESOURCE_ATTRIBUTES',
+    endpointEnv: 'OTEL_EXPORTER_OTLP_ENDPOINT',
+    protocolEnv: 'OTEL_EXPORTER_OTLP_PROTOCOL',
+    headersEnv: 'OTEL_EXPORTER_OTLP_HEADERS',
+    resourceAttributesEnv: 'OTEL_RESOURCE_ATTRIBUTES',
     enableTelemetryEnv: 'OPENCODE_ENABLE_TELEMETRY',
     metricPrefix: 'opencode.',
-    protocol: 'grpc',
+    protocol: 'http/protobuf',
     disabledMetrics: [],
     disabledTraces: [],
   },
@@ -109,8 +113,10 @@ const DEFAULT_OBSERVABILITY: ResolvedObservability = {
     exporter: 'otlp-http',
     traceExporter: 'otlp-http',
     metricsExporter: 'otlp-http',
+    endpoint: 'https://otel.dhruv.cc',
     endpointEnv: 'OTEL_EXPORTER_OTLP_ENDPOINT',
     headersEnv: 'OTEL_EXPORTER_OTLP_HEADERS',
+    authorizationHeaderEnv: 'OTEL_EXPORTER_OTLP_AUTHORIZATION',
     httpProtocol: 'binary',
     logUserPrompt: false,
   },
@@ -172,8 +178,10 @@ function resolveCodexObservability(
     exporter: pickCodexExporter(profile?.exporter, base.exporter),
     traceExporter: pickCodexExporter(profile?.traceExporter, base.traceExporter),
     metricsExporter: pickCodexExporter(profile?.metricsExporter, base.metricsExporter),
+    endpoint: pickString(profile?.endpoint, base.endpoint),
     endpointEnv: pickString(profile?.endpointEnv, base.endpointEnv),
     headersEnv: pickString(profile?.headersEnv, base.headersEnv),
+    authorizationHeaderEnv: pickString(profile?.authorizationHeaderEnv, base.authorizationHeaderEnv),
     httpProtocol: pickCodexHttpProtocol(profile?.httpProtocol, base.httpProtocol),
     logUserPrompt: pickBoolean(profile?.logUserPrompt, base.logUserPrompt),
   };

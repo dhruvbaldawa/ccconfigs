@@ -1,3 +1,6 @@
+<!-- ABOUTME: Documents the ccconfigs repository, its target sync workflow, and setup commands. -->
+<!-- ABOUTME: Explains canonical Claude assets, generated OpenCode/Codex targets, and observability caveats. -->
+
 # ccconfigs
 
 Personal configuration repository for Claude Code, OpenCode, and Codex. Claude plugin assets are canonical; other targets are generated from them.
@@ -42,13 +45,16 @@ bun scripts/ccconfigs.ts sync --target opencode --scope global --plugins essenti
 bun scripts/ccconfigs.ts sync --target codex --plugins essentials,experimental
 ```
 
-OpenCode supports `--scope global` and `--scope repo`. Codex sync is repository-local and writes `config.toml`, `AGENTS.md`, and `.codex/skills/`.
+OpenCode supports `--scope global` and `--scope repo`. Codex sync is repository-local and writes `.codex/config.toml`, `AGENTS.md`, and `.codex/skills/`.
 
 Managed observability is enabled by default:
 
-- OpenCode adds the `@devtheops/opencode-plugin-otel` plugin entry.
-- Codex writes native `[otel]` config with endpoint values referenced by environment variable name.
-- Collector tokens and OTLP headers are not stored in this repo or generated config.
+- OpenCode adds `/home/dhruv/Code/opencode-otel-usage-plugin/dist/index.js` to `opencode.json`.
+- Codex writes native `[otel]` config with direct OTLP logs, traces, and metrics exporters.
+- Backend tokens are referenced through environment placeholders and are not stored in this repo.
+- Codex uses a literal endpoint in generated config because Codex `0.125.0` does not expand env vars in OTel endpoint fields.
+
+Set `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_EXPORTER_OTLP_AUTHORIZATION`, and `OTEL_EXPORTER_OTLP_HEADERS` before launching OpenCode. Build `/home/dhruv/Code/opencode-otel-usage-plugin` after plugin changes because OpenCode loads `dist/index.js`. Codex needs `OTEL_EXPORTER_OTLP_AUTHORIZATION`; its endpoint is generated from the ccconfigs profile. See `docs/guides/opencode-workflow.md` for details.
 
 Use `--no-observability` to remove managed observability for a target.
 

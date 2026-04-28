@@ -644,9 +644,18 @@ export function syncPluginPacks(options: SyncOptions): SyncResult {
   }
 
   ensureDirectory(scopePaths.configDir, dryRun, changes);
-  ensureDirectory(scopePaths.commandsDir, dryRun, changes);
-  ensureDirectory(scopePaths.agentsDir, dryRun, changes);
-  ensureDirectory(scopePaths.skillsDir, dryRun, changes);
+
+  if (assets.commands.size > 0) {
+    ensureDirectory(scopePaths.commandsDir, dryRun, changes);
+  }
+
+  if (assets.agents.size > 0) {
+    ensureDirectory(scopePaths.agentsDir, dryRun, changes);
+  }
+
+  if (assets.skills.size > 0) {
+    ensureDirectory(scopePaths.skillsDir, dryRun, changes);
+  }
 
   cleanupManagedArtifacts(previousState, assets, scopePaths, dryRun, changes);
 

@@ -1,3 +1,6 @@
+<!-- ABOUTME: Describes how ccconfigs syncs canonical Claude assets into OpenCode and Codex targets. -->
+<!-- ABOUTME: Covers target scopes, commands, observability setup, and operational caveats. -->
+
 # OpenCode And Codex Target Sync Guide
 
 Guide for reusing this repository's canonical Claude assets in OpenCode and Codex.
@@ -29,7 +32,7 @@ For OpenCode, sync manages:
 
 For Codex, sync manages:
 
-- `config.toml` managed MCP and `[otel]` sections while preserving unrelated TOML sections
+- `.codex/config.toml` managed MCP and `[otel]` sections while preserving unrelated TOML sections
 - `AGENTS.md` managed ccconfigs block while preserving unmanaged repository instructions
 - `.codex/skills/` symlinks (no content duplication)
 
@@ -37,7 +40,7 @@ For Codex, sync manages:
 
 - **OpenCode global scope**: `~/.config/opencode/`
 - **OpenCode repository scope**: `<repo>/opencode.json` and `<repo>/.opencode/`
-- **Codex repository scope**: `<repo>/config.toml`, `<repo>/AGENTS.md`, and `<repo>/.codex/`
+- **Codex repository scope**: `<repo>/.codex/config.toml`, `<repo>/AGENTS.md`, and `<repo>/.codex/`
 
 OpenCode merges global and local config, so a practical pattern is:
 
@@ -126,26 +129,71 @@ Managed observability is enabled by default.
 
 OpenCode:
 
-- Adds `@devtheops/opencode-plugin-otel` to `opencode.json` `plugin`.
+- Adds `/home/dhruv/Code/opencode-otel-usage-plugin/dist/index.js` to `opencode.json` `plugin`.
+- Uses standard OpenTelemetry environment variables.
 - Preserves unmanaged plugins.
 - Removes only previously managed plugin entries when disabled.
+- OpenCode loads the built local plugin file, so rebuild `/home/dhruv/Code/opencode-otel-usage-plugin` after plugin changes.
 
 Codex:
 
-- Writes native `[otel]` config to `config.toml`.
-- Uses environment variable references for the OTLP endpoint.
-- Does not store tokens or OTLP header values.
+- Writes native `[otel]` config to `.codex/config.toml`.
+- Emits logs, traces, and metrics to direct OTLP/HTTP endpoints under the configured literal endpoint base.
+- Writes only environment placeholders for backend auth; token values stay outside the repo.
+- Codex `0.125.0` does not expand env vars in OTel endpoint fields, so endpoints are literal while auth stays env-based.
 
 Expected environment variables:
 
 ```bash
-export OPENCODE_ENABLE_TELEMETRY=1
-export OPENCODE_OTLP_ENDPOINT=https://collector.example/v1/traces
-export OPENCODE_OTLP_HEADERS='Authorization=Bearer ...'
-
-export OTEL_EXPORTER_OTLP_ENDPOINT=https://collector.example/v1/traces
-export OTEL_EXPORTER_OTLP_HEADERS='Authorization=Bearer ...'
+export OTEL_EXPORTER_OTLP_ENDPOINT=https://collector.example
+export OTEL_EXPORTER_OTLP_AUTHORIZATION='Bearer ...'
+export OTEL_EXPORTER_OTLP_HEADERS="Authorization=${OTEL_EXPORTER_OTLP_AUTHORIZATION}"
 ```
+
+`OTEL_EXPORTER_OTLP_ENDPOINT` is used by OpenCode. Codex uses the literal endpoint configured in the ccconfigs profile; the default is `https://otel.dhruv.cc`.
+
+Codex generated OTel config uses that endpoint base for per-signal URLs:
+
+```toml
+[otel.exporter.otlp-http]
+endpoint = "https://otel.dhruv.cc/v1/logs"
+protocol = "binary"
+
+[otel.exporter.otlp-http.headers]
+Authorization = "${OTEL_EXPORTER_OTLP_AUTHORIZATION}"
+
+[otel.trace_exporter.otlp-http]
+endpoint = "https://otel.dhruv.cc/v1/traces"
+protocol = "binary"
+
+[otel.trace_exporter.otlp-http.headers]
+Authorization = "${OTEL_EXPORTER_OTLP_AUTHORIZATION}"
+
+[otel.metrics_exporter.otlp-http]
+endpoint = "https://otel.dhruv.cc/v1/metrics"
+protocol = "binary"
+
+[otel.metrics_exporter.otlp-http.headers]
+Authorization = "${OTEL_EXPORTER_OTLP_AUTHORIZATION}"
+```
+
+Verify OpenCode with a tagged run:
+
+```bash
+PROBE_ID=ccconfigs-opencode-$(date +%s)
+OTEL_RESOURCE_ATTRIBUTES="probe.id=$PROBE_ID,probe.source=opencode" \
+  opencode run --model openai/gpt-5.5 'Use the bash tool to run exactly: sleep 4. After it finishes, reply exactly: ok'
+```
+
+Verify Codex with a tagged run:
+
+```bash
+PROBE_ID=ccconfigs-codex-$(date +%s)
+OTEL_RESOURCE_ATTRIBUTES="probe.id=$PROBE_ID,probe.source=codex" \
+  codex exec --cd . 'Use the shell to run exactly: sleep 4. After it finishes, reply exactly: ok'
+```
+
+Then query the backend for each `probe.id`. This verifies exporter wiring from the client process through the direct OTLP backend.
 
 Use `--no-observability` to disable and remove managed target observability.
 

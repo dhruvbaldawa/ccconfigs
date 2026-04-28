@@ -1,5 +1,5 @@
 // ABOUTME: Synchronizes selected Claude plugin packs into Codex repository-local configuration.
-// ABOUTME: Generates Codex config.toml, AGENTS.md, links skills, and merges managed MCP/OTel idempotently.
+// ABOUTME: Generates Codex .codex/config.toml, AGENTS.md, links skills, and merges managed MCP/OTel idempotently.
 
 import {
   existsSync,
@@ -44,6 +44,7 @@ export interface ManagedArtifacts {
 export interface ManagedState {
   sourceRoot: string;
   plugins: string[];
+  configPath?: string;
   generated: ManagedArtifacts;
 }
 
@@ -51,6 +52,7 @@ export interface ScopePaths {
   scopeRoot: string;
   configDir: string;
   configPath: string;
+  legacyConfigPath: string;
   statePath: string;
   agentsPath: string;
   skillsDir: string;
@@ -86,6 +88,10 @@ const REGISTRY_FILE = join('opencode', 'packs.json');
 const DEFAULT_SOURCE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const MANAGED_AGENTS_START = '<!-- ccconfigs-codex:start -->';
 const MANAGED_AGENTS_END = '<!-- ccconfigs-codex:end -->';
+const MANAGED_CONFIG_STATE_PATH = '.codex/config.toml';
+const LEGACY_CONFIG_STATE_PATH = 'config.toml';
+
+type ManagedConfigLocation = 'current' | 'legacy';
 
 function emptyArtifacts(): ManagedArtifacts {
   return {
@@ -221,6 +227,21 @@ function hasGeneratedArtifacts(artifacts: ManagedArtifacts): boolean {
   );
 }
 
+function managedConfigLocation(state: ManagedState): ManagedConfigLocation | undefined {
+  if (state.configPath === undefined) {
+    return 'legacy';
+  }
+
+  const normalized = state.configPath.replace(/\\/g, '/');
+  if (normalized === MANAGED_CONFIG_STATE_PATH || normalized.endsWith(`/${MANAGED_CONFIG_STATE_PATH}`)) {
+    return 'current';
+  }
+  if (normalized === LEGACY_CONFIG_STATE_PATH || normalized.endsWith(`/${LEGACY_CONFIG_STATE_PATH}`)) {
+    return 'legacy';
+  }
+  return undefined;
+}
+
 export function getDefaultSourceRoot(): string {
   return DEFAULT_SOURCE_ROOT;
 }
@@ -236,7 +257,8 @@ export function resolveScopePaths(repoPath?: string): ScopePaths {
   return {
     scopeRoot: resolvedRepoPath,
     configDir,
-    configPath: join(resolvedRepoPath, 'config.toml'),
+    configPath: join(configDir, 'config.toml'),
+    legacyConfigPath: join(resolvedRepoPath, 'config.toml'),
     statePath: join(configDir, STATE_FILE),
     agentsPath: join(resolvedRepoPath, 'AGENTS.md'),
     skillsDir: join(configDir, 'skills'),
@@ -257,6 +279,7 @@ export function readManagedState(path: string): ManagedState | null {
     return {
       sourceRoot: parsed.sourceRoot,
       plugins: normalizePluginList(parsed.plugins),
+      configPath: typeof parsed.configPath === 'string' ? parsed.configPath : undefined,
       generated: {
         agents: parsed.generated.agents || [],
         skills: parsed.generated.skills || [],
@@ -409,6 +432,45 @@ function buildCodexConfig(
   return chunks ? chunks + '\n' : '';
 }
 
+function cleanupLegacyManagedConfig(
+  previousState: ManagedState | null,
+  paths: ScopePaths,
+  dryRun: boolean,
+  changes: string[]
+): void {
+  if (!previousState || managedConfigLocation(previousState) !== 'legacy' || !existsSync(paths.legacyConfigPath)) {
+    return;
+  }
+
+  const managedMcpNames = new Set(previousState.generated.mcp || []);
+  const managedOtel = previousState.generated.otel || false;
+
+  if (managedMcpNames.size === 0 && !managedOtel) {
+    return;
+  }
+
+  const currentToml = readFileSync(paths.legacyConfigPath, 'utf8');
+  const nextToml = removeTomlSections(currentToml, header => {
+    if (managedOtel && isTomlHeaderAtOrBelow(header, 'otel')) {
+      return true;
+    }
+
+    for (const mcpName of managedMcpNames) {
+      if (isTomlHeaderAtOrBelow(header, `mcp_servers.${mcpName}`)) {
+        return true;
+      }
+    }
+
+    return false;
+  }).trim();
+
+  if (nextToml) {
+    writeFileIfChanged(paths.legacyConfigPath, `${nextToml}\n`, dryRun, changes);
+  } else {
+    removePath(paths.legacyConfigPath, dryRun, changes);
+  }
+}
+
 function hasTomlSection(toml: string, sectionHeader: string): boolean {
   for (const line of toml.replace(/\r\n/g, '\n').split('\n')) {
     const sectionMatch = line.match(/^\s*\[([^\]]+)]\s*$/);
@@ -523,11 +585,13 @@ function mergeManagedAgentsMarkdown(currentMarkdown: string, managedMarkdown: st
 function buildManagedState(
   sourceRoot: string,
   plugins: string[],
+  configPath: string,
   assets: GeneratedAssets
 ): ManagedState {
   return {
     sourceRoot,
     plugins,
+    configPath,
     generated: {
       agents: assets.agents.map(agent => agent.name).sort(),
       skills: Array.from(assets.skills.keys()).sort(),
@@ -579,6 +643,9 @@ export function syncPluginPacks(options: SyncOptions): SyncResult {
   }
 
   const previousState = readManagedState(scopePaths.statePath);
+  const previousConfigState = previousState && managedConfigLocation(previousState) === 'current'
+    ? previousState
+    : null;
   const previousAssets = previousState
     ? collectGeneratedAssets(
         previousState.sourceRoot || sourceRoot,
@@ -606,15 +673,19 @@ export function syncPluginPacks(options: SyncOptions): SyncResult {
   const currentConfigToml = readConfigToml(scopePaths.configPath);
   const nextConfigToml = buildCodexConfig(
     currentConfigToml,
-    previousState,
+    previousConfigState,
     assets.mcp,
     otelToml
   );
 
   ensureDirectory(scopePaths.configDir, dryRun, changes);
-  ensureDirectory(scopePaths.skillsDir, dryRun, changes);
+
+  if (assets.skills.size > 0) {
+    ensureDirectory(scopePaths.skillsDir, dryRun, changes);
+  }
 
   cleanupManagedArtifacts(previousState, previousAssets, assets, scopePaths, dryRun, changes);
+  cleanupLegacyManagedConfig(previousState, scopePaths, dryRun, changes);
 
   for (const [skillName, skillSourcePath] of assets.skills.entries()) {
     ensureSymlink(
@@ -642,7 +713,7 @@ export function syncPluginPacks(options: SyncOptions): SyncResult {
     removePath(scopePaths.configPath, dryRun, changes);
   }
 
-  const managedState = buildManagedState(sourceRoot, plugins, assets);
+  const managedState = buildManagedState(sourceRoot, plugins, MANAGED_CONFIG_STATE_PATH, assets);
 
   if (hasGeneratedArtifacts(managedState.generated) || plugins.length > 0) {
     writeManagedState(scopePaths.statePath, managedState, dryRun, changes);

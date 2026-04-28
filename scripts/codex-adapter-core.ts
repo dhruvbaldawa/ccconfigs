@@ -18,27 +18,38 @@ export interface CodexOtelTomlConfig {
   exporter: string;
   traceExporter: string;
   metricsExporter: string;
+  endpoint: string;
   endpointEnv: string;
   headersEnv: string;
+  authorizationHeaderEnv: string;
   httpProtocol: string;
   logUserPrompt: boolean;
 }
 
 function buildExporterValue(
   exporter: string,
-  endpointEnv: string,
-  protocol: string
+  endpoint: string,
+  protocol: string,
+  signal: 'logs' | 'traces' | 'metrics',
+  authorizationHeaderEnv: string
 ): string | Record<string, unknown> {
   if (exporter === 'none') {
     return 'none';
   }
 
-  return {
-    [exporter]: {
-      endpoint: `\${${endpointEnv}}`,
-      protocol,
+  const normalizedEndpoint = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint;
+  const config: Record<string, unknown> = {
+    endpoint: exporter === 'otlp-http' ? `${normalizedEndpoint}/v1/${signal}` : normalizedEndpoint,
+    headers: {
+      Authorization: `\${${authorizationHeaderEnv}}`,
     },
   };
+
+  if (exporter === 'otlp-http') {
+    config.protocol = protocol;
+  }
+
+  return { [exporter]: config };
 }
 
 export function adaptCodexMcpConfig(input: unknown): Record<string, unknown> {
@@ -112,27 +123,29 @@ export function buildCodexOtelToml(
     environment: observability.environment || 'dev',
     exporter: buildExporterValue(
       observability.exporter,
-      observability.endpointEnv,
-      observability.httpProtocol
+      observability.endpoint,
+      observability.httpProtocol,
+      'logs',
+      observability.authorizationHeaderEnv
     ),
     log_user_prompt: observability.logUserPrompt,
   };
 
-  if (observability.traceExporter !== observability.exporter) {
-    otel.trace_exporter = buildExporterValue(
-      observability.traceExporter,
-      observability.endpointEnv,
-      observability.httpProtocol
-    );
-  }
+  otel.trace_exporter = buildExporterValue(
+    observability.traceExporter,
+    observability.endpoint,
+    observability.httpProtocol,
+    'traces',
+    observability.authorizationHeaderEnv
+  );
 
-  if (observability.metricsExporter !== observability.exporter) {
-    otel.metrics_exporter = buildExporterValue(
-      observability.metricsExporter,
-      observability.endpointEnv,
-      observability.httpProtocol
-    );
-  }
+  otel.metrics_exporter = buildExporterValue(
+    observability.metricsExporter,
+    observability.endpoint,
+    observability.httpProtocol,
+    'metrics',
+    observability.authorizationHeaderEnv
+  );
 
   return stringify({ otel });
 }

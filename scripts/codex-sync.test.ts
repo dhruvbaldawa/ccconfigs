@@ -120,7 +120,7 @@ describe('syncPluginPacks', () => {
     expect(result.upToDate).toBe(true);
     expect(result.changes.length).toBe(0);
     expect(existsSync(join(repoPath, '.codex'))).toBe(false);
-    expect(existsSync(join(repoPath, 'config.toml'))).toBe(false);
+    expect(existsSync(join(repoPath, '.codex', 'config.toml'))).toBe(false);
   });
 
   test('creates agents, skills, and managed config for repo scope', () => {
@@ -145,11 +145,12 @@ describe('syncPluginPacks', () => {
     expect(lstatSync(skillPath).isSymbolicLink()).toBe(true);
     expect(readlinkSync(skillPath)).toBe(join(sourceRoot, 'essentials', 'skills', 'debugging'));
 
-    const configToml = readFileSync(join(repoPath, 'config.toml'), 'utf8');
+    const configToml = readFileSync(join(repoPath, '.codex', 'config.toml'), 'utf8');
     expect(configToml).toContain('[mcp_servers.context7]');
     expect(configToml).toContain('type = "sse"');
     expect(configToml).toContain('${MCP_PROXY_HOST}');
     expect(configToml).toContain('${MCP_PROXY_AUTH}');
+    expect(existsSync(join(repoPath, 'config.toml'))).toBe(false);
 
     const statePath = join(repoPath, '.codex', '.ccconfigs-codex-state.json');
     const state = JSON.parse(readFileSync(statePath, 'utf8'));
@@ -225,7 +226,7 @@ describe('syncPluginPacks', () => {
     expect(cleanup.upToDate).toBe(false);
     expect(existsSync(join(repoPath, 'AGENTS.md'))).toBe(false);
     expect(existsSync(join(repoPath, '.codex', 'skills', 'debugging'))).toBe(false);
-    expect(existsSync(join(repoPath, 'config.toml'))).toBe(false);
+    expect(existsSync(join(repoPath, '.codex', 'config.toml'))).toBe(false);
 
     const statePath = join(repoPath, '.codex', '.ccconfigs-codex-state.json');
     expect(existsSync(statePath)).toBe(false);
@@ -245,16 +246,82 @@ describe('syncPluginPacks', () => {
 
     expect(result.generated.otel).toBe(true);
 
-    const configToml = readFileSync(join(repoPath, 'config.toml'), 'utf8');
+    const configToml = readFileSync(join(repoPath, '.codex', 'config.toml'), 'utf8');
     expect(configToml).toContain('[otel]');
     expect(configToml).toContain('environment = "dev"');
     expect(configToml).toContain('log_user_prompt = false');
-    expect(configToml).toContain('${OTEL_EXPORTER_OTLP_ENDPOINT}');
+    expect(configToml).toContain([
+      '[otel.exporter.otlp-http]',
+      'endpoint = "https://otel.dhruv.cc/v1/logs"',
+      'protocol = "binary"',
+      '',
+      '[otel.exporter.otlp-http.headers]',
+      'Authorization = "${OTEL_EXPORTER_OTLP_AUTHORIZATION}"',
+    ].join('\n'));
+    expect(configToml).toContain([
+      '[otel.trace_exporter.otlp-http]',
+      'endpoint = "https://otel.dhruv.cc/v1/traces"',
+      'protocol = "binary"',
+      '',
+      '[otel.trace_exporter.otlp-http.headers]',
+      'Authorization = "${OTEL_EXPORTER_OTLP_AUTHORIZATION}"',
+    ].join('\n'));
+    expect(configToml).toContain([
+      '[otel.metrics_exporter.otlp-http]',
+      'endpoint = "https://otel.dhruv.cc/v1/metrics"',
+      'protocol = "binary"',
+      '',
+      '[otel.metrics_exporter.otlp-http.headers]',
+      'Authorization = "${OTEL_EXPORTER_OTLP_AUTHORIZATION}"',
+    ].join('\n'));
     expect(configToml).not.toContain('${OTEL_EXPORTER_OTLP_HEADERS}');
+    expect(configToml).not.toContain('${OTEL_EXPORTER_OTLP_ENDPOINT}');
+    expect(existsSync(join(repoPath, 'config.toml'))).toBe(false);
 
     const statePath = join(repoPath, '.codex', '.ccconfigs-codex-state.json');
     const state = JSON.parse(readFileSync(statePath, 'utf8'));
+    expect(state.configPath).toBe('.codex/config.toml');
     expect(state.generated.otel).toBe(true);
+    expect(existsSync(join(repoPath, '.codex', 'skills'))).toBe(false);
+  });
+
+  test('normalizes moved absolute managed config state paths', () => {
+    const sourceRoot = createFixtureSourceRoot();
+    const repoPath = createTempPath('ccconfigs-codex-repo-');
+    const observability = resolveObservabilityProfile().codex;
+
+    syncPluginPacks({
+      sourceRoot,
+      repoPath,
+      plugins: [],
+      observability,
+    });
+
+    const statePath = join(repoPath, '.codex', '.ccconfigs-codex-state.json');
+    const movedState = JSON.parse(readFileSync(statePath, 'utf8'));
+    movedState.configPath = '/tmp/moved-repo/.codex/config.toml';
+    write(statePath, JSON.stringify(movedState, null, 2) + '\n');
+
+    syncPluginPacks({
+      sourceRoot,
+      repoPath,
+      plugins: [],
+      observability,
+    });
+
+    const configToml = readFileSync(join(repoPath, '.codex', 'config.toml'), 'utf8');
+    expect(configToml).toContain('[otel]');
+
+    const normalizedState = JSON.parse(readFileSync(statePath, 'utf8'));
+    expect(normalizedState.configPath).toBe('.codex/config.toml');
+
+    const finalRun = syncPluginPacks({
+      sourceRoot,
+      repoPath,
+      plugins: [],
+      observability,
+    });
+    expect(finalRun.upToDate).toBe(true);
   });
 
   test('writes none signal exporters without endpoint tables', () => {
@@ -272,9 +339,37 @@ describe('syncPluginPacks', () => {
       },
     });
 
-    const configToml = readFileSync(join(repoPath, 'config.toml'), 'utf8');
+    const configToml = readFileSync(join(repoPath, '.codex', 'config.toml'), 'utf8');
     expect(configToml).toContain('metrics_exporter = "none"');
     expect(configToml).not.toContain('[otel.metrics_exporter.none]');
+  });
+
+  test('does not leak Codex OTLP authorization environment values', () => {
+    const sourceRoot = createFixtureSourceRoot();
+    const repoPath = createTempPath('ccconfigs-codex-repo-');
+    const observability = resolveObservabilityProfile().codex;
+    const previousAuthorization = process.env.OTEL_EXPORTER_OTLP_AUTHORIZATION;
+
+    process.env.OTEL_EXPORTER_OTLP_AUTHORIZATION = 'Bearer secret-token';
+
+    try {
+      syncPluginPacks({
+        sourceRoot,
+        repoPath,
+        plugins: [],
+        observability,
+      });
+
+      const configToml = readFileSync(join(repoPath, '.codex', 'config.toml'), 'utf8');
+      expect(configToml).toContain('${OTEL_EXPORTER_OTLP_AUTHORIZATION}');
+      expect(configToml).not.toContain('Bearer secret-token');
+    } finally {
+      if (previousAuthorization === undefined) {
+        delete process.env.OTEL_EXPORTER_OTLP_AUTHORIZATION;
+      } else {
+        process.env.OTEL_EXPORTER_OTLP_AUTHORIZATION = previousAuthorization;
+      }
+    }
   });
 
   test('removes OTel config when observability is disabled', () => {
@@ -299,7 +394,7 @@ describe('syncPluginPacks', () => {
       },
     });
 
-    expect(existsSync(join(repoPath, 'config.toml'))).toBe(false);
+    expect(existsSync(join(repoPath, '.codex', 'config.toml'))).toBe(false);
 
     const statePath = join(repoPath, '.codex', '.ccconfigs-codex-state.json');
     expect(existsSync(statePath)).toBe(false);
@@ -329,10 +424,12 @@ describe('syncPluginPacks', () => {
       plugins: ['essentials'],
     });
 
-    const configToml = readFileSync(join(repoPath, 'config.toml'), 'utf8');
-    expect(configToml).toContain('[model]');
-    expect(configToml).toContain('provider = "openai"');
-    expect(configToml).toContain('[mcp_servers.context7]');
+    const rootConfigToml = readFileSync(join(repoPath, 'config.toml'), 'utf8');
+    expect(rootConfigToml).toContain('[model]');
+    expect(rootConfigToml).toContain('provider = "openai"');
+
+    const codexConfigToml = readFileSync(join(repoPath, '.codex', 'config.toml'), 'utf8');
+    expect(codexConfigToml).toContain('[mcp_servers.context7]');
 
     const agentsContent = readFileSync(join(repoPath, 'AGENTS.md'), 'utf8');
     expect(agentsContent).toContain('Repo-specific instructions');
@@ -362,9 +459,71 @@ describe('syncPluginPacks', () => {
     const configToml = readFileSync(join(repoPath, 'config.toml'), 'utf8');
     expect(configToml).toContain('[model]');
     expect(configToml).not.toContain('[mcp_servers.context7]');
+    expect(existsSync(join(repoPath, '.codex', 'config.toml'))).toBe(false);
 
     const agentsContent = readFileSync(join(repoPath, 'AGENTS.md'), 'utf8');
     expect(agentsContent).toBe('Repo-specific instructions\n');
+  });
+
+  test('migrates old managed root config sections into project Codex config', () => {
+    const sourceRoot = createFixtureSourceRoot();
+    const repoPath = createTempPath('ccconfigs-codex-repo-');
+    const observability = resolveObservabilityProfile().codex;
+
+    write(
+      join(repoPath, 'config.toml'),
+      [
+        '[model]',
+        'provider = "openai"',
+        '',
+        '[mcp_servers.context7]',
+        'type = "sse"',
+        '',
+        '[otel]',
+        'environment = "prod"',
+      ].join('\n') + '\n'
+    );
+    write(
+      join(repoPath, '.codex', '.ccconfigs-codex-state.json'),
+      JSON.stringify(
+        {
+          sourceRoot,
+          plugins: ['essentials'],
+          generated: {
+            agents: [],
+            skills: [],
+            mcp: ['context7'],
+            otel: true,
+            instructions: [],
+          },
+        },
+        null,
+        2
+      ) + '\n'
+    );
+
+    syncPluginPacks({
+      sourceRoot,
+      repoPath,
+      plugins: ['essentials'],
+      observability,
+    });
+
+    const rootConfigToml = readFileSync(join(repoPath, 'config.toml'), 'utf8');
+    expect(rootConfigToml).toContain('[model]');
+    expect(rootConfigToml).not.toContain('[mcp_servers.context7]');
+    expect(rootConfigToml).not.toContain('[otel]');
+
+    const codexConfigToml = readFileSync(join(repoPath, '.codex', 'config.toml'), 'utf8');
+    expect(codexConfigToml).toContain('[otel]');
+    expect(codexConfigToml).toContain('environment = "dev"');
+    expect(codexConfigToml).toContain('[mcp_servers.context7]');
+    expect(codexConfigToml).toContain('endpoint = "https://otel.dhruv.cc/v1/logs"');
+    expect(codexConfigToml).toContain('Authorization = "${OTEL_EXPORTER_OTLP_AUTHORIZATION}"');
+    expect(codexConfigToml).not.toContain('environment = "prod"');
+
+    const state = JSON.parse(readFileSync(join(repoPath, '.codex', '.ccconfigs-codex-state.json'), 'utf8'));
+    expect(state.configPath).toBe('.codex/config.toml');
   });
 
   test('fails fast instead of duplicating unmanaged MCP or OTel TOML sections', () => {
@@ -373,15 +532,14 @@ describe('syncPluginPacks', () => {
     const otelRepoPath = createTempPath('ccconfigs-codex-repo-');
     const observability = resolveObservabilityProfile().codex;
 
-    write(join(mcpRepoPath, 'config.toml'), "[mcp_servers.'context7']\ntype = \"sse\"\n");
-    write(join(otelRepoPath, 'config.toml'), '[otel]\nenvironment = "prod"\n');
+    write(join(mcpRepoPath, '.codex', 'config.toml'), "[mcp_servers.'context7']\ntype = \"sse\"\n");
+    write(join(otelRepoPath, '.codex', 'config.toml'), '[otel]\nenvironment = "prod"\n');
 
     expect(() => syncPluginPacks({
       sourceRoot,
       repoPath: mcpRepoPath,
       plugins: ['essentials'],
     })).toThrow('Cannot manage Codex MCP server context7');
-    expect(existsSync(join(mcpRepoPath, '.codex'))).toBe(false);
     expect(existsSync(join(mcpRepoPath, 'AGENTS.md'))).toBe(false);
 
     expect(() => syncPluginPacks({
@@ -390,7 +548,7 @@ describe('syncPluginPacks', () => {
       plugins: [],
       observability,
     })).toThrow('Cannot manage Codex OTel config');
-    expect(existsSync(join(otelRepoPath, '.codex'))).toBe(false);
+    expect(existsSync(join(otelRepoPath, '.codex', '.ccconfigs-codex-state.json'))).toBe(false);
   });
 
   test('refuses to delete replaced managed skill paths during cleanup', () => {

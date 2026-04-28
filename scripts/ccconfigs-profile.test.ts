@@ -14,9 +14,17 @@ describe('resolveObservabilityProfile', () => {
     expect(resolved.serviceNamespace).toBe('ccconfigs');
     expect(resolved.opencode.enabled).toBe(true);
     expect(resolved.opencode.plugin).toBe('/home/dhruv/Code/opencode-otel-usage-plugin/dist/index.js');
+    expect(resolved.opencode.endpointEnv).toBe('OTEL_EXPORTER_OTLP_ENDPOINT');
+    expect(resolved.opencode.headersEnv).toBe('OTEL_EXPORTER_OTLP_HEADERS');
+    expect(resolved.opencode.resourceAttributesEnv).toBe('OTEL_RESOURCE_ATTRIBUTES');
     expect(resolved.opencode.enableTelemetryEnv).toBe('OPENCODE_ENABLE_TELEMETRY');
+    expect(resolved.opencode.protocol).toBe('http/protobuf');
     expect(resolved.codex.enabled).toBe(true);
     expect(resolved.codex.exporter).toBe('otlp-http');
+    expect(resolved.codex.endpoint).toBe('https://otel.dhruv.cc');
+    expect(resolved.codex.endpointEnv).toBe('OTEL_EXPORTER_OTLP_ENDPOINT');
+    expect(resolved.codex.headersEnv).toBe('OTEL_EXPORTER_OTLP_HEADERS');
+    expect(resolved.codex.authorizationHeaderEnv).toBe('OTEL_EXPORTER_OTLP_AUTHORIZATION');
     expect(resolved.codex.logUserPrompt).toBe(false);
   });
 
@@ -99,6 +107,7 @@ describe('resolveObservabilityProfile', () => {
         },
         codex: {
           headersEnv: 'OTEL_EXPORTER_OTLP_HEADERS',
+          authorizationHeaderEnv: 'OTEL_EXPORTER_OTLP_AUTHORIZATION',
           headers: 'another-secret',
         },
       },
@@ -108,6 +117,7 @@ describe('resolveObservabilityProfile', () => {
 
     expect(serialized).toContain('OPENCODE_OTLP_HEADERS');
     expect(serialized).toContain('OTEL_EXPORTER_OTLP_HEADERS');
+    expect(serialized).toContain('OTEL_EXPORTER_OTLP_AUTHORIZATION');
     expect(serialized).not.toContain('secret-token');
     expect(serialized).not.toContain('another-secret');
   });

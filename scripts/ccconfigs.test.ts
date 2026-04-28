@@ -144,7 +144,7 @@ describe('runCcconfigsCli', () => {
 
     expect(result.exitCode).toBe(1);
     expect(result.output.join('\n')).toContain('Target: codex');
-    expect(existsSync(join(repoPath, 'config.toml'))).toBe(false);
+    expect(existsSync(join(repoPath, '.codex', 'config.toml'))).toBe(false);
     expect(existsSync(join(repoPath, '.codex'))).toBe(false);
     expect(existsSync(join(repoPath, 'AGENTS.md'))).toBe(false);
   });
@@ -173,10 +173,11 @@ describe('runCcconfigsCli', () => {
     expect(opencodeConfig.plugin).toEqual(['/home/dhruv/Code/opencode-otel-usage-plugin/dist/index.js']);
     expect(opencodeConfig.mcp.context7.type).toBe('remote');
 
-    const codexConfig = readFileSync(join(repoPath, 'config.toml'), 'utf8');
+    const codexConfig = readFileSync(join(repoPath, '.codex', 'config.toml'), 'utf8');
     expect(codexConfig).toContain('[otel]');
     expect(codexConfig).toContain('environment = "dev"');
     expect(codexConfig).toContain('[mcp_servers.context7]');
+    expect(existsSync(join(repoPath, 'config.toml'))).toBe(false);
 
     expect(readFileSync(join(repoPath, '.opencode', 'commands', 'plan.md'), 'utf8')).toContain('$ARGUMENTS');
     expect(readFileSync(join(repoPath, 'AGENTS.md'), 'utf8')).toContain('Global instructions');
@@ -221,7 +222,7 @@ describe('runCcconfigsCli', () => {
     ]);
 
     expect(result.exitCode).toBe(0);
-    expect(readFileSync(join(repoPath, 'config.toml'), 'utf8')).toContain('environment = "local-dev"');
+    expect(readFileSync(join(repoPath, '.codex', 'config.toml'), 'utf8')).toContain('environment = "local-dev"');
   });
 
   test('explicitly disables managed observability with --no-observability', () => {
@@ -242,7 +243,7 @@ describe('runCcconfigsCli', () => {
     ]);
 
     expect(result.exitCode).toBe(0);
-    expect(readFileSync(join(repoPath, 'config.toml'), 'utf8')).not.toContain('[otel]');
+    expect(readFileSync(join(repoPath, '.codex', 'config.toml'), 'utf8')).not.toContain('[otel]');
   });
 
   test('explicitly disables managed OpenCode observability with --no-observability', () => {
@@ -268,5 +269,186 @@ describe('runCcconfigsCli', () => {
 
     const config = JSON.parse(readFileSync(join(repoPath, 'opencode.json'), 'utf8'));
     expect(config.plugin).toBeUndefined();
+  });
+
+  test('doctor warns when Codex direct OTel env vars are missing', () => {
+    const sourceRoot = createFixtureSourceRoot();
+    const repoPath = createTempPath('ccconfigs-cli-repo-');
+    const previousEndpoint = process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
+    const previousHeaders = process.env.OTEL_EXPORTER_OTLP_HEADERS;
+    const previousAuthorization = process.env.OTEL_EXPORTER_OTLP_AUTHORIZATION;
+
+    delete process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
+    delete process.env.OTEL_EXPORTER_OTLP_HEADERS;
+    delete process.env.OTEL_EXPORTER_OTLP_AUTHORIZATION;
+
+    try {
+      const result = runCcconfigsCli([
+        'doctor',
+        '--target',
+        'codex',
+        '--path',
+        repoPath,
+        '--source-root',
+        sourceRoot,
+      ]);
+
+      const output = result.output.join('\n');
+      expect(result.exitCode).toBe(0);
+      expect(output).toContain(`Codex config: ${join(repoPath, '.codex', 'config.toml')}`);
+      expect(output).toContain('Warning: Codex managed OTel expects OTEL_EXPORTER_OTLP_AUTHORIZATION to be set');
+      expect(output).not.toContain('Warning: Codex managed OTel expects OTEL_EXPORTER_OTLP_ENDPOINT to be set');
+      expect(output).not.toContain('Warning: Codex managed OTel expects OTEL_EXPORTER_OTLP_HEADERS to be set');
+    } finally {
+      if (previousEndpoint === undefined) {
+        delete process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
+      } else {
+        process.env.OTEL_EXPORTER_OTLP_ENDPOINT = previousEndpoint;
+      }
+
+      if (previousHeaders === undefined) {
+        delete process.env.OTEL_EXPORTER_OTLP_HEADERS;
+      } else {
+        process.env.OTEL_EXPORTER_OTLP_HEADERS = previousHeaders;
+      }
+
+      if (previousAuthorization === undefined) {
+        delete process.env.OTEL_EXPORTER_OTLP_AUTHORIZATION;
+      } else {
+        process.env.OTEL_EXPORTER_OTLP_AUTHORIZATION = previousAuthorization;
+      }
+    }
+  });
+
+  test('doctor warns when Codex OTel endpoint is invalid', () => {
+    const sourceRoot = createFixtureSourceRoot();
+    const repoPath = createTempPath('ccconfigs-cli-repo-');
+    const previousAuthorization = process.env.OTEL_EXPORTER_OTLP_AUTHORIZATION;
+
+    process.env.OTEL_EXPORTER_OTLP_AUTHORIZATION = 'Bearer test-token';
+    write(
+      join(sourceRoot, 'ccconfigs.jsonc'),
+      JSON.stringify(
+        {
+          observability: {
+            codex: {
+              endpoint: 'otel.local',
+            },
+          },
+        },
+        null,
+        2
+      ) + '\n'
+    );
+
+    try {
+      const result = runCcconfigsCli([
+        'doctor',
+        '--target',
+        'codex',
+        '--path',
+        repoPath,
+        '--source-root',
+        sourceRoot,
+      ]);
+
+      const output = result.output.join('\n');
+      expect(result.exitCode).toBe(0);
+      expect(output).toContain('Warning: Codex managed OTel endpoint should start with http:// or https://');
+      expect(output).not.toContain('Warning: Codex managed OTel expects OTEL_EXPORTER_OTLP_AUTHORIZATION to be set');
+    } finally {
+      if (previousAuthorization === undefined) {
+        delete process.env.OTEL_EXPORTER_OTLP_AUTHORIZATION;
+      } else {
+        process.env.OTEL_EXPORTER_OTLP_AUTHORIZATION = previousAuthorization;
+      }
+    }
+  });
+
+  test('doctor warns when OpenCode direct OTel env vars are missing', () => {
+    const sourceRoot = createFixtureSourceRoot();
+    const repoPath = createTempPath('ccconfigs-cli-repo-');
+    const previousEndpoint = process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
+    const previousHeaders = process.env.OTEL_EXPORTER_OTLP_HEADERS;
+
+    delete process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
+    delete process.env.OTEL_EXPORTER_OTLP_HEADERS;
+
+    try {
+      const result = runCcconfigsCli([
+        'doctor',
+        '--target',
+        'opencode',
+        '--scope',
+        'repo',
+        '--path',
+        repoPath,
+        '--source-root',
+        sourceRoot,
+      ]);
+
+      const output = result.output.join('\n');
+      expect(result.exitCode).toBe(0);
+      expect(output).toContain('Warning: OpenCode managed OTel expects OTEL_EXPORTER_OTLP_ENDPOINT to be set');
+      expect(output).toContain('Warning: OpenCode managed OTel expects OTEL_EXPORTER_OTLP_HEADERS to be set');
+    } finally {
+      if (previousEndpoint === undefined) {
+        delete process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
+      } else {
+        process.env.OTEL_EXPORTER_OTLP_ENDPOINT = previousEndpoint;
+      }
+
+      if (previousHeaders === undefined) {
+        delete process.env.OTEL_EXPORTER_OTLP_HEADERS;
+      } else {
+        process.env.OTEL_EXPORTER_OTLP_HEADERS = previousHeaders;
+      }
+    }
+  });
+
+  test('doctor suppresses OTel env warnings when observability is disabled', () => {
+    const sourceRoot = createFixtureSourceRoot();
+    const repoPath = createTempPath('ccconfigs-cli-repo-');
+    const previousEndpoint = process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
+    const previousHeaders = process.env.OTEL_EXPORTER_OTLP_HEADERS;
+    const previousAuthorization = process.env.OTEL_EXPORTER_OTLP_AUTHORIZATION;
+
+    delete process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
+    delete process.env.OTEL_EXPORTER_OTLP_HEADERS;
+    delete process.env.OTEL_EXPORTER_OTLP_AUTHORIZATION;
+
+    try {
+      const result = runCcconfigsCli([
+        'doctor',
+        '--target',
+        'all',
+        '--path',
+        repoPath,
+        '--source-root',
+        sourceRoot,
+        '--no-observability',
+      ]);
+
+      expect(result.exitCode).toBe(0);
+      expect(result.output.join('\n')).not.toContain('Warning:');
+    } finally {
+      if (previousEndpoint === undefined) {
+        delete process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
+      } else {
+        process.env.OTEL_EXPORTER_OTLP_ENDPOINT = previousEndpoint;
+      }
+
+      if (previousHeaders === undefined) {
+        delete process.env.OTEL_EXPORTER_OTLP_HEADERS;
+      } else {
+        process.env.OTEL_EXPORTER_OTLP_HEADERS = previousHeaders;
+      }
+
+      if (previousAuthorization === undefined) {
+        delete process.env.OTEL_EXPORTER_OTLP_AUTHORIZATION;
+      } else {
+        process.env.OTEL_EXPORTER_OTLP_AUTHORIZATION = previousAuthorization;
+      }
+    }
   });
 });
