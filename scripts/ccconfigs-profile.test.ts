@@ -13,7 +13,7 @@ describe('resolveObservabilityProfile', () => {
     expect(resolved.environment).toBe('dev');
     expect(resolved.serviceNamespace).toBe('ccconfigs');
     expect(resolved.opencode.enabled).toBe(true);
-    expect(resolved.opencode.plugin).toBe('@devtheops/opencode-plugin-otel');
+    expect(resolved.opencode.plugin).toBe('/home/dhruv/Code/opencode-otel-usage-plugin/dist/index.js');
     expect(resolved.opencode.enableTelemetryEnv).toBe('OPENCODE_ENABLE_TELEMETRY');
     expect(resolved.codex.enabled).toBe(true);
     expect(resolved.codex.exporter).toBe('otlp-http');

@@ -170,7 +170,7 @@ describe('runCcconfigsCli', () => {
     expect(result.exitCode).toBe(0);
 
     const opencodeConfig = JSON.parse(readFileSync(join(repoPath, 'opencode.json'), 'utf8'));
-    expect(opencodeConfig.plugin).toContain('@devtheops/opencode-plugin-otel');
+    expect(opencodeConfig.plugin).toEqual(['/home/dhruv/Code/opencode-otel-usage-plugin/dist/index.js']);
     expect(opencodeConfig.mcp.context7.type).toBe('remote');
 
     const codexConfig = readFileSync(join(repoPath, 'config.toml'), 'utf8');

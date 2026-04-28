@@ -102,6 +102,7 @@ const STATE_FILE = '.ccconfigs-opencode-state.json';
 const REGISTRY_FILE = join('opencode', 'packs.json');
 const DEFAULT_SCHEMA = 'https://opencode.ai/config.json';
 const DEFAULT_SOURCE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const LEGACY_OBSERVABILITY_PLUGINS = new Set(['@devtheops/opencode-plugin-otel', 'opencode-otel-plugin']);
 
 function emptyArtifacts(): ManagedArtifacts {
   return {
@@ -448,13 +449,18 @@ function resolveManagedConfigPlugins(
   }
 
   const previouslyManaged = new Set(previousState?.generated.configPlugins || []);
+  const currentPlugins = readConfigPluginList(currentConfig);
+  for (const plugin of currentPlugins) {
+    if (LEGACY_OBSERVABILITY_PLUGINS.has(plugin) && !previouslyManaged.has(plugin)) {
+      throw new Error(`Cannot manage OpenCode observability: remove unmanaged legacy plugin ${plugin}`);
+    }
+  }
+
   if (previouslyManaged.has(observability.plugin)) {
     return [observability.plugin];
   }
 
-  return readConfigPluginList(currentConfig).includes(observability.plugin)
-    ? []
-    : [observability.plugin];
+  return currentPlugins.includes(observability.plugin) ? [] : [observability.plugin];
 }
 
 function cleanupManagedArtifacts(

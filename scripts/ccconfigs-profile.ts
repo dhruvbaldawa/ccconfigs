@@ -85,7 +85,7 @@ export interface ResolvedObservability {
   codex: ResolvedCodexObservability;
 }
 
-const DEFAULT_OPENCODE_PLUGIN = '@devtheops/opencode-plugin-otel';
+const DEFAULT_OPENCODE_PLUGIN = '/home/dhruv/Code/opencode-otel-usage-plugin/dist/index.js';
 
 const DEFAULT_OBSERVABILITY: ResolvedObservability = {
   enabled: true,
