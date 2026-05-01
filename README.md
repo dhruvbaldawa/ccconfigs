@@ -50,6 +50,7 @@ OpenCode supports `--scope global` and `--scope repo`. Codex sync is repository-
 Managed observability is enabled by default:
 
 - OpenCode adds `/home/dhruv/Code/opencode-otel-usage-plugin/dist/index.js` to `opencode.json`.
+- OpenCode emits `opencode.*` usage and cost metrics. It uses positive OpenCode-reported cost first, then falls back to the plugin's vendored LiteLLM pricing snapshot.
 - Codex writes native `[otel]` config with direct OTLP logs, traces, and metrics exporters.
 - Backend tokens are referenced through environment placeholders and are not stored in this repo.
 - Codex uses a literal endpoint in generated config because Codex `0.125.0` does not expand env vars in OTel endpoint fields.

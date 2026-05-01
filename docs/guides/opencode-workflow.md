@@ -134,6 +134,8 @@ OpenCode:
 - Preserves unmanaged plugins.
 - Removes only previously managed plugin entries when disabled.
 - OpenCode loads the built local plugin file, so rebuild `/home/dhruv/Code/opencode-otel-usage-plugin` after plugin changes.
+- Cost policy: positive OpenCode-reported cost wins; otherwise the plugin estimates cost from token counts and its vendored LiteLLM pricing snapshot.
+- Unpriced requests emit `opencode.llm.unpriced_requests`; they do not emit zero-valued `opencode.llm.cost` datapoints.
 
 Codex:
 

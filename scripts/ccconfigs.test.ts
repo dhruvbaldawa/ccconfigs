@@ -183,6 +183,38 @@ describe('runCcconfigsCli', () => {
     expect(readFileSync(join(repoPath, 'AGENTS.md'), 'utf8')).toContain('Global instructions');
   });
 
+  test('syncs and checks global OpenCode observability config', () => {
+    const sourceRoot = createFixtureSourceRoot();
+    const homePath = createTempPath('ccconfigs-cli-home-');
+    const env = { ...process.env, HOME: homePath };
+
+    const syncResult = Bun.spawnSync({
+      cmd: [process.execPath, 'scripts/ccconfigs.ts', 'sync', '--target', 'opencode', '--plugins', 'essentials', '--scope', 'global', '--source-root', sourceRoot],
+      cwd: process.cwd(),
+      env,
+      stderr: 'pipe',
+      stdout: 'pipe',
+    });
+
+    expect(syncResult.exitCode).toBe(0);
+
+    const configPath = join(homePath, '.config', 'opencode', 'opencode.json');
+    const config = JSON.parse(readFileSync(configPath, 'utf8'));
+    expect(config.plugin).toEqual(['/home/dhruv/Code/opencode-otel-usage-plugin/dist/index.js']);
+    expect(config.instructions).toContain(join(sourceRoot, 'config', 'CLAUDE.md'));
+
+    const checkResult = Bun.spawnSync({
+      cmd: [process.execPath, 'scripts/ccconfigs.ts', 'check', '--target', 'opencode', '--plugins', 'essentials', '--scope', 'global', '--source-root', sourceRoot],
+      cwd: process.cwd(),
+      env,
+      stderr: 'pipe',
+      stdout: 'pipe',
+    });
+
+    expect(checkResult.exitCode).toBe(0);
+    expect(checkResult.stdout.toString()).toContain('Status: already up to date');
+  });
+
   test('uses machine profile for Codex observability environment', () => {
     const sourceRoot = createFixtureSourceRoot();
     const repoPath = createTempPath('ccconfigs-cli-repo-');
