@@ -1,0 +1,32 @@
+{
+  "interface": {
+    "displayName": "packport Local Packs"
+  },
+  "name": "packport-local",
+  "plugins": [
+    {
+      "category": "Productivity",
+      "name": "claude-instructions",
+      "policy": {
+        "authentication": "ON_INSTALL",
+        "installation": "AVAILABLE"
+      },
+      "source": {
+        "path": "./.packs/codex/claude-instructions",
+        "source": "local"
+      }
+    },
+    {
+      "category": "Productivity",
+      "name": "essentials",
+      "policy": {
+        "authentication": "ON_INSTALL",
+        "installation": "AVAILABLE"
+      },
+      "source": {
+        "path": "./.packs/codex/essentials",
+        "source": "local"
+      }
+    }
+  ]
+}

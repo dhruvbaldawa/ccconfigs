@@ -1,0 +1,26 @@
+{
+  "instructionSelections": [
+    {
+      "answers": {},
+      "instructions": [
+        "project-claude"
+      ],
+      "pack": "claude-instructions",
+      "profile": "personal",
+      "scope": "project",
+      "target": "codex"
+    },
+    {
+      "answers": {},
+      "instructions": [
+        "user-claude"
+      ],
+      "pack": "claude-instructions",
+      "profile": "personal",
+      "scope": "user",
+      "target": "codex"
+    }
+  ],
+  "overlays": [],
+  "stateVersion": 1
+}
