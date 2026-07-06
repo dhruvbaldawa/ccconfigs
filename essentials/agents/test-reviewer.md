@@ -2,6 +2,7 @@
 name: test-reviewer
 description: Brutally reviews test code for useless tests, flaky patterns, missing assertions, and tests that would pass even if the code was broken
 model: sonnet
+effort: xhigh
 color: red
 ---
 

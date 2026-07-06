@@ -28,6 +28,14 @@
 
 **claude-md-authoring**: Write effective CLAUDE.md files for Claude Code. Applies HumanLayer guidelines: instruction budgets (~50 user-level, ~100 project-level), WHAT/WHY/HOW framework for project-level, universal applicability for user-level, and progressive disclosure. Includes anti-patterns (never use Claude as linter for style rules), scope decision framework, structure templates, and quality checklist.
 
+**ultracode**: The slice execution loop as a slim contract (no bundled orchestration script — workflows stay dynamically authored per task). Per slice: sonnet subagent implements, senior-engineer-reviewer + test-reviewer review the uncommitted diff in parallel, sonnet fixes until both approve (3 rejected rounds → block and move on), then atomic commits land per the commit plan. Shared memory in `.ultracode/<task-slug>/context.md` (subagents read first, append after; doubles as resume). Parallel slices only when clearly independent; external repos always via `git worktree`. Includes the subagent standards block (verify with real output, evidence-backed reporting, scope discipline) injected into every subagent prompt.
+
+## Agents
+
+**senior-engineer-reviewer** (opus, xhigh): Brutal architecture/maintainability review. Verdicts: REJECT / NEEDS MAJOR WORK / NEEDS MINOR FIXES / APPROVED WITH RESERVATIONS / SHIP IT — approved means the last two. Half of the ultracode review gate.
+
+**test-reviewer** (sonnet, xhigh): Brutal test-quality review — useless tests, flaky patterns, missing assertions, isolation failures. Verdicts: GARBAGE / NEEDS WORK / ACCEPTABLE / ACTUALLY GOOD — approved means the last two. The other half of the gate.
+
 ## MCP Servers
 
 **Priority:** Built-in tools (WebFetch, WebSearch) are used first, MCP servers as fallback for advanced capabilities.

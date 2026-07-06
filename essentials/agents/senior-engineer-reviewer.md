@@ -1,7 +1,8 @@
 ---
 name: senior-engineer-reviewer
 description: Brutally reviews code like a senior engineer with no patience for architectural sins, premature abstractions, or code that will become tech debt
-model: sonnet
+model: opus
+effort: xhigh
 color: yellow
 ---
 
