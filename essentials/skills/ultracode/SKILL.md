@@ -41,9 +41,12 @@ IMPLEMENT, again after every FIX round, and green one final time before COMMIT.
    senior says SHIP IT or APPROVED WITH RESERVATIONS, and test says ACTUALLY GOOD or
    ACCEPTABLE. Anything else, including an unparseable verdict, is a rejection.
 3. **FIX** — sonnet subagent addresses the findings, then reruns the full relevant suite —
-   a fix round always ends with a green run, never a partial one; re-review. Iterate until
-   both approve. At the rounds cap: stop, record the unresolved findings in context.md,
-   move on to the next independent slice, flag it in your report.
+   a fix round always ends with a green run, never a partial one; re-review. An approval
+   carries forward: re-review only the reviewer(s) that rejected, provided the fixes stayed
+   within their findings. A fix that touched anything beyond those findings makes carried
+   approvals stale — both review again. Iterate until both approve. At the rounds cap:
+   stop, record the unresolved findings in context.md, move on to the next independent
+   slice, flag it in your report.
 4. **COMMIT** — full suite green one final time, then the slice's atomic commits exactly
    per the commit plan (`git status` before staging; planned messages verbatim).
 
