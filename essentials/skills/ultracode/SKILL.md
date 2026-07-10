@@ -47,9 +47,12 @@ IMPLEMENT, again after every FIX round, and green one final time before COMMIT.
 4. **COMMIT** — full suite green one final time, then the slice's atomic commits exactly
    per the commit plan (`git status` before staging; planned messages verbatim).
 
-Parallelize slices only when clearly independent (different files, no shared interfaces);
-otherwise sequential. Any external repo you touch: work in a fresh `git worktree` of that
-repo, never its main checkout.
+Parallelize independent slices (different files, no shared interfaces) — 2-3 at a time at
+most; more parallelism multiplies review load and merge risk faster than it saves time, and
+when in doubt, go sequential. Same-repo parallel slices each work in their own `git
+worktree` on a branch, merged back in slice order as each completes; a merge conflict or a
+red suite after merge is a rejection — route it through a fix round. Any external repo you
+touch: work in a fresh `git worktree` of that repo, never its main checkout.
 
 ## Tune the loop
 
