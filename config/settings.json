@@ -1,7 +1,9 @@
 {
   "env": {
     "ENABLE_LSP_TOOL": "1",
-    "CLAUDE_CODE_DISABLE_1M_CONTEXT": "1"
+    "CLAUDE_AFK_TIMEOUT_MS": "86400000",
+    "X_CLAUDE_CODE_DISABLE_1M_CONTEXT": "1",
+    "X_CLAUDE_CODE_AUTO_COMPACT_WINDOW": "400000"
   },
   "permissions": {
     "allow": [
@@ -85,6 +87,7 @@
     ],
     "defaultMode": "auto"
   },
+  "model": "sonnet[1m]",
   "hooks": {
     "PreToolUse": [
       {
@@ -92,7 +95,79 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${HOME}/.claude/hooks/rtk-rewrite.sh"
+            "command": "${HOME}/.claude-work/hooks/rtk-rewrite.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -x '/Users/dhruv/.orca/agent-hooks/claude-hook.sh' ]; then /bin/sh '/Users/dhruv/.orca/agent-hooks/claude-hook.sh'; fi"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -x '/Users/dhruv/.orca/agent-hooks/claude-hook.sh' ]; then /bin/sh '/Users/dhruv/.orca/agent-hooks/claude-hook.sh'; fi"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -x '/Users/dhruv/.orca/agent-hooks/claude-hook.sh' ]; then /bin/sh '/Users/dhruv/.orca/agent-hooks/claude-hook.sh'; fi"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -x '/Users/dhruv/.orca/agent-hooks/claude-hook.sh' ]; then /bin/sh '/Users/dhruv/.orca/agent-hooks/claude-hook.sh'; fi"
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -x '/Users/dhruv/.orca/agent-hooks/claude-hook.sh' ]; then /bin/sh '/Users/dhruv/.orca/agent-hooks/claude-hook.sh'; fi"
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -x '/Users/dhruv/.orca/agent-hooks/claude-hook.sh' ]; then /bin/sh '/Users/dhruv/.orca/agent-hooks/claude-hook.sh'; fi"
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -x '/Users/dhruv/.orca/agent-hooks/claude-hook.sh' ]; then /bin/sh '/Users/dhruv/.orca/agent-hooks/claude-hook.sh'; fi"
           }
         ]
       }
@@ -132,6 +207,12 @@
         "source": "github",
         "repo": "pbakaus/impeccable"
       }
+    },
+    "internal-apps-platform": {
+      "source": {
+        "source": "github",
+        "repo": "paystackhq/internal-apps-platform"
+      }
     }
   },
   "sandbox": {
@@ -147,24 +228,28 @@
     },
     "enableWeakerNetworkIsolation": true,
     "excludedCommands": [
-      "docker",
-      "docker-compose",
-      "ssh",
-      "git",
-      "gpg",
-      "gpg-agent"
+      "docker *",
+      "docker-compose *",
+      "ssh *",
+      "git *",
+      "gpg *",
+      "gpg-agent *"
     ],
     "allowRead": true
   },
   "syntaxHighlightingDisabled": false,
   "effortLevel": "xhigh",
-  "model": "opusplan",
-  "advisorModel": "opus",
   "showClearContextOnPlanAccept": true,
   "autoUpdatesChannel": "latest",
   "autoDreamEnabled": true,
   "showThinkingSummaries": true,
   "skipDangerousModePermissionPrompt": true,
+  "skipWorkflowUsageWarning": true,
+  "verbose": true,
+  "preferredNotifChannel": "iterm2_with_bell",
+  "remoteControlAtStartup": false,
+  "inputNeededNotifEnabled": true,
+  "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true,
   "tmuxPassthrough": true
 }

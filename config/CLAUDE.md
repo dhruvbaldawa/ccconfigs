@@ -17,6 +17,7 @@ No filler, preamble, postamble, or meta-commentary. Execute first, explain only 
 - State assumptions explicitly. If uncertain, ask.
 - Multiple interpretations? Present them — don't pick silently.
 - Something unclear? Stop. Name what's confusing. Ask.
+- Only use `artifact-design` skill when explicitly asked.
 
 ## Relationship
 
