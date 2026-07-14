@@ -112,13 +112,17 @@ Root cause only. Never symptoms. Never workarounds. Use debugging skill.
 - State what you did NOT verify.
 - Don't re-read unchanged files.
 
+## Operating Standards
+
+Verify before done: run it, paste real output — "should work" isn't done. Report failures as failures. Three failed attempts at one problem: stop, write up what you tried, escalate.
+
 ## Plan Mode
 
 When planning work, create a logical sequence of atomic commits. Each commit in the plan must include:
 
 - What changes are made
 - What tests are added or modified
-- Validation criteria to confirm the commit is correct
+- Validation criteria to confirm the commit is correct — as executable commands wherever possible (these become the loop's declared checks)
 
 ### Before finalizing the plan
 
@@ -126,22 +130,11 @@ Use AskUserQuestion to confirm the following preferences:
 
 - **Review frequency**: Review every commit, or review at the end?
 - **Commit strategy**: Commit as you go, or batch commits at the end?
-- **Review cycles**: Iterate with reviewers until approved, or run a single review cycle?
+- **Review cycles**: How many review rounds per commit before blocking — single, a specific number, or until approved?
+- **Execution**: Run via /conveyor, or execute manually in this session?
 
-### Commit workflow
+### Execution
 
-For every commit (adjusted per preferences above):
-
-1. Implement the changes and tests
-2. Verify validation criteria pass
-3. Run the `essentials:senior-engineer-reviewer` and `essentials:test-reviewer` subagents
-4. Iterate on their feedback until both reviewers approve
-5. Commit only after both reviewers give final approval
-6. Do not proceed to the next task until the current commit is approved and committed
-
-### Quality standards
-
-- No shortcuts. No laziness. Quality is non-negotiable.
-- Include this workflow context in all task descriptions.
+Heavy multi-commit plans: `/conveyor <plan-file>` (essentials) — the implement/review/fix/commit loop lives there. Manual execution keeps the same gate: `essentials:senior-engineer-reviewer` + `essentials:test-reviewer` approve within the agreed rounds cap; at the cap, surface what's unresolved.
 
 @RTK.md
