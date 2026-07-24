@@ -42,6 +42,36 @@ OpenCode merges global and local config. A practical setup is:
 
 See `docs/guides/opencode-workflow.md` for the full workflow.
 
+## Portable Packport Dogfood
+
+This branch also contains portable pack source under `packs/` plus generated harness output under
+`.packs/`. The current dogfood scope is the essentials pack and reusable project/user instruction
+assets.
+
+Generated entry points:
+
+- Claude Code marketplace: `.claude-plugin/marketplace.json`
+- Codex marketplace: `.agents/plugins/marketplace.json`
+- OpenCode packages: `.packs/opencode/`
+- Codex managed instructions: `AGENTS.md`
+
+Validate from the packport checkout:
+
+```bash
+bun src/cli.ts check /home/dhruv/Code/ccconfigs
+```
+
+Regenerate after changing portable source:
+
+```bash
+bun src/cli.ts claude generate /home/dhruv/Code/ccconfigs
+bun src/cli.ts opencode generate /home/dhruv/Code/ccconfigs /home/dhruv/Code/ccconfigs/.packs/opencode
+bun src/cli.ts codex generate /home/dhruv/Code/ccconfigs
+```
+
+`pack.lock.yaml` owns generated output drift. Do not edit `.packs/`, generated marketplace files,
+or managed `AGENTS.md` blocks by hand.
+
 ## Installation
 
 ### Environment Variables

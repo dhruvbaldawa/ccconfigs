@@ -1,0 +1,16 @@
+{
+  "author": {
+    "name": "packport"
+  },
+  "description": "Reusable Claude instruction files",
+  "interface": {
+    "category": "Productivity",
+    "developerName": "packport",
+    "displayName": "claude-instructions",
+    "longDescription": "Reusable Claude instruction files",
+    "shortDescription": "Reusable Claude instruction files"
+  },
+  "license": "UNLICENSED",
+  "name": "claude-instructions",
+  "version": "0.0.0"
+}

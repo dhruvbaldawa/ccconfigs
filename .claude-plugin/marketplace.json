@@ -5,29 +5,34 @@
   },
   "plugins": [
     {
+      "description": "My absolute essentials to work with Claude Code",
       "name": "essentials",
-      "source": "./essentials",
-      "description": "My absolute essentials to work with Claude Code"
+      "source": ".packs/claude/essentials"
     },
     {
+      "description": "Blog writing plugin with Dhruv's distinctive style and voice",
       "name": "writing",
-      "source": "./writing",
-      "description": "Blog writing plugin with Dhruv's distinctive style and voice"
+      "source": "./writing"
     },
     {
+      "description": "Multi-agent development workflows (planning, implementation, review, testing agents)",
       "name": "experimental",
-      "source": "./experimental",
-      "description": "Multi-agent development workflows (planning, implementation, review, testing agents)"
+      "source": "./experimental"
     },
     {
+      "description": "Todoist integration - link Claude Code sessions to tasks and automatically track progress",
       "name": "todoist",
-      "source": "./todoist",
-      "description": "Todoist integration - link Claude Code sessions to tasks and automatically track progress"
+      "source": "./todoist"
     },
     {
+      "description": "Send notifications via Apprise when Claude Code needs input",
       "name": "notifications",
-      "source": "./notifications",
-      "description": "Send notifications via Apprise when Claude Code needs input"
+      "source": "./notifications"
+    },
+    {
+      "description": "Reusable Claude instruction files",
+      "name": "claude-instructions",
+      "source": ".packs/claude/claude-instructions"
     }
   ]
 }

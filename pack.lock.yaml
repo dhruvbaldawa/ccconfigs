@@ -1,0 +1,749 @@
+assets:
+  - id: claude-instructions/instruction/project-claude
+    kind: instruction
+    payloads:
+      - hash: b37890868ca8c2365860d8af93ee412d5b958fc77ff810413524115655e3c08d
+        path: packs/claude-instructions/instructions/project-claude/INSTRUCTION.md
+  - id: claude-instructions/instruction/user-claude
+    kind: instruction
+    payloads:
+      - hash: 2724df1708b26c07ff5e2e561b5082e2dabdc309049ee6bcef535f10b2080d3b
+        path: packs/claude-instructions/instructions/user-claude/INSTRUCTION.md
+  - id: essentials/agent/senior-engineer-reviewer
+    kind: agent
+    payloads:
+      - hash: 3710840b5b133b449b6676d89c39433fed57e3163a987e2ffe05611d4be28b9c
+        path: packs/essentials/agents/senior-engineer-reviewer/AGENT.md
+  - id: essentials/agent/test-reviewer
+    kind: agent
+    payloads:
+      - hash: 56ff31e466f34366fc3b3769d065e49060e0bb00f44fbd57a3547d9203d095df
+        path: packs/essentials/agents/test-reviewer/AGENT.md
+  - id: essentials/command/breakdown
+    kind: command
+    payloads:
+      - hash: d4b5c9c786d40bd897b97a33ed3350df773d9f757f2266ff8820c6395e46ce7c
+        path: packs/essentials/commands/breakdown/COMMAND.md
+  - id: essentials/command/catchup
+    kind: command
+    payloads:
+      - hash: 35d9191219ea679e559993ed3578bb2d39e96b61ae67c8610bef2b310485a909
+        path: packs/essentials/commands/catchup/COMMAND.md
+  - id: essentials/command/commit
+    kind: command
+    payloads:
+      - hash: 2e2899efd840e1efe10ffde390ed3e5f70c99c27c667e5375977d75066e8c231
+        path: packs/essentials/commands/commit/COMMAND.md
+  - id: essentials/command/do
+    kind: command
+    payloads:
+      - hash: 5bfe1dea957a4333e5b9552b791e11eedb956c5481fc8fb440c1ef81bf13bc0f
+        path: packs/essentials/commands/do/COMMAND.md
+  - id: essentials/command/explain-diff
+    kind: command
+    payloads:
+      - hash: 6e6f1ac462e7b81ed60362bdc9d50f7517f3d9699fc111f8c68ec1d1eabbed86
+        path: packs/essentials/commands/explain-diff/COMMAND.md
+  - id: essentials/command/fix-quality
+    kind: command
+    payloads:
+      - hash: 7adc716b16f1d54726bc524ca13bca379648e846f71dd9210cce12391322dcac
+        path: packs/essentials/commands/fix-quality/COMMAND.md
+  - id: essentials/command/optimize-doc
+    kind: command
+    payloads:
+      - hash: 50170ebaab99f92f0e2ef7ca43625c596e5706b32701259d93eac5445feb592e
+        path: packs/essentials/commands/optimize-doc/COMMAND.md
+  - id: essentials/command/plan
+    kind: command
+    payloads:
+      - hash: 801e0650f3d6d7f2b1fe845bf323de22690e7193a056b521f10dba60c21b7ef6
+        path: packs/essentials/commands/plan/COMMAND.md
+  - id: essentials/command/research
+    kind: command
+    payloads:
+      - hash: 24feafc5b8b61f14a166880764fa3213f0f31b082102a0a876d122d06e25fdb1
+        path: packs/essentials/commands/research/COMMAND.md
+  - contract:
+      hash: 6d9a4289d126c62458bf807a6056201e6af70338613cbe87a60d08568c8fdea8
+      path: packs/essentials/skills/brainstorming/ASSET.md
+    id: essentials/skill/brainstorming
+    kind: skill
+    payloads:
+      - hash: d757e52e0e4accea8fb5a06ff6a2302108b78b8186b6c1de60fe52d63a06b3a9
+        path: packs/essentials/skills/brainstorming/SKILL.md
+      - hash: 15f4949d78c647fee9894c4a235c6721feedcfd866e6d73facd9e1bd75397211
+        path: packs/essentials/skills/brainstorming/reference/examples.md
+  - contract:
+      hash: a0c5b56a58183ff2c9f67dd85e4825a9241d382b2815bc650ef0a5217ae4f126
+      path: packs/essentials/skills/debugging/ASSET.md
+    id: essentials/skill/debugging
+    kind: skill
+    payloads:
+      - hash: 05ff2c760cd1efb6b8fc82a32fee9f73122759ac0ee992e1d2e199e64d4cb2ac
+        path: packs/essentials/skills/debugging/SKILL.md
+      - hash: ab417c15f5e8ca2fbc03fff6350eb4476bee8b0d13c199508be46f9e86a8c99b
+        path: packs/essentials/skills/debugging/reference/antipatterns.md
+      - hash: d7d60e0cb78ec48216ee92ebfc9fdc3359c1d05961222663c3aff79dab1646a0
+        path: packs/essentials/skills/debugging/reference/root-cause-framework.md
+  - contract:
+      hash: 9565e62a57160ccdcb2c85b8ff73db480d45fe84f7afdc1691d607e73af84831
+      path: packs/essentials/skills/engineering-prompts/ASSET.md
+    id: essentials/skill/engineering-prompts
+    kind: skill
+    payloads:
+      - hash: 31d6b7af4e4ff30178b8767518e13a18873ea9813f38d96d7c203d0e44416db3
+        path: packs/essentials/skills/engineering-prompts/SKILL.md
+      - hash: b5303a7c518ba9ae58a0097d67efe1ce74aa6b49a5b5256907a84cc8988933c8
+        path: packs/essentials/skills/engineering-prompts/reference/examples.md
+      - hash: d849167bfa63c6b8e4451e056550669a5404190ba8c0c68b1ccec740c40235ec
+        path: packs/essentials/skills/engineering-prompts/reference/research.md
+      - hash: 71e3160e944e231e97974f7ab50a47f5334df8641f14c547d8dc3e62dd024010
+        path: packs/essentials/skills/engineering-prompts/reference/technique-catalog.md
+  - id: essentials/skill/grill-me
+    kind: skill
+    payloads:
+      - hash: 6de1ed5027d28336ec643b7f0cd5fd208ead884a8cc2a60e71d9612e9bb35256
+        path: packs/essentials/skills/grill-me/SKILL.md
+  - contract:
+      hash: 6d9a4289d126c62458bf807a6056201e6af70338613cbe87a60d08568c8fdea8
+      path: packs/essentials/skills/interviewing/ASSET.md
+    id: essentials/skill/interviewing
+    kind: skill
+    payloads:
+      - hash: 4bdf391da8248f872d8d22e811dc877b6d4ab7cd38b57e3fcae9829cc414f619
+        path: packs/essentials/skills/interviewing/SKILL.md
+      - hash: 569ce9574ecc78848a8f3c5ecc73be14fac341f740adbdc2b76355ceb9b32c07
+        path: packs/essentials/skills/interviewing/reference/examples.md
+  - contract:
+      hash: e688ffc8b7444f8271aaa1d4f5a3701214ec0ecdb42575903d28ed1a073ad4a2
+      path: packs/essentials/skills/project-setup/ASSET.md
+    id: essentials/skill/project-setup
+    kind: skill
+    payloads:
+      - hash: faf9e12942de47a9b3779ee3442092e00fb8f4e49997e7b046f810dd011d9bfc
+        path: packs/essentials/skills/project-setup/SKILL.md
+      - hash: 7d7cd29736f18c5c62373d98d22de5406606b36b5b3ac94fc02f20a9999dd6bd
+        path: packs/essentials/skills/project-setup/reference/common-patterns.md
+      - hash: a5c13e011222af571abbc3d25d62285a5e683e6fc9c145dd5c3d478c505198fa
+        path: packs/essentials/skills/project-setup/reference/python.md
+      - hash: 5df5a3b04326cef44f529206a269dfe810b74b32eb13f0055dbf3604c8ad4d6b
+        path: packs/essentials/skills/project-setup/reference/typescript.md
+  - contract:
+      hash: fab8bdc25975bc698febf822780a95b5cd95111ab9f494060309a0e1ee590376
+      path: packs/essentials/skills/research-synthesis/ASSET.md
+    id: essentials/skill/research-synthesis
+    kind: skill
+    payloads:
+      - hash: 4707b4008dfe375e850ae0c8016945f66aee568ea3aaf9bfd4653d5b176fdf05
+        path: packs/essentials/skills/research-synthesis/SKILL.md
+      - hash: 9e6212da475e6f92edd92a495a317bb2575a7d0c903df66715e968ccd7c32147
+        path: packs/essentials/skills/research-synthesis/reference/examples.md
+      - hash: 568d862335986f59f6ee8ae60a9f4dd89c0a428d1c2dc15d193fa4ab61a7594e
+        path: packs/essentials/skills/research-synthesis/reference/multi-agent-invocation.md
+  - id: essentials/skill/technical-planning
+    kind: skill
+    payloads:
+      - hash: 8d147034b563cbd5c4d57346ee3f8d2eba1d85155e80fc00dd7a4dd817c5bd75
+        path: packs/essentials/skills/technical-planning/SKILL.md
+  - contract:
+      hash: 351fdf10d194f9788b4edacba8f23dc13be0166d0f00766b5fbeaa7d2bc22cc9
+      path: packs/essentials/skills/writing-documentation/ASSET.md
+    id: essentials/skill/writing-documentation
+    kind: skill
+    payloads:
+      - hash: 059d0783856afad31b81bc394f31e4df2b55ed4a333f96073325bf75b0149d5c
+        path: packs/essentials/skills/writing-documentation/SKILL.md
+      - hash: c908abf8746628c3e7da3c9c3f26528536b2119adbb16875c03c97c603f13aeb
+        path: packs/essentials/skills/writing-documentation/reference/doc-types.md
+      - hash: 0cab472f833e62e8e2a28e2e15c1f01c5d0231800263a2380528c1bf9b48adc3
+        path: packs/essentials/skills/writing-documentation/reference/examples.md
+      - hash: 02d6426ea9b5d5890cabe40b0c3f17af038693db7782fa9c2b0ef3c44ce517be
+        path: packs/essentials/skills/writing-documentation/reference/strunk-white-principles.md
+decisions:
+  []
+lockfileVersion: 1
+outputs:
+  - hash: 1241525b2bcef84a5599e759492fa9f76aba16b09358688555ec0b9b05219137
+    kind: marketplace
+    path: .agents/plugins/marketplace.json
+    target: codex
+  - hash: 90d9fbff42cefa9e715accd061994a09f85ef342adabc26372bd730efaec6c27
+    kind: marketplace
+    path: .claude-plugin/marketplace.json
+    target: claude
+  - hash: d55495137150595fbb45fbf190ee05e7e5f41a7655d7cc0b1dd48e3bd5e2b34f
+    kind: package
+    packageName: claude-instructions
+    path: .packs/claude/claude-instructions/.claude-plugin/plugin.json
+    target: claude
+  - hash: 5d36da0f3c6bbb03e74b7220b7ac135af94afc83d51c02405642245d6f303ebf
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/.claude-plugin/plugin.json
+    target: claude
+  - hash: d6371730fe9c9fd1ab02b08fabbc867692b289cdf81687beb38fdc44b724c7e7
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/.mcp.json
+    target: claude
+  - hash: 3710840b5b133b449b6676d89c39433fed57e3163a987e2ffe05611d4be28b9c
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/agents/senior-engineer-reviewer.md
+    target: claude
+  - hash: 56ff31e466f34366fc3b3769d065e49060e0bb00f44fbd57a3547d9203d095df
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/agents/test-reviewer.md
+    target: claude
+  - hash: d4b5c9c786d40bd897b97a33ed3350df773d9f757f2266ff8820c6395e46ce7c
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/commands/breakdown.md
+    target: claude
+  - hash: 35d9191219ea679e559993ed3578bb2d39e96b61ae67c8610bef2b310485a909
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/commands/catchup.md
+    target: claude
+  - hash: 2e2899efd840e1efe10ffde390ed3e5f70c99c27c667e5375977d75066e8c231
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/commands/commit.md
+    target: claude
+  - hash: 5bfe1dea957a4333e5b9552b791e11eedb956c5481fc8fb440c1ef81bf13bc0f
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/commands/do.md
+    target: claude
+  - hash: 6e6f1ac462e7b81ed60362bdc9d50f7517f3d9699fc111f8c68ec1d1eabbed86
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/commands/explain-diff.md
+    target: claude
+  - hash: 7adc716b16f1d54726bc524ca13bca379648e846f71dd9210cce12391322dcac
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/commands/fix-quality.md
+    target: claude
+  - hash: 50170ebaab99f92f0e2ef7ca43625c596e5706b32701259d93eac5445feb592e
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/commands/optimize-doc.md
+    target: claude
+  - hash: 801e0650f3d6d7f2b1fe845bf323de22690e7193a056b521f10dba60c21b7ef6
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/commands/plan.md
+    target: claude
+  - hash: 24feafc5b8b61f14a166880764fa3213f0f31b082102a0a876d122d06e25fdb1
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/commands/research.md
+    target: claude
+  - hash: 15f4949d78c647fee9894c4a235c6721feedcfd866e6d73facd9e1bd75397211
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/skills/brainstorming/reference/examples.md
+    target: claude
+  - hash: d757e52e0e4accea8fb5a06ff6a2302108b78b8186b6c1de60fe52d63a06b3a9
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/skills/brainstorming/SKILL.md
+    target: claude
+  - hash: ab417c15f5e8ca2fbc03fff6350eb4476bee8b0d13c199508be46f9e86a8c99b
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/skills/debugging/reference/antipatterns.md
+    target: claude
+  - hash: d7d60e0cb78ec48216ee92ebfc9fdc3359c1d05961222663c3aff79dab1646a0
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/skills/debugging/reference/root-cause-framework.md
+    target: claude
+  - hash: 05ff2c760cd1efb6b8fc82a32fee9f73122759ac0ee992e1d2e199e64d4cb2ac
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/skills/debugging/SKILL.md
+    target: claude
+  - hash: 3a2f062fb2eb1fa640dbe4d101ce1a2687b6bbbe31dcfb584b5ab1765562708f
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/skills/engineering-prompts/reference/examples.md
+    target: claude
+  - hash: d91fccb85ff52d7d87eef814f0fdb9791be7442b853cf17bedb64d8693baa04b
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/skills/engineering-prompts/reference/research.md
+    target: claude
+  - hash: 71e3160e944e231e97974f7ab50a47f5334df8641f14c547d8dc3e62dd024010
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/skills/engineering-prompts/reference/technique-catalog.md
+    target: claude
+  - hash: 31d6b7af4e4ff30178b8767518e13a18873ea9813f38d96d7c203d0e44416db3
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/skills/engineering-prompts/SKILL.md
+    target: claude
+  - hash: 6de1ed5027d28336ec643b7f0cd5fd208ead884a8cc2a60e71d9612e9bb35256
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/skills/grill-me/SKILL.md
+    target: claude
+  - hash: 569ce9574ecc78848a8f3c5ecc73be14fac341f740adbdc2b76355ceb9b32c07
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/skills/interviewing/reference/examples.md
+    target: claude
+  - hash: 4bdf391da8248f872d8d22e811dc877b6d4ab7cd38b57e3fcae9829cc414f619
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/skills/interviewing/SKILL.md
+    target: claude
+  - hash: 7d7cd29736f18c5c62373d98d22de5406606b36b5b3ac94fc02f20a9999dd6bd
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/skills/project-setup/reference/common-patterns.md
+    target: claude
+  - hash: a5c13e011222af571abbc3d25d62285a5e683e6fc9c145dd5c3d478c505198fa
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/skills/project-setup/reference/python.md
+    target: claude
+  - hash: 5df5a3b04326cef44f529206a269dfe810b74b32eb13f0055dbf3604c8ad4d6b
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/skills/project-setup/reference/typescript.md
+    target: claude
+  - hash: faf9e12942de47a9b3779ee3442092e00fb8f4e49997e7b046f810dd011d9bfc
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/skills/project-setup/SKILL.md
+    target: claude
+  - hash: 9e6212da475e6f92edd92a495a317bb2575a7d0c903df66715e968ccd7c32147
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/skills/research-synthesis/reference/examples.md
+    target: claude
+  - hash: 568d862335986f59f6ee8ae60a9f4dd89c0a428d1c2dc15d193fa4ab61a7594e
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/skills/research-synthesis/reference/multi-agent-invocation.md
+    target: claude
+  - hash: 4707b4008dfe375e850ae0c8016945f66aee568ea3aaf9bfd4653d5b176fdf05
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/skills/research-synthesis/SKILL.md
+    target: claude
+  - hash: 8d147034b563cbd5c4d57346ee3f8d2eba1d85155e80fc00dd7a4dd817c5bd75
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/skills/technical-planning/SKILL.md
+    target: claude
+  - hash: c908abf8746628c3e7da3c9c3f26528536b2119adbb16875c03c97c603f13aeb
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/skills/writing-documentation/reference/doc-types.md
+    target: claude
+  - hash: 0cab472f833e62e8e2a28e2e15c1f01c5d0231800263a2380528c1bf9b48adc3
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/skills/writing-documentation/reference/examples.md
+    target: claude
+  - hash: 02d6426ea9b5d5890cabe40b0c3f17af038693db7782fa9c2b0ef3c44ce517be
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/skills/writing-documentation/reference/strunk-white-principles.md
+    target: claude
+  - hash: 059d0783856afad31b81bc394f31e4df2b55ed4a333f96073325bf75b0149d5c
+    kind: package
+    packageName: essentials
+    path: .packs/claude/essentials/skills/writing-documentation/SKILL.md
+    target: claude
+  - hash: 71d076b15e7a50df58723c5261e70a3fc1b2cce0683f9cf051f809ba7bb40fa8
+    kind: package
+    packageName: claude-instructions
+    path: .packs/codex/claude-instructions/.codex-plugin/plugin.json
+    target: codex
+  - hash: c458d5017d16eeddfa1f4f3fe3dd6a4ba967df7807742d6b18fc8f16be764221
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/.codex-plugin/plugin.json
+    target: codex
+  - hash: 3710840b5b133b449b6676d89c39433fed57e3163a987e2ffe05611d4be28b9c
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/agents/senior-engineer-reviewer.md
+    target: codex
+  - hash: 56ff31e466f34366fc3b3769d065e49060e0bb00f44fbd57a3547d9203d095df
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/agents/test-reviewer.md
+    target: codex
+  - hash: 15f4949d78c647fee9894c4a235c6721feedcfd866e6d73facd9e1bd75397211
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/brainstorming/reference/examples.md
+    target: codex
+  - hash: c65e59399506f68643f24d6ae2edf29c8d24fee33fdc11d56fa2aab9a8a88e77
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/brainstorming/SKILL.md
+    target: codex
+  - hash: c40bf6341f16b88ab2e4e3da968b94bb9cfd6cc52edec1472156e8653095305c
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/breakdown/SKILL.md
+    target: codex
+  - hash: 3b86b7af6908eb4f783d998e05fe3c77b67bc2d1c161f766d718d49707379ee7
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/catchup/SKILL.md
+    target: codex
+  - hash: a3f8554322d3e9d9e54a823b7af0e9bc2fbd7cb8a364aad0abe0667538f89df4
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/commit/SKILL.md
+    target: codex
+  - hash: ab417c15f5e8ca2fbc03fff6350eb4476bee8b0d13c199508be46f9e86a8c99b
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/debugging/reference/antipatterns.md
+    target: codex
+  - hash: d7d60e0cb78ec48216ee92ebfc9fdc3359c1d05961222663c3aff79dab1646a0
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/debugging/reference/root-cause-framework.md
+    target: codex
+  - hash: 363cbc1bfcd5704da310d9fbe99ccca57361b023607328addffc8b8665d5eb2c
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/debugging/SKILL.md
+    target: codex
+  - hash: 1556d7bdefb0a768d620fbb5cb85300bbd0f04c48212cbd9ab3a41c2a01de07a
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/do/SKILL.md
+    target: codex
+  - hash: 3a2f062fb2eb1fa640dbe4d101ce1a2687b6bbbe31dcfb584b5ab1765562708f
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/engineering-prompts/reference/examples.md
+    target: codex
+  - hash: d91fccb85ff52d7d87eef814f0fdb9791be7442b853cf17bedb64d8693baa04b
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/engineering-prompts/reference/research.md
+    target: codex
+  - hash: 71e3160e944e231e97974f7ab50a47f5334df8641f14c547d8dc3e62dd024010
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/engineering-prompts/reference/technique-catalog.md
+    target: codex
+  - hash: 66270747468e246395bb5c35a973e08e5aeb608dbcb0510d527b1f31d180e20d
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/engineering-prompts/SKILL.md
+    target: codex
+  - hash: 1ce0739ef7d5812f6218083eadd50cede244a97f30d6bb2b5f06566bc9dc56f2
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/explain-diff/SKILL.md
+    target: codex
+  - hash: ccf4fbf11261e1fe4158886db0bbb21cbd990d5b01ea50d8dc369d568bbc93d4
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/fix-quality/SKILL.md
+    target: codex
+  - hash: 2ded90ce3ec3666fe49bcea046823489939bd2b84319d77d30f882dd2e2c0839
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/grill-me/SKILL.md
+    target: codex
+  - hash: 569ce9574ecc78848a8f3c5ecc73be14fac341f740adbdc2b76355ceb9b32c07
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/interviewing/reference/examples.md
+    target: codex
+  - hash: a3240b6b603422069f03f1b03021c266c84113aac418558f7dfac6aa41087b50
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/interviewing/SKILL.md
+    target: codex
+  - hash: b72c2efc176e699ae89571dcdbb04d26f10f9e702d73f3a2a8c8e43dc97ff2db
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/optimize-doc/SKILL.md
+    target: codex
+  - hash: 38ffe824e7cda57a7170bbe9190c1118d7e6b56e5d6757d7e063c035873f4dc7
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/plan/SKILL.md
+    target: codex
+  - hash: 7d7cd29736f18c5c62373d98d22de5406606b36b5b3ac94fc02f20a9999dd6bd
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/project-setup/reference/common-patterns.md
+    target: codex
+  - hash: a5c13e011222af571abbc3d25d62285a5e683e6fc9c145dd5c3d478c505198fa
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/project-setup/reference/python.md
+    target: codex
+  - hash: 5df5a3b04326cef44f529206a269dfe810b74b32eb13f0055dbf3604c8ad4d6b
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/project-setup/reference/typescript.md
+    target: codex
+  - hash: 1e047cf42af6794e05b9262d7c595cbc7f086d992a173d621d7d5392f9954093
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/project-setup/SKILL.md
+    target: codex
+  - hash: 9e6212da475e6f92edd92a495a317bb2575a7d0c903df66715e968ccd7c32147
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/research-synthesis/reference/examples.md
+    target: codex
+  - hash: 568d862335986f59f6ee8ae60a9f4dd89c0a428d1c2dc15d193fa4ab61a7594e
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/research-synthesis/reference/multi-agent-invocation.md
+    target: codex
+  - hash: 0394d8d557b4a1f202e6f638d40dbb53d460be3451596268e12da38619bd035f
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/research-synthesis/SKILL.md
+    target: codex
+  - hash: b731670f25863d63dcef21daba003a5acbdeba27bea0d3d7444ebb90b1824446
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/research/SKILL.md
+    target: codex
+  - hash: ef16a0043b6f86d31ac8688e43e2697f4d2921b8eaa21b838b11b6a1ba56b1e9
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/technical-planning/SKILL.md
+    target: codex
+  - hash: c908abf8746628c3e7da3c9c3f26528536b2119adbb16875c03c97c603f13aeb
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/writing-documentation/reference/doc-types.md
+    target: codex
+  - hash: 0cab472f833e62e8e2a28e2e15c1f01c5d0231800263a2380528c1bf9b48adc3
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/writing-documentation/reference/examples.md
+    target: codex
+  - hash: 02d6426ea9b5d5890cabe40b0c3f17af038693db7782fa9c2b0ef3c44ce517be
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/writing-documentation/reference/strunk-white-principles.md
+    target: codex
+  - hash: 817eb70c742523f4aef307200ff7e887254250fffd5bbf134811c22ec6f4532a
+    kind: package
+    packageName: essentials
+    path: .packs/codex/essentials/skills/writing-documentation/SKILL.md
+    target: codex
+  - hash: 3a1689520689222b217d5107e8e7becc3fbbd2aae41dc086435cd6a941b650c1
+    kind: package
+    packageName: claude-instructions
+    path: .packs/opencode/claude-instructions/opencode.json
+    target: opencode
+  - hash: 495662a7fb1ccba79f6ba05af76527f51729941b6c03968230b65faaa29c83ab
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/agents/senior-engineer-reviewer.md
+    target: opencode
+  - hash: 247bc9cca3aa1e1b2938f9741ed6d187c01736ecaee8ac369d9263723490168e
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/agents/test-reviewer.md
+    target: opencode
+  - hash: e4999b8c370bfa06542c34a545cace2a3064f8265c913fd4ce2efb5bd2850eac
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/commands/breakdown.md
+    target: opencode
+  - hash: 9b9b0992754dfc83d46d5b24c499c7f217700a05eab72199778fcdaf0980a619
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/commands/catchup.md
+    target: opencode
+  - hash: 069d9084f9a5f6343291e741af9220fcee50845016344cc86334e8a82e0c193e
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/commands/commit.md
+    target: opencode
+  - hash: d61c33146bcf914b1dfa726f6e3627b114534780335cf52888f5131ee68c9e41
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/commands/do.md
+    target: opencode
+  - hash: 06ef1d78b32111cd473308a692d3b58645000462fd34f93fe045276d06982d06
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/commands/explain-diff.md
+    target: opencode
+  - hash: 3d842eb9d38c31f0cc9f593a39c0a3148fc527ab383e5d66250eeeb564709676
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/commands/fix-quality.md
+    target: opencode
+  - hash: c44e6fefe569ca03769e07cef6ba2c9d7c27c6634517543e64b6feed1e6fae3d
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/commands/optimize-doc.md
+    target: opencode
+  - hash: f5806f41d9d0d43333123525def8fed38053d9424284f54ecf12239250dba2a9
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/commands/plan.md
+    target: opencode
+  - hash: a38acf178ad8cb01b4fb70297661cb684e33639831f32610657a46a169a6e56e
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/commands/research.md
+    target: opencode
+  - hash: 15f4949d78c647fee9894c4a235c6721feedcfd866e6d73facd9e1bd75397211
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/skills/brainstorming/reference/examples.md
+    target: opencode
+  - hash: c65e59399506f68643f24d6ae2edf29c8d24fee33fdc11d56fa2aab9a8a88e77
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/skills/brainstorming/SKILL.md
+    target: opencode
+  - hash: ab417c15f5e8ca2fbc03fff6350eb4476bee8b0d13c199508be46f9e86a8c99b
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/skills/debugging/reference/antipatterns.md
+    target: opencode
+  - hash: d7d60e0cb78ec48216ee92ebfc9fdc3359c1d05961222663c3aff79dab1646a0
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/skills/debugging/reference/root-cause-framework.md
+    target: opencode
+  - hash: 363cbc1bfcd5704da310d9fbe99ccca57361b023607328addffc8b8665d5eb2c
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/skills/debugging/SKILL.md
+    target: opencode
+  - hash: 3a2f062fb2eb1fa640dbe4d101ce1a2687b6bbbe31dcfb584b5ab1765562708f
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/skills/engineering-prompts/reference/examples.md
+    target: opencode
+  - hash: d91fccb85ff52d7d87eef814f0fdb9791be7442b853cf17bedb64d8693baa04b
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/skills/engineering-prompts/reference/research.md
+    target: opencode
+  - hash: 71e3160e944e231e97974f7ab50a47f5334df8641f14c547d8dc3e62dd024010
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/skills/engineering-prompts/reference/technique-catalog.md
+    target: opencode
+  - hash: 66270747468e246395bb5c35a973e08e5aeb608dbcb0510d527b1f31d180e20d
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/skills/engineering-prompts/SKILL.md
+    target: opencode
+  - hash: 2ded90ce3ec3666fe49bcea046823489939bd2b84319d77d30f882dd2e2c0839
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/skills/grill-me/SKILL.md
+    target: opencode
+  - hash: 569ce9574ecc78848a8f3c5ecc73be14fac341f740adbdc2b76355ceb9b32c07
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/skills/interviewing/reference/examples.md
+    target: opencode
+  - hash: cc9735c517845aca2f60efe0fb8a2692a23ab5f3678afea80b1442162594bec8
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/skills/interviewing/SKILL.md
+    target: opencode
+  - hash: 7d7cd29736f18c5c62373d98d22de5406606b36b5b3ac94fc02f20a9999dd6bd
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/skills/project-setup/reference/common-patterns.md
+    target: opencode
+  - hash: a5c13e011222af571abbc3d25d62285a5e683e6fc9c145dd5c3d478c505198fa
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/skills/project-setup/reference/python.md
+    target: opencode
+  - hash: 5df5a3b04326cef44f529206a269dfe810b74b32eb13f0055dbf3604c8ad4d6b
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/skills/project-setup/reference/typescript.md
+    target: opencode
+  - hash: 1e047cf42af6794e05b9262d7c595cbc7f086d992a173d621d7d5392f9954093
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/skills/project-setup/SKILL.md
+    target: opencode
+  - hash: 9e6212da475e6f92edd92a495a317bb2575a7d0c903df66715e968ccd7c32147
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/skills/research-synthesis/reference/examples.md
+    target: opencode
+  - hash: 568d862335986f59f6ee8ae60a9f4dd89c0a428d1c2dc15d193fa4ab61a7594e
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/skills/research-synthesis/reference/multi-agent-invocation.md
+    target: opencode
+  - hash: 0394d8d557b4a1f202e6f638d40dbb53d460be3451596268e12da38619bd035f
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/skills/research-synthesis/SKILL.md
+    target: opencode
+  - hash: ef16a0043b6f86d31ac8688e43e2697f4d2921b8eaa21b838b11b6a1ba56b1e9
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/skills/technical-planning/SKILL.md
+    target: opencode
+  - hash: c908abf8746628c3e7da3c9c3f26528536b2119adbb16875c03c97c603f13aeb
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/skills/writing-documentation/reference/doc-types.md
+    target: opencode
+  - hash: 0cab472f833e62e8e2a28e2e15c1f01c5d0231800263a2380528c1bf9b48adc3
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/skills/writing-documentation/reference/examples.md
+    target: opencode
+  - hash: 02d6426ea9b5d5890cabe40b0c3f17af038693db7782fa9c2b0ef3c44ce517be
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/skills/writing-documentation/reference/strunk-white-principles.md
+    target: opencode
+  - hash: 817eb70c742523f4aef307200ff7e887254250fffd5bbf134811c22ec6f4532a
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/.opencode/skills/writing-documentation/SKILL.md
+    target: opencode
+  - hash: 3a1689520689222b217d5107e8e7becc3fbbd2aae41dc086435cd6a941b650c1
+    kind: package
+    packageName: essentials
+    path: .packs/opencode/essentials/opencode.json
+    target: opencode
+packs:
+  - hash: 7fbf05a172d1a6c4fe99a69ff4f79151d1dd68c9eb3cc4862fcb4ddc4da429e2
+    id: claude-instructions
+    path: packs/claude-instructions/PACK.md
+    version: 0.0.0
+  - hash: 1d1eebbdf280749875d006eb64aca35260f55aa2edaafecd381f29ee4c6ec89b
+    id: essentials
+    path: packs/essentials/PACK.md
+    support:
+      - hash: d6371730fe9c9fd1ab02b08fabbc867692b289cdf81687beb38fdc44b724c7e7
+        path: packs/essentials/.mcp.json
+    version: 0.6.2
+tool:
+  name: packport
+  version: 0.0.0

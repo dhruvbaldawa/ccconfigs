@@ -1,0 +1,17 @@
+{
+  "author": {
+    "name": "packport"
+  },
+  "description": "My absolute essentials to work with Claude Code",
+  "interface": {
+    "category": "Productivity",
+    "developerName": "packport",
+    "displayName": "essentials",
+    "longDescription": "My absolute essentials to work with Claude Code",
+    "shortDescription": "My absolute essentials to work with Claude Code"
+  },
+  "license": "UNLICENSED",
+  "name": "essentials",
+  "version": "0.6.2",
+  "skills": "./skills/"
+}
