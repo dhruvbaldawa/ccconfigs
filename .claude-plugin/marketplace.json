@@ -28,6 +28,11 @@
       "name": "notifications",
       "source": "./notifications",
       "description": "Send notifications via Apprise when Claude Code needs input"
+    },
+    {
+      "name": "mcp",
+      "source": "./mcp",
+      "description": "MCPJungle gateway — connects Claude Code to the essentials tool group at mcp.dhruv.cc"
     }
   ]
 }

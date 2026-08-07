@@ -1,0 +1,8 @@
+{
+  "name": "mcp",
+  "description": "MCPJungle gateway — connects Claude Code to the essentials tool group at mcp.dhruv.cc",
+  "version": "1.0.0",
+  "author": {
+    "name": "Dhruv Baldawa"
+  }
+}
