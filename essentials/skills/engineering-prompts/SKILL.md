@@ -115,7 +115,7 @@ Complex analysis needed?
 └─ mcp__plugin_essentials_sequential-thinking
 
 Need library docs?
-└─ mcp__plugin_essentials_context7
+└─ mcp__plugin_essentials_mcp (context7)
 ```
 
 ### Context Management

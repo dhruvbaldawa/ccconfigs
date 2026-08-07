@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "essentials": {
+      "type": "streamable-http",
+      "url": "${MCP_PROXY_HOST}/v0/groups/essentials/mcp",
+      "headers": {
+        "Authorization": "Basic ${MCP_PROXY_AUTH}"
+      }
+    }
+  }
+}
