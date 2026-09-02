@@ -1,6 +1,6 @@
 ---
 name: research-synthesis
-description: Guide when to use built-in tools (WebFetch, WebSearch) and MCP servers (Parallel Search, Perplexity, Context7) for research. Synthesize findings into narrative for braindump. Use when gathering data, examples, or citations for blog posts.
+description: Guide when to use built-in tools (WebFetch, WebSearch) and MCP servers (Parallel Search, Context7) for research. Synthesize findings into narrative for braindump. Use when gathering data, examples, or citations for blog posts.
 ---
 
 # Research Synthesis
@@ -31,7 +31,7 @@ Skip when:
 
 **If no data found:**
 ❌ BAD: "Research shows 70% of OKR implementations fail..."
-✅ GOOD: "I don't have data on OKR failure rates. Should I research using Perplexity?"
+✅ GOOD: "I don't have data on OKR failure rates. Should I research this?"
 
 **Before adding to braindump:**
 - Verify came from MCP tool results (not training data)
@@ -54,13 +54,7 @@ Skip when:
 |------|---------|----------|
 | **Parallel Search** | Advanced web search with agentic mode, fact-checking, competitive intelligence, multi-source synthesis, deep URL extraction | Complex queries needing synthesis, validation across sources, extracting full content from URLs |
 
-### Priority 3: Perplexity (Broad Surveys)
-
-| Tool | Use For | Examples |
-|------|---------|----------|
-| **Perplexity** | Broad surveys when WebSearch/Parallel insufficient | Industry consensus, statistical data, multiple perspectives |
-
-### Priority 4: Context7 (Technical Docs)
+### Priority 3: Context7 (Technical Docs)
 
 | Tool | Use For | Examples |
 |------|---------|----------|
@@ -71,11 +65,11 @@ Skip when:
 Need research?
 ├─ Specific URL? → WebFetch → Parallel Search
 ├─ Technical docs/APIs? → Context7
-├─ General search? → WebSearch → Parallel Search → Perplexity
+├─ General search? → WebSearch → Parallel Search
 └─ Complex synthesis? → Parallel Search
 ```
 
-**Rationale:** Built-in tools (WebFetch, WebSearch) are faster and always available. Parallel Search provides advanced agentic mode for synthesis and deep content extraction. Perplexity offers broad surveys when needed. Context7 for official docs only.
+**Rationale:** Built-in tools (WebFetch, WebSearch) are faster and always available. Parallel Search provides advanced agentic mode for synthesis and deep content extraction. Context7 for official docs only.
 
 ## Synthesizing Findings
 

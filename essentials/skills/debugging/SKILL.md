@@ -1,6 +1,6 @@
 ---
 name: debugging
-description: Systematic debugging that identifies root causes rather than treating symptoms. Uses sequential thinking for complex analysis, web search for research, and structured investigation to avoid circular reasoning and whack-a-mole fixes.
+description: Systematic debugging that identifies root causes rather than treating symptoms. Uses structured multi-hypothesis reasoning for complex analysis, web search for research, and structured investigation to avoid circular reasoning and whack-a-mole fixes.
 ---
 
 # Debugging
@@ -44,7 +44,7 @@ Based on documented failures in AI debugging, explicitly avoid:
 - Narrow: isolate components/files; trace path to failure
 - Discover: research exact error (WebSearch → Parallel Search, Context7:get-library-docs)
 - Examine: compare against known-good patterns in the codebase
-- Reason: use SequentialThinking:process_thought and 5 Whys to reach root cause
+- Reason: use the sequential thinking templates (reference/root-cause-framework.md) and 5 Whys to reach root cause
 - Synthesize: write a falsifiable hypothesis with predictions
 - Test: add logs/tests to confirm the mechanism
 - Apply: minimal fix for root cause, across all occurrences, following patterns
@@ -81,7 +81,7 @@ Use TodoWrite to track debugging progress through the UNDERSTAND checklist:
 - Need conceptual/semantic location? → codebase_search
 - Need full file context? → read_file
 - Unfamiliar error/behavior? → Context7:get-library-docs, then WebSearch → Parallel Search
-- Complex multi-hypothesis analysis? → SequentialThinking:process_thought
+- Complex multi-hypothesis analysis? → sequential thinking templates (reference/root-cause-framework.md)
 
 ## Context Management
 
@@ -91,7 +91,7 @@ Use TodoWrite to track debugging progress through the UNDERSTAND checklist:
 
 ## Decision Framework
 
-**IF** same fix proposed twice → Stop; use SequentialThinking:process_thought
+**IF** same fix proposed twice → Stop; work through the sequential thinking templates (reference/root-cause-framework.md)
 **IF** error is unclear → Research via WebSearch → Parallel Search; verify with docs
 **IF** area is unfamiliar → Explore with codebase_search; don't guess
 **IF** fix seems too easy → Confirm it addresses root cause (not symptom)

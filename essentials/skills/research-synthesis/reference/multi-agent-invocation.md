@@ -6,8 +6,8 @@ Guide for using specialized research agents in parallel for comprehensive invest
 
 | Agent | Tool | Use Cases | Output |
 |-------|------|-----------|--------|
-| **research-breadth** (haiku, blue) | Perplexity | Industry trends, best practices, multiple perspectives, comparative analyses, "What are common patterns?" | Narrative patterns with consensus, confidence ratings, contradictions |
-| **research-depth** (haiku, purple) | Firecrawl | Specific URLs, detailed implementations, code examples, gotchas, "How did X implement Y?" | Source-by-source analysis with code, tradeoffs, applicability |
+| **research-breadth** (haiku, blue) | WebSearch → Parallel Search | Industry trends, best practices, multiple perspectives, comparative analyses, "What are common patterns?" | Narrative patterns with consensus, confidence ratings, contradictions |
+| **research-depth** (haiku, purple) | WebFetch → Parallel Search | Specific URLs, detailed implementations, code examples, gotchas, "How did X implement Y?" | Source-by-source analysis with code, tradeoffs, applicability |
 | **research-technical** (haiku, green) | Context7 | Official docs, API signatures, TypeScript types, configs, migration guides, "What's the official API?" | Exact API specs with types, configurations, official examples |
 
 ## Agent Selection Decision Tree
@@ -112,7 +112,7 @@ capabilities and industry best practices.
 **Implementation**: Create API route with ReadableStream → Client uses EventSource
 → Handle reconnection/errors → Consider Vercel limitations
 
-**Sources**: [Perplexity] Next.js real-time patterns 2024-2025 | [Context7] Next.js Route Handlers
+**Sources**: [WebSearch] Next.js real-time patterns 2024-2025 | [Context7] Next.js Route Handlers
 ```
 
 ## Integration Points

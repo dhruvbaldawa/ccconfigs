@@ -99,7 +99,7 @@ Engineering managers and tech leads who've struggled with OKRs.
 You: Are there studies on this? Goodhart's Law seems relevant.
 
 AI: [invokes research-synthesis skill]
-    [uses Perplexity to research]
+    [uses WebSearch to research]
 
     Yes! Goodhart's Law: "When a measure becomes a target, it ceases
     to be a good measure."
@@ -261,8 +261,8 @@ AI: [applies changes]
 ### research-synthesis (essentials)
 **When**: During conversation (as needed)
 **What**:
-- Perplexity: broad research, studies, patterns
-- Firecrawl: specific URLs, implementations, examples
+- WebSearch / Parallel Search: broad research, studies, patterns
+- WebFetch: specific URLs, implementations, examples
 - Context7: technical docs (for technical posts)
 - Synthesizes into narrative (not list dump)
 - Maintains source attribution in braindump
@@ -399,7 +399,7 @@ You: [shares experience]
 
 You: I need to research this topic. What are the major studies?
 
-AI: [uses Perplexity]
+AI: [uses WebSearch]
     Found key research:
     - Amazon's hiring tool (2018) - biased against women
     - HireVue facial analysis concerns
@@ -408,7 +408,7 @@ AI: [uses Perplexity]
 
 You: Can you get the specifics on the Amazon case?
 
-AI: [uses Firecrawl on provided URL]
+AI: [uses WebFetch on provided URL]
     [extracts details, adds to Examples]
 
 [continues research-driven conversation]
@@ -585,7 +585,7 @@ Not locked in once you start drafting.
 ```bash
 You: Research rate limiting patterns for me
 
-AI: [Perplexity search]
+AI: [WebSearch]
     Found 4 main patterns:
     1. Token bucket
     2. Leaky bucket
@@ -594,7 +594,7 @@ AI: [Perplexity search]
 
 You: Get me the Redis implementation details for token bucket
 
-AI: [Context7 for Redis docs + Firecrawl for blog examples]
+AI: [Context7 for Redis docs + WebFetch for blog examples]
     [adds detailed implementation to braindump]
 ```
 

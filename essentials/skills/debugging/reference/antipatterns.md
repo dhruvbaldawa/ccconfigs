@@ -4,7 +4,7 @@ Avoid these documented failure modes; use the recovery steps when detected.
 
 ## 1) Circular Reasoning Without Learning
 - Symptom: Proposing the same fix repeatedly
-- Recovery: Stop and use `SequentialThinking:process_thought` to analyze why the fix failed; propose a substantively different approach
+- Recovery: Stop and work through the sequential thinking templates (root-cause-framework.md) to analyze why the fix failed; propose a substantively different approach
 
 ## 2) Premature Victory Declaration
 - Symptom: Declaring success without changes/tests
@@ -28,7 +28,7 @@ Avoid these documented failure modes; use the recovery steps when detected.
 
 ## 7) Assumption-Based Debugging
 - Symptom: Assuming library/system behavior
-- Recovery: Research via Firecrawl:search; verify with `Context7:get-library-docs`; test assumptions
+- Recovery: Research via WebSearch → Parallel Search; verify with `Context7:get-library-docs`; test assumptions
 
 ## 8) Context Overload Ignorance
 - Symptom: Degraded reasoning in long sessions
@@ -36,7 +36,7 @@ Avoid these documented failure modes; use the recovery steps when detected.
 
 ## 9) Tool Misuse
 - Symptom: Using wrong tool for task
-- Recovery: Decision tree: exact text→grep; concept→codebase_search; full context→read_file; research→Firecrawl/Perplexity; complex analysis→SequentialThinking
+- Recovery: Decision tree: exact text→grep; concept→codebase_search; full context→read_file; research→WebSearch/Parallel Search; complex analysis→sequential thinking templates
 
 ## 10) Plan Abandonment
 - Symptom: Ignoring the plan mid-way

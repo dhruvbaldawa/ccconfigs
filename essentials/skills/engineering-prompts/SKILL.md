@@ -109,10 +109,7 @@ description: Engineers effective prompts using systematic methodology. Use when 
 
 ```
 Need latest practices?
-└─ mcp__plugin_essentials_perplexity
-
-Complex analysis needed?
-└─ mcp__plugin_essentials_sequential-thinking
+└─ WebSearch → Parallel Search
 
 Need library docs?
 └─ mcp__plugin_essentials_mcp (context7)

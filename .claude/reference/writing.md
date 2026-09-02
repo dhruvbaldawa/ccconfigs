@@ -32,7 +32,7 @@ Conversation-driven workflow for blog writing in Dhruv Baldawa's distinctive sty
 - **brainstorming** (essentials): Collaborative ideation through questions and exploration. Context-aware for writing - updates braindump.md, transitions to drafting when ready.
 - **research-synthesis** (essentials): Research tool usage for research. Synthesizes findings into braindump.md during ideation.
 
-**Key pattern**: Skills guide natural conversation, commands are just utilities. Most operations (add to braindump, revise draft) happen through chat. Research tools (WebFetch, WebSearch, Parallel Search, Perplexity, Context7) used proactively during conversation, not via separate commands.
+**Key pattern**: Skills guide natural conversation, commands are just utilities. Most operations (add to braindump, revise draft) happen through chat. Research tools (WebFetch, WebSearch, Parallel Search, Context7) used proactively during conversation, not via separate commands.
 
 ## Design Philosophy
 

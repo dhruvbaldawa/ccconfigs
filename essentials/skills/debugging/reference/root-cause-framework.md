@@ -117,7 +117,7 @@ Fix strategies:
 
 ## Sequential Thinking Templates
 
-Use `SequentialThinking:process_thought` to structure complex analysis.
+Use these thought stages to structure complex analysis.
 
 Thought 1 - Problem Definition
 - Symptom, context, confirmed facts, unknowns

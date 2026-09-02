@@ -7,7 +7,7 @@ Multi-skill workflow system using kanban file movement for complex, high-value t
 ## Specialized Agents
 
 **Research Agents** (3 agents - all haiku, parallel invocation):
-- **research-breadth**: Broad surveys via WebSearch → Parallel Search → Perplexity (industry trends, consensus, multiple perspectives)
+- **research-breadth**: Broad surveys via WebSearch → Parallel Search (industry trends, consensus, multiple perspectives)
 - **research-depth**: Deep-dive via WebFetch → Parallel Search (specific URLs, implementation details, case studies)
 - **research-technical**: Official docs via Context7 (API references, method signatures, configurations)
 

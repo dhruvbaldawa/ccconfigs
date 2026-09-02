@@ -30,7 +30,7 @@ ${isTaskFile ? 'Read task file to understand blocker context.' : 'Analyze questi
 | **Best practices comparison** | breadth + depth |
 
 **Agents available:**
-- **research-breadth** (haiku) - WebSearch → Parallel Search → Perplexity: industry trends, consensus, multiple perspectives
+- **research-breadth** (haiku) - WebSearch → Parallel Search: industry trends, consensus, multiple perspectives
 - **research-depth** (haiku) - WebFetch → Parallel Search: specific URLs, implementations, case studies, gotchas
 - **research-technical** (haiku) - Context7: official docs, API signatures, types, configs
 
