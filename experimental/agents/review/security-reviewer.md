@@ -31,6 +31,8 @@ Protect applications from injection attacks (SQL injection, XSS, command injecti
 
 ## Output Format
 
+**Decision:** APPROVE or REJECT for the security domain, with the reason.
+
 **Executive Summary**
 ```
 Security Review: CRITICAL/MAJOR CONCERNS/MINOR ISSUES/GOOD

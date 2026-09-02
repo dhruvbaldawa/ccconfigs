@@ -31,7 +31,7 @@ Evaluate the draft against:
 - [ ] Examines multiple perspectives when relevant
 - [ ] Uses clear headings for scannability
 - [ ] Conversational tone with contractions and first person
-- [ ] Avoids corporate jargon, hyperbole, AI-sounding language
+- [ ] Avoids corporate jargon, hyperbole, mannered prose
 - [ ] Ends with practical implications and engagement question
 - [ ] Varies sentence length for rhythm
 - [ ] Uses bold text for key insights (not excessively)
@@ -49,40 +49,16 @@ Evaluate the draft against:
 Look for:
 - **Structural issues**: Missing TL;DR, weak hook, no engagement question
 - **Stage-setting issues**: Missing situation/stakes, jargon introduced without priming, sequel that doesn't bridge to new readers, concepts used before defined, horizontal (writer-centric) narration where vertical (reader-centric) value is needed
-- **Voice issues**: Too formal, corporate language, AI phrases
+- **Voice issues**: Too formal, corporate language, mannered prose
 - **Style issues**: Long paragraphs, monotonous rhythm, missing emphasis
 - **Content issues**: Unsupported claims, missing examples, no citations
 - **Substack issues**: Poor formatting, hard to scan, not mobile-friendly
 
 **5. Present Suggestions** (Hybrid Approach)
 
-**CRITICAL: Only suggest improvements based on existing content.**
-- Don't add new ideas, examples, or milestones the user hasn't mentioned
-- Only reference content from braindump.md or draft.md
-- Focus on style, structure, and polish - not new content
-- If something is missing (e.g., no examples), ASK the user to provide it - don't make it up
+Suggest polish, not new content: every suggestion must trace to draft.md or braindump.md. If something is missing (an example, a source), ask for it rather than inventing it.
 
-Show 3-5 concrete improvements you recommend:
-
-```
-I found several improvements to make:
-
-1. **Hook**: Current intro is explanatory. Suggest rewriting with
-   personal anecdote from braindump (Company X OKR failure story).
-
-2. **Missing TL;DR**: Add 3-bullet summary at the top.
-
-3. **Long paragraphs**: Section "Why OKRs Fail" has 6-sentence
-   paragraph. Break into 2-3 shorter ones.
-
-4. **Missing citation**: Claim about "70% failure rate" lacks source.
-   Found in braindump - add HBR 2024 reference.
-
-5. **Weak ending**: Currently just summarizes. Add engagement
-   question: "Have you seen OKRs fail at your company? What went wrong?"
-
-Should I apply these improvements to draft.md?
-```
+Present each suggestion as: what's weak, where, and the concrete change you'd make (quoting braindump when the fix comes from there). Then ask which to apply.
 
 **6. Wait for Confirmation**
 
@@ -94,16 +70,7 @@ User responds:
 
 **7. Apply Improvements**
 
-Update `draft.md` with approved changes. After applying:
-
-```
-Applied improvements to draft.md:
-✓ Rewrote intro with personal anecdote
-✓ Split long paragraph in "Why OKRs Fail" section
-✓ Added engagement question to conclusion
-
-Draft is now more polished. Want to review another section or run /polish again?
-```
+Update `draft.md` with approved changes. After applying, list what changed and offer another pass.
 
 ## Guidelines
 
@@ -127,7 +94,7 @@ Draft is now more polished. Want to review another section or run /polish again?
 - Add bold emphasis to key insights
 - Insert citations from braindump research
 - Strengthen conclusion with engagement question
-- Remove AI phrases ("in conclusion," "in today's world")
+- Remove mannered prose (metaphor or flourish where a literal phrase exists)
 - Vary sentence length for better rhythm
 - Add subheadings to improve scannability
 - Ensure proper spacing for email format

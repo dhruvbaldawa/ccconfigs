@@ -7,9 +7,7 @@ Multi-skill workflow system using kanban file movement for complex, high-value t
 ## Specialized Agents
 
 **Research Agents** (3 agents - all haiku, parallel invocation):
-- **research-breadth**: Broad surveys via WebSearch → Parallel Search (industry trends, consensus, multiple perspectives)
-- **research-depth**: Deep-dive via WebFetch → Parallel Search (specific URLs, implementation details, case studies)
-- **research-technical**: Official docs via Context7 (API references, method signatures, configurations)
+- **researcher**: One research agent with three modes — `survey` (broad landscape via WebSearch), `deep-dive` (specific URLs via WebFetch), `official-docs` (API references via the docs tool). Launch one instance per mode.
 
 **Review Agents** (3 agents in `agents/review/`, inherits model, parallel invocation):
 - **security-reviewer**: OWASP Top 10, injection, auth bypasses, secrets handling, confidence scoring

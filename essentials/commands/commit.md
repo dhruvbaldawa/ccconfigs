@@ -79,15 +79,8 @@ Commit message context: "${{{ARGS}}}"
 
 ### Step 1: Analyze Changes
 
-${changeSize === 'large' ? `
-- Run: \`git diff HEAD --numstat | head -50\`
-- Group files by type (source vs config vs tests vs docs)
-- Report file counts and total size
-` : `
-- Examine full diffs for all files
-- Identify logical groupings
-- Flag any unexpected changes
-`}
+- Large changesets: run `git diff HEAD --numstat | head -50`, group files by type, report counts.
+- Otherwise: examine full diffs, identify logical groupings, flag unexpected changes.
 
 ### Step 2: Plan Commits
 
@@ -101,7 +94,7 @@ ${changeSize === 'large' ? `
 - Group related changes together (e.g., feature + tests, not feature + unrelated refactor)
 
 **Staging approach:**
-- For single commit: \`git add .\` (if clean working directory)
+- For single commit: \`git add <files>\` after confirming with \`git status\`
 - For selective: \`git add <files>\` for each atomic grouping
 - For partial files: \`git add -p\` for manual hunk selection
 
@@ -126,9 +119,3 @@ EOF
 ```
 
 Then push or continue with additional commits.
-
-## Context
-
-The user mentioned: "${{{ARGS}}}"
-
-Is there a specific aspect of the changes you'd like help with (staging strategy, message clarity, commit grouping)?

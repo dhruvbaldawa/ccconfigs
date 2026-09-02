@@ -6,7 +6,7 @@ Commands are explicit user entry points with arguments (`/breakdown spec.md`). S
 
 ## Agents are for specialized analysis, not general workflows
 
-Agents should have single, clear responsibilities with detailed output formats (research-breadth for surveys, test-coverage-analyzer for test gaps). General workflows use skills that orchestrate agents. Methodologies (debugging, prompt engineering) are skills, not agents.
+Agents should have single, clear responsibilities with detailed output formats (the researcher agent in survey mode, test-coverage-analyzer for test gaps). General workflows use skills that orchestrate agents. Methodologies (debugging, prompt engineering) are skills, not agents.
 
 ## Stateful commands
 
@@ -30,7 +30,7 @@ Separates messy ideation (braindump.md) from polished output (draft.md). Allows 
 
 ## Parallel agent invocation (experimental plugin)
 
-Agents designed for parallel execution using Promise.all pattern. Research agents (2-3 launched together), review agents (all 3 launched together). Skills consolidate findings using confidence scores, severity ratings, and synthesis methodology. This reduces latency and provides comprehensive analysis from multiple specialized perspectives.
+Agents designed for parallel execution: launch every Agent call in a single message. Research agents (2-3 launched together), review agents (all 3 launched together). Skills consolidate findings using confidence scores, severity ratings, and synthesis methodology. This reduces latency and provides comprehensive analysis from multiple specialized perspectives.
 
 ## Sprint-based planning (experimental plugin)
 

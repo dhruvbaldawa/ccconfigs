@@ -5,14 +5,15 @@ Latest findings from Anthropic research and community best practices for prompt 
 ## Table of Contents
 
 - [Anthropic's Core Research Findings](#anthropics-core-research-findings)
-- [Effective Context Engineering (2024)](#effective-context-engineering-2024)
-- [Agent Architecture Best Practices (2024-2025)](#agent-architecture-best-practices-2024-2025)
-- [Citations and Source Grounding (2024)](#citations-and-source-grounding-2024)
-- [Extended Thinking (2024)](#extended-thinking-2024)
-- [Community Best Practices (2024-2025)](#community-best-practices-2024-2025)
-- [Technique Selection Decision Tree (2025 Consensus)](#technique-selection-decision-tree-2025-consensus)
+- [Current-Model Guidance](#current-model-guidance)
+- [Effective Context Engineering](#effective-context-engineering)
+- [Agent Architecture Best Practices](#agent-architecture-best-practices)
+- [Citations and Source Grounding](#citations-and-source-grounding)
+- [Adaptive Thinking](#adaptive-thinking)
+- [Community Best Practices](#community-best-practices)
+- [Technique Selection Decision Tree](#technique-selection-decision-tree)
 - [Measuring Prompt Effectiveness](#measuring-prompt-effectiveness)
-- [Future Directions (2025 and Beyond)](#future-directions-2025-and-beyond)
+- [Future Directions](#future-directions)
 - [Key Takeaways from Research](#key-takeaways-from-research)
 - [Research Sources](#research-sources)
 - [Keeping Current](#keeping-current)
@@ -22,7 +23,7 @@ Latest findings from Anthropic research and community best practices for prompt 
 
 ## Anthropic's Core Research Findings
 
-### 1. Prompt Engineering vs Fine-Tuning (2024-2025)
+### 1. Prompt Engineering vs Fine-Tuning
 
 **Key Finding:** Prompt engineering is preferable to fine-tuning for most use cases.
 
@@ -39,11 +40,11 @@ Latest findings from Anthropic research and community best practices for prompt 
 - Domain-specific jargon that's rare in training data
 - Performance optimization for resource-constrained environments
 
-**Source:** Anthropic Prompt Engineering Documentation (2025)
+**Source:** Anthropic Prompt Engineering Documentation
 
 ---
 
-### 2. Long Context Window Performance (2024)
+### 2. Long Context Window Performance
 
 **Key Finding:** Document placement dramatically affects accuracy in long context scenarios.
 
@@ -70,26 +71,25 @@ Latest findings from Anthropic research and community best practices for prompt 
 
 ---
 
-### 3. Chain of Thought Effectiveness (2023-2025)
+### 3. Reasoning Depth
 
-**Key Finding:** Encouraging step-by-step reasoning significantly improves accuracy on analytical tasks.
+**Key Finding:** Reasoning before answering improves accuracy on analytical tasks - and on current models it happens without prompting.
 
 **Results:**
-- Simple "Think step by step" phrase improves reasoning accuracy
-- Explicit `<thinking>` tags provide transparency and verifiability
-- Costs 2-3x output tokens but worth it for complex tasks
-- Most effective for: math, logic, multi-step analysis, debugging
+- Adaptive thinking is on by default; the model decides when and how much to reason
+- `output_config.effort` is the lever for depth; prose incantations are redundant and scripted reasoning steps cause over-planning
+- Most benefit for: math, logic, multi-step analysis, debugging, long agentic runs
 
 **Implementation Evolution:**
-- 2023: Simple "think step by step" prompts
-- 2024: Structured thinking with XML tags
-- 2025: Extended thinking mode with configurable token budgets (16K+ tokens)
+- Early: "think step by step" prompts and `<thinking>` tags
+- Then: extended thinking with a fixed `budget_tokens`
+- Now: adaptive thinking always on; depth via `effort`; `budget_tokens` rejected on current models
 
-**Source:** Anthropic Prompt Engineering Techniques, Extended Thinking Documentation
+**Source:** Anthropic Extended Thinking Documentation
 
 ---
 
-### 4. Prompt Caching Economics (2024)
+### 4. Prompt Caching Economics
 
 **Key Finding:** Prompt caching can reduce costs by 90% for repeated content.
 
@@ -127,7 +127,7 @@ Latest findings from Anthropic research and community best practices for prompt 
 
 ---
 
-### 5. XML Tags Fine-Tuning (2024)
+### 5. XML Tags Fine-Tuning
 
 **Key Finding:** Claude has been specifically fine-tuned to pay attention to XML tags.
 
@@ -147,7 +147,7 @@ Latest findings from Anthropic research and community best practices for prompt 
 
 ---
 
-### 6. Contextual Retrieval (2024)
+### 6. Contextual Retrieval
 
 **Key Finding:** Encoding context with chunks dramatically improves RAG accuracy.
 
@@ -174,7 +174,7 @@ Latest findings from Anthropic research and community best practices for prompt 
 
 ---
 
-### 7. Batch Processing Economics (2024)
+### 7. Batch Processing Economics
 
 **Key Finding:** Batch API reduces costs by 50% for non-time-sensitive workloads.
 
@@ -193,37 +193,42 @@ Latest findings from Anthropic research and community best practices for prompt 
 
 ---
 
-### 8. Model Capability Tiers (2024-2025)
+### 8. Model Capability Tiers
 
-**Research Finding:** Different tasks have optimal model choices based on complexity vs cost.
+**Research Finding:** Different tasks have optimal model choices based on complexity vs cost. Check the live table (`/claude-api` skill or `client.models.list()`) before pinning a model; the roster below is a snapshot.
 
-**Claude Haiku 4.5 (Released Oct 2024):**
-- Performance: Comparable to Sonnet 4
-- Speed: ~2x faster than Sonnet 4
-- Cost: 1/3 of Sonnet 4 ($0.25/$1.25 per M tokens)
-- Best for: High-volume simple tasks, extraction, formatting
-
-**Claude Sonnet 4.5 (Released Oct 2024):**
-- Performance: State-of-the-art coding agent (77.2% SWE-bench)
-- Sustained attention: 30+ hours on complex tasks
-- Cost: $3/$15 per M tokens
-- Best for: Most production workloads, balanced use cases
-
-**Claude Opus 4:**
-- Performance: Maximum capability
-- Cost: $15/$75 per M tokens (5x Sonnet)
-- Best for: Novel problems, deep reasoning, research
+| Model | ID | Input/Output $/M | Best for |
+|---|---|---|---|
+| Claude Fable 5.1 | `claude-fable-5-1` | $10 / $50 | Hardest reasoning, long-horizon agentic work |
+| Claude Opus 5 | `claude-opus-5` | $5 / $25 | Default for most work |
+| Claude Sonnet 5 | `claude-sonnet-5` | $2 / $10 | Balanced production workloads |
+| Claude Haiku 4.5 | `claude-haiku-4-5` | $1 / $5 | High-volume simple tasks (200K context) |
 
 **Architectural Implication:**
-- Orchestrator (Sonnet) + Executor subagents (Haiku) = optimal cost/performance
+- Orchestrator on Opus 5 or Fable 5.1 + cheap subagents on Haiku 4.5 or low-effort Sonnet 5
+- Before adding a cheaper model, try the capable model at lower `effort` - it often matches prior-generation quality at lower cost and keeps one cache namespace
 - Task routing based on complexity assessment
-- Dynamic model selection within workflows
 
-**Source:** Anthropic Model Releases, TechCrunch Coverage
+**Source:** Anthropic model documentation
 
 ---
 
-## Effective Context Engineering (2024)
+## Current-Model Guidance
+
+Prompts written for older models are often too prescriptive for current ones and reduce output quality. Applies to every technique in this skill:
+
+- State goals, constraints, and how to verify; keep numbered steps only where order genuinely matters
+- Control reasoning depth with `effort`, not thinking prose
+- Use structured outputs, not assistant prefill (prefill returns a 400 on Claude 4.6+)
+- Say the one or two real constraints plainly with their reason; stacked MUST/NEVER markers cause over-triggering
+- Remove anti-formatting rules ("never use bullets"); current models under-format, so say when formatting is appropriate instead
+- Keep verification instructions ("test before reporting") and tool contract detail; those still earn their place
+
+**Source:** Anthropic model migration guidance
+
+---
+
+## Effective Context Engineering
 
 **Key Research:** Managing attention budget is as important as prompt design.
 
@@ -250,7 +255,7 @@ Latest findings from Anthropic research and community best practices for prompt 
 - Each maintains focused context on their domain
 - Orchestrator coordinates without managing all context
 
-**4. Context Editing (2024)**
+**4. Context Editing**
 - Automatically clear stale tool calls and results
 - Preserve conversation flow
 - 84% token reduction in 100-turn evaluations
@@ -260,7 +265,7 @@ Latest findings from Anthropic research and community best practices for prompt 
 
 ---
 
-## Agent Architecture Best Practices (2024-2025)
+## Agent Architecture Best Practices
 
 **Research Consensus:** Successful agents follow three core principles.
 
@@ -292,7 +297,7 @@ Latest findings from Anthropic research and community best practices for prompt 
 
 ---
 
-## Citations and Source Grounding (2024)
+## Citations and Source Grounding
 
 **Research Finding:** Built-in citation capabilities outperform most custom implementations.
 
@@ -312,14 +317,15 @@ Latest findings from Anthropic research and community best practices for prompt 
 
 ---
 
-## Extended Thinking (2024)
+## Adaptive Thinking
 
-**Capability:** Claude can allocate extended token budget for reasoning before responding.
+**Capability:** Current Claude models reason before responding by default, deciding adaptively how much to think.
 
 **Key Parameters:**
-- Thinking budget: 16K+ tokens recommended for complex tasks
-- Configurable based on task complexity
-- Trade latency for accuracy on hard problems
+- `thinking: {type: "adaptive"}` (or omit - Fable 5.1 has thinking always on)
+- `output_config.effort`: `low` / `medium` / `high` / `xhigh` / `max` - the depth control
+- `budget_tokens` is rejected on Fable 5/5.1, Opus 5/4.7/4.8, Sonnet 5
+- `display: "summarized"` to read a reasoning summary; the raw chain of thought is never returned
 
 **Use Cases:**
 - Complex math problems
@@ -327,7 +333,7 @@ Latest findings from Anthropic research and community best practices for prompt 
 - Multi-step reasoning tasks
 - Analysis requiring sustained attention
 
-**Combined with Tools (Beta):**
+**Combined with Tools:**
 - Alternate between reasoning and tool invocation
 - Reason about available tools, invoke, analyze results, adjust reasoning
 - More sophisticated than fixed reasoning → execution sequences
@@ -336,7 +342,7 @@ Latest findings from Anthropic research and community best practices for prompt 
 
 ---
 
-## Community Best Practices (2024-2025)
+## Community Best Practices
 
 ### Disable Auto-Compact in Claude Code
 
@@ -378,7 +384,7 @@ Latest findings from Anthropic research and community best practices for prompt 
 
 ---
 
-## Technique Selection Decision Tree (2025 Consensus)
+## Technique Selection Decision Tree
 
 Based on aggregated research and community feedback:
 
@@ -393,7 +399,7 @@ Based on aggregated research and community feedback:
 Simple  Medium  Complex       Yes          No
     │       │       │          │            │
 Clarity  +XML   +Role      Cache        One-off
-         +CoT   +CoT       Structure     Design
+      +effort  +effort    Structure     Design
               +Examples      +XML
               +Tools
 
@@ -402,15 +408,16 @@ Token Budget?
 ┌───┴───┐
 Tight   Flexible
  │          │
-Skip     Add CoT
-CoT      Examples
+Low      Higher effort
+effort   Examples
 
 Format Critical?
     │
 ┌───┴────┐
 Yes      No
  │        │
-+Prefill  Skip
++Structured  Skip
+ outputs
 +Examples
 ```
 
@@ -454,17 +461,17 @@ Yes      No
 
 ---
 
-## Future Directions (2025 and Beyond)
+## Future Directions
 
 ### Emerging Trends
 
 **1. Agent Capabilities**
-- Models maintaining focus for 30+ hours (Sonnet 4.5)
+- Models sustaining long-horizon autonomous runs (Fable 5.1)
 - Improved context awareness and self-management
 - Better tool use and reasoning integration
 
 **2. Cost Curve Collapse**
-- Haiku 4.5 matches Sonnet 4 at 1/3 cost
+- Lower effort on the newest models often beats prior-generation models at high effort
 - Enables new deployment patterns (parallel subagents)
 - Economic feasibility of agent orchestration
 
@@ -489,30 +496,30 @@ Yes      No
 
 1. **Simplicity wins**: Start minimal, add complexity only when justified by results
 2. **Structure scales**: XML tags become essential as complexity increases
-3. **Thinking costs but helps**: 2-3x tokens for reasoning, worth it for analysis
+3. **Thinking is automatic**: tune `effort` per workload instead of prompting for reasoning
 4. **Caching transforms economics**: 90% savings makes long prompts feasible
 5. **Placement matters**: Documents before queries, 30% better performance
 6. **Tools need docs**: Clear descriptions → correct usage
 7. **Agents need transparency**: Show reasoning, enable human verification
 8. **Context is finite**: Manage attention budget deliberately
 9. **Measure everything**: Remove techniques that don't improve outcomes
-10. **Economic optimization**: Right model for right task (Haiku → Sonnet → Opus)
+10. **Economic optimization**: Right model and effort for the task (Haiku 4.5 → Sonnet 5 → Opus 5 → Fable 5.1)
 
 ---
 
 ## Research Sources
 
-- Anthropic Prompt Engineering Documentation (2024-2025)
-- Anthropic Engineering Blog - Context Engineering (2024)
-- Anthropic Research - Building Effective Agents (2024)
-- Claude Code Best Practices (Anthropic, 2024)
-- Shuttle.dev Claude Code Analysis (2024)
-- AWS ML Blog - Anthropic Techniques (2024)
-- Contextual Retrieval Research (Anthropic, 2024)
-- Model Release Announcements (Sonnet 4.5, Haiku 4.5)
-- Citations API Documentation (2024)
-- Extended Thinking Documentation (2024)
-- Community Best Practices (Multiple Sources, 2024-2025)
+- Anthropic Prompt Engineering Documentation
+- Anthropic Engineering Blog - Context Engineering
+- Anthropic Research - Building Effective Agents
+- Claude Code Best Practices (Anthropic)
+- Shuttle.dev Claude Code Analysis
+- AWS ML Blog - Anthropic Techniques
+- Contextual Retrieval Research (Anthropic)
+- Anthropic Model Documentation and Migration Guides
+- Citations API Documentation
+- Extended Thinking Documentation
+- Community Best Practices (Multiple Sources)
 
 ---
 
@@ -551,4 +558,4 @@ Based on empirical findings, avoid:
 
 ---
 
-This research summary reflects the state of Anthropic's prompt engineering best practices as of 2025, incorporating both official research and validated community findings.
+Verify model names, prices, and API parameters against the `/claude-api` skill before relying on them; they change faster than this summary.

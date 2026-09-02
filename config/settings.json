@@ -182,7 +182,6 @@
     "experimental@ccconfigs": true,
     "mcp@ccconfigs": true,
     "notifications@ccconfigs": true,
-    "mcp@ccconfigs": true,
     "code-simplifier@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
     "pyright-lsp@claude-plugins-official": true,
@@ -240,6 +239,11 @@
   },
   "syntaxHighlightingDisabled": false,
   "effortLevel": "high",
+  "modelSettings": {
+    "claude-fable-5-1": {
+      "effortLevel": "low"
+    }
+  },
   "showClearContextOnPlanAccept": true,
   "autoUpdatesChannel": "latest",
   "autoDreamEnabled": true,
@@ -285,10 +289,5 @@
       "routine under stacks/, infra/, tests/, and scripts/ prefixes in this repo treated as this project's normal working area"
     ]
   },
-  "tmuxPassthrough": true,
-  "modelSettings": {
-    "claude-fable-5-1": {
-      "effortLevel": "low"
-    }
-  }
+  "tmuxPassthrough": true
 }

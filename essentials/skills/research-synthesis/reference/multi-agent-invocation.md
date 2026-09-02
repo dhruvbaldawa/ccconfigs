@@ -2,73 +2,57 @@
 
 Guide for using specialized research agents in parallel for comprehensive investigation.
 
-## Research Agents Overview
+## Research Agent Overview
 
-| Agent | Tool | Use Cases | Output |
-|-------|------|-----------|--------|
-| **research-breadth** (haiku, blue) | WebSearch → Parallel Search | Industry trends, best practices, multiple perspectives, comparative analyses, "What are common patterns?" | Narrative patterns with consensus, confidence ratings, contradictions |
-| **research-depth** (haiku, purple) | WebFetch → Parallel Search | Specific URLs, detailed implementations, code examples, gotchas, "How did X implement Y?" | Source-by-source analysis with code, tradeoffs, applicability |
-| **research-technical** (haiku, green) | Context7 | Official docs, API signatures, TypeScript types, configs, migration guides, "What's the official API?" | Exact API specs with types, configurations, official examples |
+One agent, `experimental:research:researcher` (haiku), runs in the mode named at the start of its prompt:
 
-## Agent Selection Decision Tree
+| Mode | Leads with | Use Cases | Output |
+|------|-----------|-----------|--------|
+| **survey** | WebSearch | Industry trends, best practices, multiple perspectives, comparative analyses, "What are common patterns?" | Narrative patterns with consensus, confidence ratings, contradictions |
+| **deep-dive** | WebFetch on named sources | Specific URLs, detailed implementations, code examples, gotchas, "How did X implement Y?" | Source-by-source analysis with code, tradeoffs, applicability |
+| **official-docs** | Official-documentation tool | Official docs, API signatures, types, configs, migration guides, "What's the official API?" | Exact API specs with types, configurations, official examples |
 
-| Question Type | Agent Combination | Rationale |
+## Mode Selection Decision Tree
+
+| Question Type | Modes | Rationale |
 |--------------|-------------------|-----------|
-| **New technology/framework** | breadth + technical | Industry patterns + Official API |
-| **Specific error/bug** | depth + technical | Detailed solutions + API reference |
-| **API integration** | technical + depth | Official docs + Real examples |
-| **Best practices/patterns** | breadth + depth | Industry trends + Case studies |
-| **Comparison/decision** | breadth + depth | Broad survey + Detailed experiences |
+| **New technology/framework** | survey + official-docs | Industry patterns + Official API |
+| **Specific error/bug** | deep-dive + official-docs | Detailed solutions + API reference |
+| **API integration** | official-docs + deep-dive | Official docs + Real examples |
+| **Best practices/patterns** | survey + deep-dive | Industry trends + Case studies |
+| **Comparison/decision** | survey + deep-dive | Broad survey + Detailed experiences |
 | **Official API only** | technical | Just need documentation |
 
-**Default when unsure**: breadth + technical
+**Default when unsure**: survey + official-docs
 
-## Parallel Invocation Syntax
+## Parallel Invocation
 
-**Always use Promise.all for parallel execution:**
-
-```typescript
-await Promise.all([
-  Task({
-    subagent_type: 'research-breadth',  // or 'research-depth' or 'research-technical'
-    model: 'haiku',
-    description: 'Brief description',
-    prompt: `Specific research question with focus areas and MCP tool guidance`
-  }),
-
-  Task({
-    subagent_type: 'research-technical',
-    model: 'haiku',
-    description: 'Brief description',
-    prompt: `Specific research question with focus areas and MCP tool guidance`
-  })
-]);
-```
+Launch every agent in a single message (multiple Agent tool calls in one response); one call per message runs them sequentially. Each prompt: the specific research question, focus areas, and which tools to prefer.
 
 ## Common Patterns
 
 ### Pattern 1: New Technology
 **Scenario**: Learning a new framework
-**Agents**: breadth + technical
-**Focus**: breadth (architectural patterns, industry trends), technical (official API, configs)
+**Agents**: survey + official-docs
+**Focus**: survey (architectural patterns, industry trends), official-docs (official API, configs)
 **Consolidation**: Industry patterns → Official implementation
 
 ### Pattern 2: Specific Solution
 **Scenario**: Debugging or implementing known solution
-**Agents**: depth + technical
+**Agents**: deep-dive + official-docs
 **Focus**: depth (blog posts, implementations, gotchas), technical (official API, types)
 **Consolidation**: Real-world patterns → Official API usage
 
 ### Pattern 3: API Integration
 **Scenario**: Integrating with library/API
-**Agents**: technical + depth
+**Agents**: official-docs + deep-dive
 **Focus**: technical (official API, error codes), depth (tutorials, testing approaches)
 **Consolidation**: Official API first → Battle-tested patterns
 
 ### Pattern 4: Comparative Analysis
 **Scenario**: Choosing between approaches
-**Agents**: breadth + depth
-**Focus**: breadth (comparisons, trends), depth (migration experiences, lessons)
+**Agents**: survey + deep-dive
+**Focus**: survey (comparisons, trends), deep-dive (migration experiences, lessons)
 **Consolidation**: Industry trends → Real experiences
 
 ## Synthesis Strategy
@@ -76,7 +60,7 @@ await Promise.all([
 Use **research-synthesis skill** to consolidate findings:
 
 1. **Consolidate**: Group by theme, identify consensus, note contradictions
-2. **Narrativize**: Weave findings into story (not bullet dumps): "Industry uses X (breadth), implemented via Y (technical), as shown by Z (depth)"
+2. **Narrativize**: Weave findings into story (not bullet dumps): "Industry uses X (survey), implemented via Y (official-docs), as shown by Z (deep-dive)"
 3. **Attribute**: Link claims to sources, note which agent provided insights
 4. **Identify Gaps**: Unanswered questions, contradictions, disagreements
 5. **Extract Actions**: Implementation path, code/configs, risks, constraints
@@ -86,7 +70,7 @@ Use **research-synthesis skill** to consolidate findings:
 | ❌ Anti-Pattern | ✅ Best Practice |
 |----------------|------------------|
 | Single agent for multi-faceted question | 2-3 agents for comprehensive coverage |
-| Sequential: `await` each agent | Parallel: `Promise.all([...])` |
+| Sequential: one Agent call per message | Parallel: all Agent calls in one message |
 | Copy agent outputs verbatim in sections | Synthesize into narrative with attribution |
 | Skip source attribution | Note which agent/source for each claim |
 | List findings separately | Weave into coherent story |
@@ -96,7 +80,7 @@ Use **research-synthesis skill** to consolidate findings:
 **User**: "How do I implement real-time notifications in Next.js?"
 
 **Step 1: Analyze** → New technology + implementation
-**Step 2: Launch** → breadth + technical in parallel
+**Step 2: Launch** → survey + official-docs in parallel
 **Step 3: Synthesize**:
 
 ```markdown
@@ -120,8 +104,3 @@ capabilities and industry best practices.
 **Used by**:
 - `/research` command (essentials) - User-initiated research
 - `implementing-tasks` skill (experimental) - Auto-launch when STUCK
-- `planning` skill (experimental) - Uses exploration agents instead
-
-**Other agent categories**:
-- **Exploration** (codebase): architecture-explorer + codebase-analyzer (parallel)
-- **Review** (code quality): test-coverage + error-handling + security (all 3 parallel)

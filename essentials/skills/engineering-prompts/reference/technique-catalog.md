@@ -11,11 +11,11 @@ Deep dive into 12 prompt engineering techniques organized as **4 Foundation** (a
 - [4. XML Structure](#4-xml-structure) *(situational with modern models)*
 
 ### Advanced Techniques (Apply When Needed)
-- [5. Chain of Thought](#5-chain-of-thought)
+- [5. Reasoning Depth via Effort](#5-reasoning-depth-via-effort)
 - [6. Prompt Chaining](#6-prompt-chaining)
 - [7. Multishot Prompting](#7-multishot-prompting)
 - [8. System Prompt (Role Assignment)](#8-system-prompt-role-assignment)
-- [9. Prefilling](#9-prefilling)
+- [9. Structured Outputs](#9-structured-outputs)
 - [10. Long Context Optimization](#10-long-context-optimization)
 - [11. Context Budget Management](#11-context-budget-management)
 - [12. Tool Documentation](#12-tool-documentation)
@@ -116,8 +116,8 @@ Positive instructions are unambiguous; negatives require Claude to infer the alt
 ### What It Is
 Using XML tags to create hard structural boundaries within prompts, separating instructions, context, examples, and formatting requirements.
 
-### Modern Model Note (2024+)
-Less necessary with Claude 4.x. Use when genuinely needed, not by default.
+### Modern Model Note
+Less necessary with current Claude models. Use when genuinely needed, not by default.
 
 ### When to Use
 - Complex prompts with multiple distinct sections
@@ -144,31 +144,30 @@ Claude is fine-tuned to treat XML tags as hard boundaries between different type
 
 ---
 
-## 5. Chain of Thought
+## 5. Reasoning Depth via Effort
 
 ### What It Is
-Encouraging step-by-step reasoning before providing final answers.
+Current Claude models think adaptively by default. Control how deeply they reason with `output_config.effort` (`low` / `medium` / `high` / `xhigh` / `max`), not with "think step by step" or `<thinking>` tags in the prompt.
 
 ### When to Use
-- Analysis tasks, multi-step reasoning, math, debugging
-- Tasks where intermediate steps matter
+- Raise effort for hard analysis, math, debugging, long agentic runs
+- Lower effort for routine, high-volume, or latency-sensitive work
 
 ### Token Cost
-2-3x output tokens (thinking + final answer).
+Scales with effort level. `high` is the default; `low` still performs well on simple tasks.
 
 ### Example
 
+```python
+client.messages.create(
+    model="claude-opus-5",
+    output_config={"effort": "high"},
+    messages=[{"role": "user", "content": "Analyze this bug: ..."}],
+)
 ```
-Analyze this bug. Think step by step:
-1. What is the error message telling us?
-2. What are the possible causes?
-3. Which cause is most likely given the context?
 
-Then provide your conclusion.
-```
-
-### Why It Works
-Breaking down reasoning into steps improves accuracy and makes decisions verifiable.
+### Don't
+Ask the model to show its reasoning in the reply. Read `thinking` blocks via the API (`thinking: {type: "adaptive", display: "summarized"}`) instead. Scripted reasoning steps in the prompt cause over-planning and lower output quality on current models.
 
 ---
 
@@ -260,31 +259,32 @@ Roles frame Claude's approach and leverage domain-specific patterns from trainin
 
 ---
 
-## 9. Prefilling
+## 9. Structured Outputs
 
 ### What It Is
-Providing the start of Claude's response to guide format and skip preambles.
+`output_config: {format: {...}}` (or `client.messages.parse()`) constrains the response to a JSON schema. `strict: true` on a tool definition guarantees schema-valid tool arguments.
 
 ### When to Use
-- Strict format requirements (JSON, XML, CSV)
-- Skip conversational preambles
-- Automated parsing
+- Strict format requirements (JSON, XML, CSV) for automated parsing
+- Skipping conversational preambles
 
 ### Token Cost
-Minimal (5-20 tokens).
+Minimal.
 
 ### Example
 
-```
-User: Extract data as JSON
-Assistant: {
-Claude: "data": ...
+```python
+client.messages.parse(
+    model="claude-opus-5",
+    output_config={"format": {"type": "json_schema", "schema": OrderSchema}},
+    messages=[{"role": "user", "content": "Extract the order data."}],
+)
 ```
 
 ### Why It Works
-Forces Claude to continue from the prefilled content, ensuring format compliance.
+The API enforces the schema; no parsing retries, no format drift.
 
-**Note:** Prefill cannot end with trailing whitespace.
+**Note:** Assistant-turn prefill (`{"role": "assistant", "content": "{"}`) returns a 400 on Claude 4.6+ models. Use structured outputs or a system-prompt instruction ("Respond with only the JSON object") instead.
 
 ---
 
@@ -392,14 +392,14 @@ Clear descriptions of tools/functions including when to use them and parameter s
 | Context & Motivation | Clarity (always pair) | N/A - always use |
 | Positive Framing | All instructions | N/A - always use |
 | XML Structure | Long Context, Examples, Caching | Simple prompts (modern models) |
-| Chain of Thought | XML, Role, Long Context | Simple extraction |
+| Effort / Thinking | XML, Role, Long Context | Simple extraction (use low) |
 | Prompt Chaining | All techniques per step | Latency-critical tasks |
-| Multishot | XML, Prefilling | Trivial tasks |
-| System Role | Chain of Thought, Tools | Generic tasks |
-| Prefilling | XML, Multishot | Conversational outputs |
+| Multishot | XML, Structured Outputs | Trivial tasks |
+| System Role | Effort, Tools | Generic tasks |
+| Structured Outputs | XML, Multishot | Conversational outputs |
 | Long Context | XML, Quoting, Caching | Short prompts |
 | Context Budget | XML, System Prompts | One-off queries |
-| Tool Docs | Role, Examples, CoT | No tool use |
+| Tool Docs | Role, Examples | No tool use |
 
 ---
 
@@ -421,9 +421,9 @@ Start Here
    Yes → Use Prompt Chaining
    No → Continue
     ↓
-4. Does it need reasoning?
-   Yes → Add Chain of Thought
-   No → Skip (save 2-3x tokens)
+4. Does it need deep reasoning?
+   Yes → Raise effort
+   No → Lower effort
     ↓
 5. Assess prompt length:
    > 20K tokens → Apply Long Context tips
@@ -434,7 +434,7 @@ Start Here
    No → Skip cache optimization
     ↓
 7. Is format subtle or specific?
-   Yes → Add Examples or Prefilling
+   Yes → Add Examples or Structured Outputs
    No → Skip
     ↓
 8. Does it need structure?
@@ -468,7 +468,7 @@ The best prompt achieves goals with MINIMUM necessary structure.
 
 ### Pattern 2: Analysis Task
 - Foundation ✓
-- Chain of Thought ✓
+- Higher effort ✓
 - System Role ✓
 - Long Context (if large input) ✓
 - XML Structure (if complex) ✓
@@ -476,19 +476,18 @@ The best prompt achieves goals with MINIMUM necessary structure.
 ### Pattern 3: Format Conversion
 - Foundation ✓
 - Multishot Examples ✓
-- Prefilling ✓
+- Structured Outputs ✓
 
 ### Pattern 4: Complex Multi-Step Task
 - Foundation ✓
 - Prompt Chaining ✓
-- Chain of Thought (per step) ✓
+- Effort tuned per step ✓
 - System Role ✓
 
 ### Pattern 5: Agent Workflow
 - Foundation ✓
 - System Role ✓
 - Tool Documentation ✓
-- Chain of Thought ✓
 - Context Budget Management ✓
 - XML Structure ✓
 

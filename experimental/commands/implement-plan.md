@@ -225,39 +225,9 @@ Append completion metadata to task file using Edit tool:
 ### 7. Progress
 Report: `Progress: X/Y completed | Z blocked | W pending`
 
-### 8. Session Checkpoint (Every 3 Tasks)
+### 8. Session Health
 
-After every 3 completed tasks, pause and evaluate:
-
-```markdown
-## Session Checkpoint
-
-Tasks completed this session: [N]
-Total progress: [X/Y]
-
-Health indicators:
-- Review rejection rate: [R/N] ([%]) [OK | ⚠️ if >30%]
-- Test fix cycles: [N] total [OK | ⚠️ if >3 per task average]
-- STUCK occurrences: [N] [OK | ⚠️ if >1 per 3 tasks]
-- Learnings captured: [N]
-
-Recommendation: [CONTINUE | PAUSE | ESCALATE]
-```
-
-**Decision logic:**
-- **CONTINUE**: All indicators OK, momentum is good
-- **PAUSE**: 2+ warning indicators, suggest taking a break to avoid drift
-- **ESCALATE**: Pattern of rejections or STUCK states suggests systemic issue
-
-**With `--auto`:** Log checkpoint but continue (no pause).
-
-**Without `--auto`:** Show checkpoint, ask:
-```
-Session checkpoint reached. [CONTINUE | PAUSE | ESCALATE]?
-1. Continue to next task
-2. Take a break (context saved, resume with /implement-plan)
-3. Escalate blockers to human
-```
+If review rejections or STUCK states start repeating across tasks, stop and say so rather than continuing the loop: report what is recurring, and recommend CONTINUE, PAUSE, or ESCALATE with the reason. With `--auto`, log the recommendation and continue unless it is ESCALATE.
 
 ## Findings Checklist (After Rejection)
 
@@ -320,10 +290,9 @@ No vague "I'm stuck." No asking "what should I do?" Clear report, then stop.
 
 ## Development Loop Rules
 
-CRITICAL RULES during execution:
+Rules during execution:
 
-1. **Execute, don't explain** - Prefer running commands, editing files, invoking skills.
-   Minimize "I'm about to..." messages.
+1. **Say what you're doing, briefly** - One line when a task or stage starts; the stage reports below are the progress signal. Don't ask permission for steps the loop already covers.
 
 2. **No permission between stages** - Within a task, flow through stages automatically.
    Pause points are ONLY at autonomy-level checkpoints (between tasks).
@@ -351,7 +320,6 @@ CRITICAL RULES during execution:
 
 Project: {{ARGS}}
 Completed: X/X tasks | Blocked: Y | Commits: Z
-Average Review Scores: Security: XX | Quality: XX | Tests: XX
 Final Test Coverage: XX%
 ```
 
@@ -359,7 +327,7 @@ Final Test Coverage: XX%
 
 - **Smooth flow**: Continue between stages automatically. Stop only at autonomy checkpoints or on failure
 - **Session verification**: Check last completed task's test status before claiming new work
-- **Session checkpoints**: Every 3 tasks, evaluate health indicators and recommend CONTINUE/PAUSE/ESCALATE
+- **Session health**: Stop and recommend CONTINUE/PAUSE/ESCALATE when rejections or STUCK states repeat
 - **End-to-end per task**: implement → test → review → checkpoint → commit → next
 - **Per-task confirmation** (default mode): Previous "yes" does NOT carry over
 - **Task files committed**: Code + task file in each commit

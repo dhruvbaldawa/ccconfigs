@@ -48,4 +48,4 @@
 2. Parallel Search (advanced synthesis, fact-checking, deep extraction) - optional
 3. Context7 (official technical docs only) - always available
 
-Skills reference MCP tools by prefixed names (e.g., `Context7:get-library-docs`, `Parallel-Search:web_search_preview`).
+Skills reference MCP tools by prefixed names (e.g., `context7__query-docs`, `Parallel-Search:web_search_preview`).

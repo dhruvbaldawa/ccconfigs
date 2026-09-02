@@ -78,28 +78,4 @@ status: draft
 
 ## After Setup
 
-Once files are created, **invoke the brainstorming skill** (from essentials plugin) and start the conversation:
-
-- Ask clarifying questions about the topic
-- Explore what triggered this idea
-- Identify the core argument or angle
-- Define the audience
-- Suggest possible approaches
-- Update braindump.md with ideas as they emerge
-
-**Do NOT immediately draft the post.** Start with brainstorming to refine the idea first.
-
-## Example Flow
-
-```
-[After creating files]
-
-AI: Created posts/$1/ with braindump.md and draft.md.
-
-    [invokes brainstorming skill]
-
-    Let's explore this topic. What triggered your interest in $1?
-    Is this based on a specific experience or pattern you've noticed?
-```
-
-Then continue the brainstorming conversation naturally, updating braindump.md as ideas develop.
+After creating the files, invoke the brainstorming skill (from essentials plugin) and refine the idea before any drafting - the draft comes later, from an agreed outline. Explore what triggered the topic, the core argument, and the audience, and update braindump.md as ideas develop.

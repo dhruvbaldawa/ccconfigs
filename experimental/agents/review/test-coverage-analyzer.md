@@ -27,6 +27,8 @@ Ensure critical business logic, edge cases, and error conditions are thoroughly 
 
 ## Output Format
 
+**Decision:** APPROVE or REJECT for test coverage, with the reason.
+
 **Executive Summary**
 - Overall coverage quality: EXCELLENT/GOOD/FAIR/POOR
 - Critical gaps: X (must address before deployment)

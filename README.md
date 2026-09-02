@@ -213,9 +213,7 @@ Multi-skill workflow system using kanban file movement for complex, high-value d
 #### Specialized Agents (6 total)
 
 **Research Agents** (3 agents - all haiku):
-- **research-breadth**: Broad surveys via WebSearch → Parallel Search (industry trends, consensus, multiple perspectives)
-- **research-depth**: Deep-dive via WebFetch → Parallel Search (specific URLs, implementation details, case studies)
-- **research-technical**: Official docs via Context7 (API references, method signatures, configurations)
+- **researcher**: One research agent with three modes — `survey` (broad landscape via WebSearch), `deep-dive` (specific URLs via WebFetch), `official-docs` (API references via the docs tool). Launch one instance per mode.
 
 **Review Agents** (3 agents - all sonnet):
 - **test-coverage-analyzer**: Behavioral test gaps with 1-10 criticality ratings
@@ -295,9 +293,7 @@ ccconfigs/
     ├── .claude-plugin/plugin.json # Plugin metadata
     ├── agents/                    # Specialized agents (6 total)
     │   ├── research/              # Research agents (parallel invocation)
-    │   │   ├── research-breadth.md
-    │   │   ├── research-depth.md
-    │   │   └── research-technical.md
+    │   │   └── researcher.md
     │   └── review/                # Code review agents
     │       ├── test-coverage-analyzer.md
     │       ├── error-handling-reviewer.md

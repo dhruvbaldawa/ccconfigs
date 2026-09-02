@@ -33,11 +33,11 @@ description: Engineers effective prompts using systematic methodology. Use when 
 |---------|----------|
 | Too generic | Add specificity + examples |
 | Off-topic | Add context explaining goals |
-| Wrong format | Examples or prefilling |
+| Wrong format | Examples or structured outputs |
 | Unreliable on complex tasks | Prompt chaining |
-| Unnecessary preambles | Prefill or "start directly with..." |
+| Unnecessary preambles | "Start directly with..." or structured outputs |
 | Hallucinations | "If unsure, acknowledge uncertainty" |
-| Shallow reasoning | Chain of thought |
+| Shallow reasoning | Raise `effort` |
 
 **Process Problems → Fixes:**
 
@@ -67,11 +67,11 @@ description: Engineers effective prompts using systematic methodology. Use when 
 
 | Technique | When to Use | Cost |
 |-----------|-------------|------|
-| **5. Chain of Thought** | Reasoning, analysis, math | 2-3x output |
+| **5. Effort / Thinking** | Hard analysis, math, debugging | Higher effort = more tokens |
 | **6. Prompt Chaining** | Multi-step, complex tasks | Multiple calls |
 | **7. Multishot Examples** | Pattern learning, format | 200-1K each |
 | **8. System Role** | Domain expertise needed | Minimal |
-| **9. Prefilling** | Strict format requirements | Minimal |
+| **9. Structured Outputs** | Strict format requirements | Minimal |
 | **10. Long Context** | 20K+ token inputs | Better accuracy |
 | **11. Context Budget** | Repeated use, conversations | 90% savings |
 | **12. Tool Docs** | Function calling, agents | 100-500/tool |
@@ -88,13 +88,13 @@ description: Engineers effective prompts using systematic methodology. Use when 
 
 **Complexity Assessment:**
 - Simple (extraction, Q&A) → Foundation only
-- Medium (analysis, code gen) → + CoT, examples
+- Medium (analysis, code gen) → + higher effort, examples
 - Complex (research, novel problems) → + Chaining, role
 
 **Cost Optimization:**
 - Cache system prompts + reference docs (90% savings)
 - Batch non-urgent work (50% savings)
-- Skip CoT for simple tasks (saves 2-3x)
+- Lower effort for simple tasks
 
 **Deliverable:**
 - Prompt + techniques used + rationale + token estimate
@@ -140,7 +140,7 @@ Need library docs?
 ### Cost-Specific Anti-Patterns
 
 ❌ **Ignoring caching** - Not leveraging repeated content (90% savings lost)
-❌ **Over-requesting CoT** - Chain of thought for simple tasks (2-3x wasted)
+❌ **Over-requesting effort** - High effort for simple tasks (tokens wasted)
 ❌ **Redundant examples** - 5 examples when 2 suffice
 ❌ **No batching** - Real-time calls for non-urgent work (50% savings lost)
 

@@ -22,51 +22,24 @@ Research: "${{{ARGS}}}"
 
 ${isTaskFile ? 'Read task file to understand blocker context.' : 'Analyze question to determine approach.'}
 
-| Research Need | Agent Combination |
-|--------------|-------------------|
-| **New technology/patterns** | breadth + technical |
-| **Specific error/issue** | depth + technical |
-| **API/library integration** | technical + depth |
-| **Best practices comparison** | breadth + depth |
+| Research Need | Modes to launch |
+|--------------|-----------------|
+| **New technology/patterns** | survey + official-docs |
+| **Specific error/issue** | deep-dive + official-docs |
+| **API/library integration** | official-docs + deep-dive |
+| **Best practices comparison** | survey + deep-dive |
 
-**Agents available:**
-- **research-breadth** (haiku) - WebSearch → Parallel Search: industry trends, consensus, multiple perspectives
-- **research-depth** (haiku) - WebFetch → Parallel Search: specific URLs, implementations, case studies, gotchas
-- **research-technical** (haiku) - Context7: official docs, API signatures, types, configs
+One agent, `experimental:research:researcher`, runs in one of three modes named at the start of its prompt (`Mode: survey`, `Mode: deep-dive`, `Mode: official-docs`); launch one instance per mode.
 
 ### Step 2: Launch Agents in Parallel
 
-Use Promise.all to launch 2-3 agents:
-
-```typescript
-await Promise.all([
-  Task({
-    subagent_type: 'research-breadth',  // or 'research-depth' or 'research-technical'
-    model: 'haiku',
-    description: 'Brief agent description',
-    prompt: `Research: "${{{ARGS}}}"
-
-    Focus areas and guidance for this agent.
-    Specify which MCP tool to use.
-    Expected output format.`
-  }),
-
-  Task({
-    subagent_type: 'research-technical',
-    model: 'haiku',
-    description: 'Brief agent description',
-    prompt: `Research official docs for: "${{{ARGS}}}"
-
-    Focus areas and guidance for this agent.`
-  })
-]);
-```
+Launch the selected 2-3 researcher instances in one message so they run concurrently, one Agent call per mode. Give each a prompt with the research question, its focus area, which tool to prefer, and the expected output shape.
 
 ### Step 3: Synthesize Findings
 
 Use **research-synthesis skill** to:
 - Consolidate findings by theme, identify consensus, note contradictions
-- Narrativize into story (not bullet dumps): "Industry uses X (breadth), via Y API (technical), as shown by Z (depth)"
+- Narrativize into story (not bullet dumps): "Industry uses X (survey), via Y API (official-docs), as shown by Z (deep-dive)"
 - Maintain source attribution (note which agent provided insights)
 - Identify gaps (unanswered questions, disagreements)
 - Extract actions (implementation path, code/configs, risks)
@@ -104,7 +77,7 @@ Update status from STUCK to Pending if blocker resolved.
 Task: 003-jwt.md
 Blocker: [Description]
 
-Agents Used: breadth (industry patterns), technical (official docs)
+Modes Used: survey (industry patterns), official-docs (official docs)
 
 Key Findings:
 1. **Agent 1**: [Key insight with source]
@@ -138,7 +111,7 @@ Sources: [Links with descriptions]
 
 ## Key Points
 
-- Launch agents **in parallel** (Promise.all) for speed
+- Launch agents in parallel (one message, multiple Agent calls)
 - Use **research-synthesis skill** to consolidate (narrative, not lists)
 - Maintain **source attribution** (link claims to agents/sources)
 - For tasks: update file with findings and change status if resolved

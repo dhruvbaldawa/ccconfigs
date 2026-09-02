@@ -42,7 +42,7 @@ When bugs suggest deeper design issues, analyze architecture systematically.
 3. Find assumption mismatches between components
 4. Choose architectural fix over workaround when systemic
 
-Use `codebase_search` prompts like:
+Use Explore agent or Grep prompts like:
 - "How does ComponentA communicate with ComponentB?"
 - "What data flows from Source to Destination?"
 
@@ -96,7 +96,7 @@ Map direct, transitive, and hidden dependencies.
 - Initialization order issues
 - Circular dependencies
 
-Use `codebase_search`:
+Use the Explore agent or Grep:
 - "What imports/uses ComponentX?"
 - "What does ComponentX depend on?"
 

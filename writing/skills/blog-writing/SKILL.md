@@ -28,51 +28,9 @@ Skip this skill for:
 - Technical documentation or API references
 - Academic papers requiring formal tone
 
-## Critical: User Control and No Injection
+## You assist; Dhruv authors
 
-**You assist, you don't inject. The user is in control.**
-
-**NEVER add content to draft.md without explicit approval:**
-- Don't make up examples, milestones, or technical details
-- Don't invent data, statistics, or research findings
-- Don't add sections or points the user hasn't mentioned
-- Don't fill in gaps with your own ideas
-
-**ALWAYS ask before adding anything:**
-```
-User: Draft the intro
-AI: I'd suggest opening with [your anecdote from braindump about Company X].
-    Should I use that or would you prefer a different hook?
-```
-
-**Show, don't inject:**
-```
-❌ BAD (injecting):
-AI: [writes intro with made-up story about OKRs failing]
-
-✓ GOOD (showing and asking):
-AI: I see in braindump you mentioned OKRs failing at 3 companies.
-    Should I use that as the opening hook? If so, which company
-    story would be strongest - the Series B startup or the enterprise?
-```
-
-**For technical content (roadmaps, architecture, etc.):**
-- NEVER make up milestones, timelines, or technical decisions
-- Only use what the user has explicitly stated in braindump
-- If something is missing, ASK: "What milestones should I include here?"
-- Don't fill gaps with "typical" or "standard" approaches
-
-**For research and data:**
-- Only cite real research from braindump.md (sourced via MCP tools)
-- NEVER make up statistics, studies, or sources
-- If you need data, ask user or use research-synthesis skill
-- If uncertain, say "I don't have data for this claim - should I research it?"
-
-**User has final say:**
-- Always present drafts for review
-- Accept user edits without resistance
-- If user says "no," respect it immediately
-- Your job is to help express THEIR thoughts, not add yours
+draft.md contains only what Dhruv has said or what braindump.md records. Do not invent examples, anecdotes, milestones, statistics, studies, or "typical" approaches to fill a gap - the post is published under his name and a fabricated detail damages his credibility. When something is missing, say what's missing and ask for it (or offer to research it via the research-synthesis skill). Present drafts for review; when he says no, drop it.
 
 ## Two-Document Workflow
 
@@ -241,7 +199,7 @@ Before finalizing a blog post, verify:
 - [ ] Examines multiple perspectives when relevant
 - [ ] Uses clear headings and structure for scannability
 - [ ] Employs conversational tone with contractions and first person
-- [ ] Avoids corporate jargon, hyperbole, or AI-sounding language
+- [ ] Avoids corporate jargon, hyperbole, and mannered prose
 - [ ] Ends with practical implications and an engagement question
 - [ ] Varies sentence length for rhythm and interest
 - [ ] Uses bold text for key insights (but not excessively)
@@ -257,7 +215,7 @@ Before finalizing a blog post, verify:
 ## Common Pitfalls to Avoid
 
 1. **Sounding Too Corporate**: Avoid phrases like "leverage," "synergy," "best practices" without irony
-2. **AI Tell-Tale Signs**: Don't write "in conclusion," "in today's fast-paced world," or use excessive lists of adjectives
+2. **Mannered Prose**: Metaphor and flourish standing in for a direct statement ("a dial worth turning" for "a parameter worth varying"). When a literal phrase is available, use it.
 3. **Lecturing Tone**: Don't talk down to readers; invite them into a conversation
 4. **Burying the Lede vs. Skipping the Setup**: Don't save insights for the end; front-load value. But front-loading is not the same as skipping stage-setting. The reader needs enough context to understand the insight when they hit it. A two-paragraph setup that lands the insight beats a one-line hook that loses the reader.
 5. **Oversimplification**: Don't pretend complex problems have simple solutions

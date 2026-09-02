@@ -39,7 +39,7 @@ Based on detected technologies, launch 2-3 agents:
 ```
 Task(
   description: "Research [technology] best practices",
-  prompt: "Research best practices and common pitfalls for [technology].
+  prompt: "Mode: official-docs. Research best practices and common pitfalls for [technology].
 
   Context: [extracted section context]
 
@@ -50,12 +50,12 @@ Task(
   - Security implications
 
   Return: Bullet points with references.",
-  subagent_type: "experimental:research:research-technical"
+  subagent_type: "experimental:research:researcher"
 )
 
 Task(
   description: "Research [domain] patterns",
-  prompt: "Research implementation patterns for [domain].
+  prompt: "Mode: survey. Research implementation patterns for [domain].
 
   Requirements: [from acceptance criteria]
 
@@ -65,7 +65,7 @@ Task(
   - Edge cases to consider
 
   Return: Patterns with code examples.",
-  subagent_type: "experimental:research:research-breadth"
+  subagent_type: "experimental:research:researcher"
 )
 ```
 
@@ -77,14 +77,14 @@ For each plan section, append:
 ### Research Insights
 
 **Best practices:**
-- [from research-technical]
+- [from official-docs research]
 
 **Common pitfalls:**
-- [from research-breadth + learnings]
+- [from survey research + learnings]
 
 **Code patterns:**
 ```[language]
-[example from research-depth]
+[example from deep-dive research]
 ```
 
 **References:**

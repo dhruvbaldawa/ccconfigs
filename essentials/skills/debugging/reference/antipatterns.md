@@ -12,7 +12,7 @@ Avoid these documented failure modes; use the recovery steps when detected.
 
 ## 3) Pattern Amnesia
 - Symptom: Ignoring established code patterns/conventions
-- Recovery: `codebase_search` similar implementations; extract and follow patterns; explain any deviation
+- Recovery: Explore agent or Grep for similar implementations; extract and follow patterns; explain any deviation
 
 ## 4) Implementation Before Understanding
 - Symptom: Jumping to code edits without examining context
@@ -20,7 +20,7 @@ Avoid these documented failure modes; use the recovery steps when detected.
 
 ## 5) Context-Limited Fixes
 - Symptom: Fixing one location only
-- Recovery: Search project-wide (grep/codebase_search) for the root pattern; patch all occurrences; refactor if repeated
+- Recovery: Search project-wide (Grep or the Explore agent) for the root pattern; patch all occurrences; refactor if repeated
 
 ## 6) Symptom Chasing
 - Symptom: Treating error messages as the problem
@@ -28,16 +28,12 @@ Avoid these documented failure modes; use the recovery steps when detected.
 
 ## 7) Assumption-Based Debugging
 - Symptom: Assuming library/system behavior
-- Recovery: Research via WebSearch → Parallel Search; verify with `Context7:get-library-docs`; test assumptions
+- Recovery: Research via WebSearch → Parallel Search; verify with Context7 (resolve-library-id → query-docs); test assumptions
 
-## 8) Context Overload Ignorance
-- Symptom: Degraded reasoning in long sessions
-- Recovery: Restart at ~50%; carry summary of facts, hypothesis, next step only
-
-## 9) Tool Misuse
+## 8) Tool Misuse
 - Symptom: Using wrong tool for task
-- Recovery: Decision tree: exact text→grep; concept→codebase_search; full context→read_file; research→WebSearch/Parallel Search; complex analysis→sequential thinking templates
+- Recovery: Decision tree: exact text→grep; concept→Explore agent; full context→Read; research→WebSearch/Parallel Search; complex analysis→sequential thinking templates
 
-## 10) Plan Abandonment
+## 9) Plan Abandonment
 - Symptom: Ignoring the plan mid-way
 - Recovery: Note deviation; justify; update plan; resume at correct step

@@ -20,7 +20,7 @@ Each agent has full instructions in its agent file. They are accountable for the
 
 ## Review Triage
 
-**FIRST**, read `**implementation_metadata:**` from task file and determine review tier.
+First, read `**implementation_metadata:**` from task file and determine review tier.
 
 ### FULL Review Triggers
 
@@ -62,16 +62,12 @@ Reason: [why this tier was selected]
 
 Quick validation without launching specialized agents. Faster but catches obvious issues.
 
-0. **Load Critical Patterns (if exists):**
-   - Check for `.plans/<project>/critical-patterns.md`
-   - If exists, check implementation against ALL patterns
-   - Any violation = CRITICAL finding → escalate to FULL review
+0. If `.plans/<project>/critical-patterns.md` exists, check the implementation against it; any violation is a CRITICAL finding and escalates to FULL review.
 
 1. **Baseline checks:**
    - Run `git diff` on Files listed
    - Run tests to verify passing
    - Check Validation checkboxes marked [x]
-   - Score (0-100 each): Security, Quality, Performance, Tests
 
 2. **Quick scan for obvious issues:**
    - Empty catch blocks: `catch \(.*\) \{\s*\}`
@@ -94,8 +90,6 @@ Quick validation without launching specialized agents. Faster but catches obviou
 
 ```markdown
 **review (LIGHTWEIGHT):**
-Security: [N]/100 | Quality: [N]/100 | Performance: [N]/100 | Tests: [N]/100
-
 Review tier: LIGHTWEIGHT
 Reason: [No severity/complexity indicators, small scope]
 
@@ -123,23 +117,17 @@ If LIGHTWEIGHT finds issues, it escalates to FULL review rather than rejecting d
 
 Launch all 3 specialized agents for comprehensive review. Use for security-sensitive, complex, or high-risk changes.
 
-0. **Load Critical Patterns (if exists):**
-   - Check for `.plans/<project>/critical-patterns.md`
-   - If exists, verify implementation follows ALL patterns
-   - Any violation = CRITICAL finding (blocks approval)
-   - Include pattern violations in agent context for thorough review
+0. Load critical patterns as in the LIGHTWEIGHT process; include any violations in the agent context.
 
 1. **Initial Review**:
    - Run `git diff` on Files listed
    - Read test files
    - Run tests to verify passing
    - Check Validation checkboxes marked [x]
-   - Score (0-100 each): Security, Quality, Performance, Tests
 
 2. **Specialized Review (Parallel Agents)**:
    Launch all 3 agents in parallel. Each must:
-   - Make a clear APPROVE or REJECT decision for their domain
-   - Sign their decision: "I, [Role], certify this code is [APPROVED/REJECTED] because..."
+   - Make a clear APPROVE or REJECT decision for their domain, with the reason
    - Provide specific findings with file:line references
    - Rate severity: CRITICAL (blocks) / HIGH / MEDIUM / LOW
    - Rate confidence: 0-100%
@@ -172,8 +160,7 @@ Launch all 3 specialized agents for comprehensive review. Use for security-sensi
 After initial review, invoke all three agents in parallel using the Task tool.
 
 **Required output format (all agents):**
-- Decision: APPROVE or REJECT
-- Signed: "I, [Role], certify this code is [APPROVED/REJECTED] because..."
+- Decision: APPROVE or REJECT, with the reason
 - Findings: file:line, Severity/Criticality, Confidence, Description, Fix
 
 ```
@@ -202,17 +189,15 @@ Call all three Task invocations in a single message to run them in parallel.
 
 ```markdown
 **review:**
-Security: 90/100 | Quality: 95/100 | Performance: 95/100 | Tests: 90/100
-
 Working Result verified: ✓ [description]
 Validation: 4/4 passing
 Full test suite: [M]/[M] passing
 Diff: [N] lines
 
 **Reviewer Decisions:**
-- Security Gatekeeper: APPROVED - "I, Security Gatekeeper, certify this code is APPROVED because [reason]"
-- Quality Guardian: APPROVED - "I, Quality Guardian, certify this code is APPROVED because [reason]"
-- Test Auditor: APPROVED - "I, Test Auditor, certify this code is APPROVED because [reason]"
+- Security Gatekeeper: APPROVED - [reason]
+- Quality Guardian: APPROVED - [reason]
+- Test Auditor: APPROVED - [reason]
 
 **Findings (for tracking):**
 - [Any HIGH/MEDIUM findings that don't block but should be tracked]
@@ -224,12 +209,10 @@ APPROVED → completed
 
 ```markdown
 **review:**
-Security: 65/100 | Quality: 85/100 | Performance: 90/100 | Tests: 75/100
-
 **Reviewer Decisions:**
-- Security Gatekeeper: REJECTED - "I, Security Gatekeeper, certify this code is REJECTED because [reason]"
-- Quality Guardian: APPROVED - "I, Quality Guardian, certify this code is APPROVED because [reason]"
-- Test Auditor: REJECTED - "I, Test Auditor, certify this code is REJECTED because [reason]"
+- Security Gatekeeper: REJECTED - [reason]
+- Quality Guardian: APPROVED - [reason]
+- Test Auditor: REJECTED - [reason]
 
 **CRITICAL Issues (must fix):**
 1. [Security/Quality/Test] - [Description] - [file:line] - [Confidence/Severity]
@@ -270,7 +253,6 @@ This creates a permanent record of all review findings across the project.
 
 **Must REJECT if any:**
 - Any reviewer REJECTS
-- Security score <80
 - Any CRITICAL findings (Security 90-100 confidence, Quality CRITICAL, Test gaps 9-10)
 - Tests failing
 - Validation incomplete
@@ -278,7 +260,6 @@ This creates a permanent record of all review findings across the project.
 
 **Can APPROVE with HIGH findings** if:
 - All 3 reviewers APPROVE
-- Security score ≥80
 - No CRITICAL findings
 - HIGH findings include justification why acceptable
 - All tests passing
