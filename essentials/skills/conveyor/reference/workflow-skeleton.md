@@ -87,7 +87,7 @@ for (const slice of SLICES) {
     STANDARDS + '\nImplement slice ' + slice.id + ': ' + slice.planExcerpt +
     '\nRun the local checks (' + LOCAL_CHECKS.join(' && ') + ') and exercise the change end-to-end. Do NOT commit.' +
     '\nIf the planned file list is wrong, list the additions under extraFiles with reasons — never expand silently.',
-    { label: 'implement:' + slice.id, model: 'sonnet', schema: EVIDENCE, phase: P })
+    { label: 'implement:' + slice.id, model: 'claude-sonnet-5-5', schema: EVIDENCE, phase: P })
   // agent() returns null for a dead OR classifier-blocked subagent — check the
   // run's progress errors before assuming a crash.
   if (!impl) return { status: 'exception', kind: 'implementer-null', slice: slice.id, done }
@@ -138,7 +138,7 @@ for (const slice of SLICES) {
     const fix = await agent(
       STANDARDS + '\nFix exactly these findings on slice ' + slice.id + ' (local checks green, nothing else): ' +
       JSON.stringify(blockers),
-      { label: 'fix:' + slice.id + ':r' + rounds, model: 'sonnet', schema: EVIDENCE, phase: P })
+      { label: 'fix:' + slice.id + ':r' + rounds, model: 'claude-sonnet-5-5', schema: EVIDENCE, phase: P })
     if (!fix) return { status: 'exception', kind: 'fixer-null', slice: slice.id, findings: blockers, done }
     lastEvidence = fix.evidence || fix.summary
     extras = extras.concat(fix.extraFiles || [])

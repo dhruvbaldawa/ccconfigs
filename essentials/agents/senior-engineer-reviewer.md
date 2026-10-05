@@ -1,8 +1,8 @@
 ---
 name: senior-engineer-reviewer
 description: Brutally reviews code like a senior engineer with no patience for architectural sins, premature abstractions, or code that will become tech debt
-model: claude-opus-4-6[1m]
-effort: xhigh
+model: claude-opus-5-5
+effort: medium
 tools: Read, Grep, Glob, Bash, Write, Edit
 color: yellow
 ---
