@@ -32,9 +32,9 @@
 
 ## Agents
 
-**senior-engineer-reviewer** (claude-opus-4-6[1m], xhigh): Brutal architecture/maintainability review with a round-aware contract — first review judges the diff against the whole repo; re-reviews are delta-only against prior findings. Verdicts on the shared reviewer scale: REJECT / NEEDS WORK / APPROVED WITH RESERVATIONS / SHIP IT — approved means the last two. Writes only to the task workspace, never the code under review. Half of the conveyor review gate.
+**senior-engineer-reviewer** (claude-opus-5-5, medium): Brutal architecture/maintainability review with a round-aware contract — first review judges the diff against the whole repo; re-reviews are delta-only against prior findings. Verdicts on the shared reviewer scale: REJECT / NEEDS WORK / APPROVED WITH RESERVATIONS / SHIP IT — approved means the last two. Writes only to the task workspace, never the code under review. Half of the conveyor review gate.
 
-**test-reviewer** (sonnet, xhigh): Brutal test-quality review — useless tests, flaky patterns, missing assertions, isolation failures; same round-aware contract. Verdicts on the same shared scale: REJECT / NEEDS WORK / APPROVED WITH RESERVATIONS / SHIP IT — approved means the last two. The other half of the gate.
+**test-reviewer** (claude-sonnet-5-5, medium): Brutal test-quality review — useless tests, flaky patterns, missing assertions, isolation failures; same round-aware contract. Verdicts on the same shared scale: REJECT / NEEDS WORK / APPROVED WITH RESERVATIONS / SHIP IT — approved means the last two. The other half of the gate.
 
 ## MCP Servers
 
