@@ -1,6 +1,6 @@
 ---
 name: research-synthesis
-description: Guide when to use built-in tools (WebFetch, WebSearch) and MCP servers (Parallel Search, Perplexity, Context7) for research. Synthesize findings into narrative for braindump. Use when gathering data, examples, or citations for blog posts.
+description: Guide when to use built-in tools (WebFetch, WebSearch) and MCP servers (Parallel Search, Context7) for research. Synthesize findings into narrative for braindump. Use when gathering data, examples, or citations for blog posts.
 ---
 
 # Research Synthesis
@@ -20,24 +20,9 @@ Skip when:
 - User says "don't research, just write"
 - Topic is purely opinion-based
 
-## Critical: Never Hallucinate
+## Evidence Comes From Tool Results
 
-**Only use REAL research from MCP tools. Never invent:**
-- Statistics/percentages
-- Study names/researchers
-- Company examples/case studies
-- Technical specs/benchmarks
-- Quotes/citations
-
-**If no data found:**
-❌ BAD: "Research shows 70% of OKR implementations fail..."
-✅ GOOD: "I don't have data on OKR failure rates. Should I research using Perplexity?"
-
-**Before adding to braindump:**
-- Verify came from MCP tool results (not training data)
-- Include source attribution always
-- If uncertain, say so
-- Don't fill in missing details with assumptions
+Every statistic, study, company example, spec, and quote you add to the braindump comes from a tool result in this session, with its source attached. Training-data recall is not a source for a published post. When you find nothing: say so and offer to research ("I don't have data on OKR failure rates. Should I research this?") rather than filling the gap.
 
 ## Research Tool Selection (Priority Order)
 
@@ -54,13 +39,7 @@ Skip when:
 |------|---------|----------|
 | **Parallel Search** | Advanced web search with agentic mode, fact-checking, competitive intelligence, multi-source synthesis, deep URL extraction | Complex queries needing synthesis, validation across sources, extracting full content from URLs |
 
-### Priority 3: Perplexity (Broad Surveys)
-
-| Tool | Use For | Examples |
-|------|---------|----------|
-| **Perplexity** | Broad surveys when WebSearch/Parallel insufficient | Industry consensus, statistical data, multiple perspectives |
-
-### Priority 4: Context7 (Technical Docs)
+### Priority 3: Context7 (Technical Docs)
 
 | Tool | Use For | Examples |
 |------|---------|----------|
@@ -71,11 +50,11 @@ Skip when:
 Need research?
 ├─ Specific URL? → WebFetch → Parallel Search
 ├─ Technical docs/APIs? → Context7
-├─ General search? → WebSearch → Parallel Search → Perplexity
+├─ General search? → WebSearch → Parallel Search
 └─ Complex synthesis? → Parallel Search
 ```
 
-**Rationale:** Built-in tools (WebFetch, WebSearch) are faster and always available. Parallel Search provides advanced agentic mode for synthesis and deep content extraction. Perplexity offers broad surveys when needed. Context7 for official docs only.
+**Rationale:** Built-in tools (WebFetch, WebSearch) are faster and always available. Parallel Search provides advanced agentic mode for synthesis and deep content extraction. Context7 for official docs only.
 
 ## Synthesizing Findings
 
@@ -128,7 +107,7 @@ Key insight: Failure correlates with treating OKRs as compliance exercise.
 
 Research flows naturally into conversation:
 
-**Proactive**: "That's a strong claim - let me check data... [uses tool] Good intuition! Found 3 confirming studies. Adding to braindump."
+**Proactive**: "That's a strong claim - checking... [uses tool] Three studies support it. Adding to braindump."
 
 **Requested**: "Find X... [uses tool] Found several cases. Should I add all to braindump or focus on one approach?"
 

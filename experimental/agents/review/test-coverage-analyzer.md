@@ -1,7 +1,7 @@
 ---
 name: test-coverage-analyzer
 description: Analyzes test coverage quality and identifies critical behavioral gaps in code changes
-model: sonnet
+model: claude-sonnet-5-5
 color: cyan
 ---
 
@@ -26,6 +26,8 @@ Ensure critical business logic, edge cases, and error conditions are thoroughly 
 **9-10 CRITICAL**: Data loss/corruption, security vulnerabilities, system crashes, financial failures. **7-8 HIGH**: User-facing errors in core functionality, broken workflows, data inconsistency. **5-6 MEDIUM**: Edge cases causing confusion, uncommon but valid scenarios. **3-4 LOW**: Nice-to-have coverage, defensive programming. **1-2 OPTIONAL**: Trivial improvements, already covered elsewhere.
 
 ## Output Format
+
+**Decision:** APPROVE or REJECT for test coverage, with the reason.
 
 **Executive Summary**
 - Overall coverage quality: EXCELLENT/GOOD/FAIR/POOR

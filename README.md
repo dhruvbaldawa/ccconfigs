@@ -12,7 +12,6 @@ Personal configuration repository for Claude Code - a plugin marketplace contain
 2. Set API keys (optional - for MCP servers):
    ```bash
    export PARALLEL_API_KEY=your_parallel_key       # Optional: Parallel Search
-   export PERPLEXITY_API_KEY=your_perplexity_key   # Optional: Perplexity
    ```
 
 3. Install plugins:
@@ -55,14 +54,7 @@ See `docs/guides/opencode-workflow.md` for the full workflow.
    export PARALLEL_API_KEY=your_key_here
    ```
 
-**Perplexity** (AI-powered search):
-1. Get API key from [Perplexity API Console](https://www.perplexity.ai/settings/api)
-2. Set environment variable:
-   ```bash
-   export PERPLEXITY_API_KEY=your_key_here
-   ```
-
-Add these variables to your shell profile (.zshrc, .bashrc) for persistence. Without these keys, built-in tools (WebFetch, WebSearch) still provide full functionality.
+Add this variable to your shell profile (.zshrc, .bashrc) for persistence. Without this key, built-in tools (WebFetch, WebSearch) still provide full functionality.
 
 ### Global Configuration (Optional)
 
@@ -136,15 +128,12 @@ Systematic development workflows including MCP servers, task management commands
 Pre-configured integrations with Model Context Protocol servers. Built-in tools (WebFetch, WebSearch) are prioritized, with MCP servers as fallback for advanced capabilities:
 
 - **Parallel Search**: Advanced web search with agentic mode for complex queries, fact-checking, multi-source synthesis, and deep content extraction (optional API key)
-- **Perplexity**: AI-powered search for broad research and multiple perspectives (optional API key)
 - **Context7**: Library documentation lookup for official API references and technical specs (always available)
-- **Sequential-thinking**: Structured thinking framework for complex analysis (always available)
 
 **Research tool priority order:**
 1. **Built-in tools** (always available): WebFetch (specific URLs) / WebSearch (general searches)
 2. **Parallel Search** (optional): Advanced synthesis, fact-checking, agentic mode, deep extraction
-3. **Perplexity** (optional): Broad surveys
-4. **Context7** (always available): Official technical docs only
+3. **Context7** (always available): Official technical docs only
 
 #### Slash Commands
 
@@ -224,9 +213,7 @@ Multi-skill workflow system using kanban file movement for complex, high-value d
 #### Specialized Agents (6 total)
 
 **Research Agents** (3 agents - all haiku):
-- **research-breadth**: Broad surveys via WebSearch → Parallel Search → Perplexity (industry trends, consensus, multiple perspectives)
-- **research-depth**: Deep-dive via WebFetch → Parallel Search (specific URLs, implementation details, case studies)
-- **research-technical**: Official docs via Context7 (API references, method signatures, configurations)
+- **researcher**: One research agent with three modes — `survey` (broad landscape via WebSearch), `deep-dive` (specific URLs via WebFetch), `official-docs` (API references via the docs tool). Launch one instance per mode.
 
 **Review Agents** (3 agents - all sonnet):
 - **test-coverage-analyzer**: Behavioral test gaps with 1-10 criticality ratings
@@ -306,9 +293,7 @@ ccconfigs/
     ├── .claude-plugin/plugin.json # Plugin metadata
     ├── agents/                    # Specialized agents (6 total)
     │   ├── research/              # Research agents (parallel invocation)
-    │   │   ├── research-breadth.md
-    │   │   ├── research-depth.md
-    │   │   └── research-technical.md
+    │   │   └── researcher.md
     │   └── review/                # Code review agents
     │       ├── test-coverage-analyzer.md
     │       ├── error-handling-reviewer.md

@@ -20,9 +20,9 @@ Skip when:
 
 **Important**: If during brainstorming you realize the user is unclear about *what* they want (not just *how* to approach it), pause and use the **interviewing** skill first. Interviewing clarifies requirements and goals; brainstorming explores approaches and angles. Return to brainstorming once the *what* is clear.
 
-## Critical: User's Thoughts, Not Yours
+## User's Thoughts First
 
-**Your role: Draw out the user's ideas through questions. Never inject your own ideas.**
+Draw out the user's ideas through questions before proposing anything. When you do offer angles (technique 4), build them from what the user has already said — framings of their material, not new topics.
 
 **Use the `AskUserQuestion` tool** to ask clarifying questions. This pauses execution and waits for the user's response, enabling true back-and-forth ideation.
 
@@ -54,15 +54,6 @@ Don't immediately propose outlines or structure. First understand:
 - What's the core insight or argument?
 - What makes this topic relevant now?
 
-**Use `AskUserQuestion` for each clarifying question:**
-```
-AI: [uses AskUserQuestion tool with question="What triggered this - specific experience or pattern you've noticed?"]
-
-User: [responds with their thoughts]
-
-AI: [uses AskUserQuestion tool with question="Is this for engineers, managers, or general audience?"]
-```
-
 **Key questions to ask:**
 - "What triggered this - specific experience or pattern you've noticed?"
 - "Is this for engineers, managers, or general audience?"
@@ -70,8 +61,6 @@ AI: [uses AskUserQuestion tool with question="Is this for engineers, managers, o
 - "Why now? What makes this relevant or timely?"
 
 ## Ideation Techniques
-
-Use `AskUserQuestion` for all of these techniques - each question should pause and wait for user response.
 
 ### 1. Explore Tensions and Contradictions
 Look for interesting conflicts:
@@ -151,7 +140,7 @@ AI: We've clarified:
 
     Ready to create implementation plan?
     → Recommend: /plan-feature [clarified request]
-    → Next agent: planning-agent (uses technical-planning skill)
+    → Next: /plan-feature (uses technical-planning skill)
 ```
 
 **Not ready when:**
@@ -186,13 +175,12 @@ AI: We've got:
 
 ## Common Pitfalls to Avoid
 
-1. **Injecting Your Ideas**: Don't suggest topics or angles the user hasn't mentioned - ask questions to draw out THEIR ideas
+1. **Leading with your topics**: Angles come from the user's material, not from you
 2. **Premature Structuring**: Don't jump to outline before the idea is clear
 3. **Too Many Options**: Don't overwhelm with 10 different angles - offer 2-3
-4. **Leading the Witness**: Ask genuine questions, don't push your preferred angle
-5. **Over-Abstracting**: Keep pulling back to concrete examples
-6. **Ignoring Constraints**: If user says "short post," don't brainstorm epic series
-7. **Making Up Examples**: Don't invent scenarios - use only what the user has shared
+4. **Over-Abstracting**: Keep pulling back to concrete examples
+5. **Ignoring Constraints**: If user says "short post," don't brainstorm epic series
+6. **Making Up Examples**: Don't invent scenarios - use only what the user has shared
 
 ## Quality Checklist
 
@@ -225,6 +213,6 @@ For detailed conversation examples showing brainstorming techniques in action, s
 - **Throughout**: Update braindump.md with evolving ideas
 
 **For Projects:**
-- **After brainstorming**: Transition to **technical-planning** skill via planning-agent
+- **After brainstorming**: Transition to **technical-planning** skill via /plan-feature
 - **During brainstorming**: Use **research-synthesis** skill to investigate approaches, docs, patterns
 - **Throughout**: Update discovery.md with findings and clarifications

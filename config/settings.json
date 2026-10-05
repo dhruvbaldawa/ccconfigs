@@ -8,7 +8,6 @@
   "permissions": {
     "allow": [
       "Bash(cat:*)",
-      "Bash(chmod:*)",
       "Bash(curl:*)",
       "Bash(docker compose:*)",
       "Bash(du:*)",
@@ -33,8 +32,6 @@
       "Bash(obsidian-cli files:*)",
       "Bash(obsidian-cli links:*)",
       "Bash(pnpm:*)",
-      "Bash(python3:*)",
-      "Bash(python:*)",
       "Bash(qmd search:*)",
       "Bash(rg:*)",
       "Bash(source:*)",
@@ -65,11 +62,6 @@
       "mcp__plugin_mcp_essentials__brave-search__brave_place_search",
       "mcp__plugin_mcp_essentials__parallel-search__web_fetch",
       "mcp__plugin_mcp_essentials__parallel-search__web_search_preview",
-      "mcp__plugin_essentials_firecrawl__firecrawl_scrape",
-      "mcp__plugin_essentials_firecrawl__firecrawl_search",
-      "mcp__plugin_essentials_perplexity__reason",
-      "mcp__plugin_essentials_perplexity__search",
-      "mcp__plugin_essentials_sequential-thinking__sequentialthinking",
       "mcp__plugin_discord_discord__reply",
       "mcp__plugin_discord_discord__react",
       "mcp__plugin_discord_discord__edit_message",
@@ -94,7 +86,7 @@
     ],
     "defaultMode": "auto"
   },
-  "model": "sonnet",
+  "model": "fable",
   "hooks": {
     "PreToolUse": [
       {
@@ -308,7 +300,12 @@
     "allowRead": true
   },
   "syntaxHighlightingDisabled": false,
-  "effortLevel": "xhigh",
+  "effortLevel": "high",
+  "modelSettings": {
+    "claude-fable-5-1": {
+      "effortLevel": "low"
+    }
+  },
   "showClearContextOnPlanAccept": true,
   "autoUpdatesChannel": "latest",
   "autoDreamEnabled": true,
@@ -321,5 +318,38 @@
   "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true,
+  "autoMode": {
+    "soft_deny": [
+      "$defaults",
+      "Bash(ssh -p 2222 dhruv@pastel.dhruv.cc:*docker compose restart cloudflared*) — treat cloudflared restarts on pastel as routine per PocketBase skill doc, but flag other remote docker compose writes to managed servers per Remote Shell Writes default"
+    ],
+    "environment": [
+      "### Org-wide",
+      "**Organization**: None configured",
+      "**Primary use of Claude Code**: software development (infra/pyinfra deploys, Ansible hardening, PocketBase/stack ops for dhruv.cc servers)",
+      "**Cloud provider(s)**: None configured",
+      "**Repository visibility**: private (dhruvbaldawa/devserver, per gh)",
+      "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
+      "**Secrets management**: SOPS (sops-encrypted files: stacks/hosts/pastel/secrets.sops.env; scripts/check-secrets-encrypted.sh and Makefile/justfile targets encrypt, encrypt-secrets enforce this); CI secrets DEPLOY_SSH_PRIVATE_KEY, SSH_KNOWN_HOSTS referenced by name only",
+      "**Default / protected branches**: main (default); Protected branches: none listed, Rulesets not queryable here — treat as possibly protected via ruleset, do not assume unprotected",
+      "**CI/CD deploy targets**: None configured",
+      "**Network posture**: Tailscale VPN + Cloudflare Tunnel for remote/public access to managed servers (hercules.dhruv.cc, store.dhruv.cc, pastel.dhruv.cc), SSH hardened on port 2222",
+      "**Source control**: github.com:dhruvbaldawa/devserver.git (origin) — this repo and its remote only",
+      "**Trusted internal domains**: dhruv.cc and subdomains (hercules.dhruv.cc, store.dhruv.cc, pastel.dhruv.cc, pb.dhruv.cc, sites.dhruv.cc) as documented in this repo's README and skill docs",
+      "**Trusted cloud buckets**: None configured",
+      "**Key internal services**: pb.dhruv.cc (PocketBase BaaS for sites.dhruv.cc frontends), Cloudflare Access / Cloudflare Tunnel (cloudflared) ingress on pastel, per this repo's skill docs",
+      "**Internal package registry**: None configured",
+      "**Sensitive data locations & audiences**: stacks/hosts/pastel/.env, stacks/hosts/pastel/secrets.sops.env (SOPS-encrypted), CI secrets DEPLOY_SSH_PRIVATE_KEY and SSH_KNOWN_HOSTS (names only, no values), ~/.ssh/id_server_dhruv (private key referenced in README prerequisites); share only with audiences cleared at the [named+specifics] bar",
+      "**Data retention / declassification**: None configured",
+      "**Sensitive remote targets**: any namespace/host/container with `prod`/`production` as a whole word or segment; also treat the managed servers hercules.dhruv.cc, store.dhruv.cc, pastel.dhruv.cc as live production infrastructure for this repo (hardened, internet-facing deploy targets)",
+      "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic",
+      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod` or `production` as a whole word or name segment; also the Ansible hardening playbooks and pyinfra deploys in this repo (SSH hardening, firewall/nftables, Fail2Ban) touching the managed servers listed above",
+      "### User-specific",
+      "**Primary use of Claude Code**: software development",
+      "**Trusted repo**: /Users/dhruv/Code/devserver (working directory) and its remote github.com:dhruvbaldawa/devserver.git (private) — confidential material (e.g. non-secret config) fine to commit here; secrets/credentials never cleared into the repo regardless of visibility",
+      "**Org-specific CLIs**: None configured",
+      "routine under stacks/, infra/, tests/, and scripts/ prefixes in this repo treated as this project's normal working area"
+    ]
+  },
   "tmuxPassthrough": true
 }

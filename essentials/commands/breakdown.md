@@ -104,7 +104,6 @@ Status: **Pending**
 - Validation should prefer automated tests/scripts but may include human review items
 - Use **bold** for filenames, routes, commands, entities to improve readability
 - Keep the entire answer pure Markdown; do not embed explanatory prose outside of the required structure
-- You may run into output token limits, so write one iteration at a time in the document, then add another one
 - Focus on **what** needs to be achieved and **why**, not **how** to implement it
 - When you must be specific (e.g., "use existing auth middleware pattern"), provide context about where to find examples
 - Encourage learning and discovery during implementation rather than prescribing all decisions upfront

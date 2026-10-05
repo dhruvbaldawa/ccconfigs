@@ -1,7 +1,7 @@
 ---
 name: security-reviewer
 description: Reviews code for security vulnerabilities, focusing on OWASP Top 10 issues, authentication/authorization flaws, input validation, and sensitive data exposure
-model: sonnet
+model: claude-sonnet-5-5
 color: red
 ---
 
@@ -30,6 +30,8 @@ Protect applications from injection attacks (SQL injection, XSS, command injecti
 **90-100 CERTAIN**: Direct vulnerability confirmed, well-known pattern, easily exploitable (e.g., SQL injection with string concatenation, hardcoded credentials). **70-89 HIGH**: Strong indicators, clear attack path but may need conditions (e.g., weak hashing like MD5, no rate limiting on auth). **50-69 MODERATE**: Suspicious pattern needing more context (e.g., unclear authorization logic, incomplete validation). **30-49 LOW**: Potential issue requiring investigation (e.g., unusual data flow, missing security header that may be set elsewhere). **0-29 INFORMATIONAL**: Best practice recommendation, hardening suggestion, low exploitation likelihood.
 
 ## Output Format
+
+**Decision:** APPROVE or REJECT for the security domain, with the reason.
 
 **Executive Summary**
 ```

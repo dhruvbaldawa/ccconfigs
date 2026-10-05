@@ -31,7 +31,7 @@ description: Turns a debugging/design session into a polished, concept-first Art
 
 ### Step 0 — Load artifact-design
 
-The Artifact tool refuses to render well-designed pages without it. Call the `artifact-design` skill before writing a single line of HTML. Do this even if you've written explainer artifacts before in this session — it calibrates design investment per request.
+The Artifact tool requires the `artifact-design` skill to be loaded before any HTML is written; load it at the start of every explainer, since it calibrates design investment per request.
 
 ### Step 1 — Gather the story before writing
 

@@ -17,11 +17,6 @@ When a task moves from STUCK to resolved, or from REJECTED to approved after fix
 - STUCK → resolved (blocker unblocked)
 - REJECTED → approved (review issues fixed)
 
-**Phrase-based (during implementation):**
-- "that worked", "it's fixed", "figured it out", "problem solved", "got it working"
-- When detected, user is prompted: "Capture this learning? (y/n)"
-- Captures solutions while context is fresh
-
 **Manual:**
 - Direct invocation when user wants to document a solution
 

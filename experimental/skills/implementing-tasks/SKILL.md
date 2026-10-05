@@ -66,30 +66,16 @@ When blocked during implementation:
 
 ### 2. Launch Research Agents
 
-Based on blocker type, launch 2-3 agents in parallel:
+Launch 2-3 `researcher` agents in parallel, each in a mode matching the blocker:
 
-**New technology/framework** → `research-breadth` + `research-technical`:
-- research-breadth: General understanding of technology/approach
-- research-technical: Official API documentation
-
-**Specific error/issue** → `research-depth` + `research-technical`:
-- research-depth: Detailed analysis of specific solutions
-- research-technical: Official API documentation
-
-**API integration** → `research-technical` + `research-depth`:
-- research-technical: Official API documentation
-- research-depth: Detailed implementation examples
-
-**Best practices/patterns** → `research-breadth` + `research-depth`:
-- research-breadth: General surveys and comparisons
-- research-depth: Detailed analysis of specific approaches
+- **survey**: new technology or approach, best practices, comparisons
+- **deep-dive**: specific error, issue, or implementation examples
+- **official-docs**: API integration, library or framework specifics
 
 Example:
-```bash
-# Launch agents with specific questions
-research-breadth "How to [solve blocker]?"
-research-depth "Detailed solutions for [specific issue]"
-research-technical "[library/framework] official documentation for [feature]"
+```
+Task(description: "Survey [technology]", prompt: "Mode: survey. How to [solve blocker]?", subagent_type: "experimental:research:researcher")
+Task(description: "Official docs for [feature]", prompt: "Mode: official-docs. [library] documentation for [feature]", subagent_type: "experimental:research:researcher")
 ```
 
 ### 3. Synthesize Findings
@@ -128,11 +114,8 @@ Update task file with research findings using Edit tool (add to end of task file
     - What worked: [resolution notes]
     - Task: [task file path]
 
-    Generate a learning document following the template in experimental/templates/learning.md.
-    Save to: .plans/<project>/learnings/[YYYYMMDD-NNN-slug].md
-    Update: .plans/<project>/learnings/index.md with new entry",
-    subagent_type: "general-purpose",
-    model: "haiku"
+    Save under: .plans/<project>/learnings/",
+    subagent_type: "experimental:capture:knowledge-capturer"
   )
   ```
 - Resume implementation following research guidance
@@ -208,38 +191,3 @@ Before setting final status, collect metadata for review triage:
 This metadata enables the review skill to route to LIGHTWEIGHT or FULL review.
 
 Report: `✅ Implementation complete. Status: [STATUS]`
-
-## Phrase-Based Learning Capture
-
-During implementation, watch for phrases that indicate problem resolution:
-- "that worked"
-- "it's fixed"
-- "figured it out"
-- "problem solved"
-- "got it working"
-
-When detected:
-1. Pause implementation
-2. Ask: "Capture this as a learning? (y/n)"
-3. If yes, invoke knowledge-capturer:
-   ```
-   Task(
-     description: "Capture learning from resolution",
-     prompt: "Extract the learning from this problem resolution.
-
-     Context:
-     - What was being attempted: [from recent conversation]
-     - What was tried: [approaches that failed]
-     - What worked: [the resolution]
-     - Task: [task file path]
-
-     Generate a learning document following the template in experimental/templates/learning.md.
-     Save to: .plans/<project>/learnings/[YYYYMMDD-NNN-slug].md
-     Update: .plans/<project>/learnings/index.md with new entry",
-     subagent_type: "general-purpose",
-     model: "haiku"
-   )
-   ```
-4. Resume implementation
-
-This captures solutions while context is fresh, before details are forgotten.

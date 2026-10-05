@@ -10,7 +10,7 @@ Before/after examples across different use cases demonstrating the application o
 - [Example 4: Long Document Analysis](#example-4-long-document-analysis)
 - [Example 5: Agent Workflow with Tools](#example-5-agent-workflow-with-tools)
 - [Example 6: Repeated Queries with Caching](#example-6-repeated-queries-with-caching)
-- [Example 7: Format Conversion with Prefilling](#example-7-format-conversion-with-prefilling)
+- [Example 7: Format Conversion with Structured Outputs](#example-7-format-conversion-with-structured-outputs)
 - [Example 8: Simple Task (Minimal Techniques)](#example-8-simple-task-minimal-techniques)
 - [Complexity Progression](#complexity-progression)
 - [Anti-Pattern Examples](#anti-pattern-examples)
@@ -55,19 +55,15 @@ For each issue found, provide:
 <code>
 [Code to review]
 </code>
-
-<thinking>
-Analyze the code systematically for each category before providing your review.
-</thinking>
 ```
 
 **Techniques Applied:**
 - Clarity: Specific review categories and output format
 - XML Structure: Separate role, instructions, code
 - System Role: Senior software engineer
-- Chain of Thought: Explicit thinking step
+- Effort: run at `high` for a thorough review
 
-**Cost:** ~300 tokens → 2-3x output tokens for thinking
+**Cost:** ~250 tokens
 **Benefit:** Comprehensive, structured reviews with clear action items
 
 ---
@@ -125,7 +121,7 @@ Output: {
 - Clarity: Specific fields to extract
 - XML Structure: Separate sections
 - Multishot Examples: Two examples showing pattern and edge cases
-- Prefilling: Could add `{` to start JSON response
+- Structured Outputs: add `output_config.format` with the four-field schema for guaranteed JSON
 
 **Cost:** ~400 tokens (200 per example)
 **Benefit:** Consistent structured extraction, handles null values correctly
@@ -159,17 +155,7 @@ Recent changes: Added pagination feature
 </context>
 
 <instructions>
-Analyze this bug systematically:
-
-<thinking>
-1. What does the error message tell us?
-2. Which code path leads to this error?
-3. What are the possible causes?
-4. Which cause is most likely given recent changes?
-5. What would fix the root cause?
-</thinking>
-
-Then provide:
+Find the root cause of this bug, not just the symptom. Provide:
 - Root cause explanation
 - Specific code fix
 - Prevention strategy
@@ -181,12 +167,12 @@ Then provide:
 ```
 
 **Techniques Applied:**
-- Clarity: Systematic analysis steps
+- Clarity: Goal (root cause) and required output stated; the model plans its own analysis
+- Context: Error, stack trace, and recent changes supplied
 - XML Structure: Separate role, context, instructions, code
-- Chain of Thought: Explicit 5-step thinking process
 - System Role: Expert debugger
 
-**Cost:** ~250 tokens → 2-3x output for thinking
+**Cost:** ~150 tokens; raise `effort` for hard bugs
 **Benefit:** Root cause identification, not just symptom fixes
 
 ---
@@ -305,30 +291,16 @@ When to use: User asks for calculations, percentage changes, or numerical analys
 </tool>
 </tools>
 
-<workflow>
-1. Understand user intent
-2. Determine if tools are needed:
-   - Information needs → semantic_search
-   - Math needs → calculate
-   - Both → search first, then calculate
-3. Use tool results to form your response
-4. Cite sources when using search results
-</workflow>
-
-<thinking>
-For each user query, reason through:
-- What information or calculation is needed?
-- Which tool(s) would help?
-- In what order should I use them?
-</thinking>
+<instructions>
+Cite sources when your answer draws on search results.
+</instructions>
 ```
 
 **Techniques Applied:**
-- Clarity: Detailed tool descriptions with examples
+- Clarity: Detailed tool descriptions with examples; one output requirement
 - XML Structure: Organized tool documentation
 - System Role: Research assistant
-- Tool Documentation: When to use, parameters, examples
-- Chain of Thought: Reasoning about tool selection
+- Tool Documentation: When to use, parameters, examples (tool selection lives in the descriptions, not a workflow script)
 
 **Cost:** ~600 tokens for tool docs
 **Benefit:** Correct tool selection, proper parameter formatting, strategic tool use
@@ -392,7 +364,7 @@ What's the return policy for electronics?
 
 ---
 
-## Example 7: Format Conversion with Prefilling
+## Example 7: Format Conversion with Structured Outputs
 
 ### Before (Poor)
 
@@ -433,9 +405,13 @@ Customer John Smith, ID 12345, ordered 3 items for $150
 </input>
 ```
 
-**With Prefilling:**
-```
-Assistant: {
+**With Structured Outputs:**
+```python
+client.messages.parse(
+    model="claude-opus-5",
+    output_config={"format": {"type": "json_schema", "schema": CustomerOrder}},
+    messages=[...],
+)
 ```
 
 **Response:**
@@ -451,10 +427,10 @@ Assistant: {
 **Techniques Applied:**
 - Clarity: Specific field names
 - XML Structure: Separate instructions and input
-- Prefilling: Start with `{` to force JSON format
+- Structured Outputs: schema enforced by the API
 
 **Cost:** Saves ~15 tokens per response (preamble)
-**Benefit:** Consistent format, easier parsing, cost savings at scale
+**Benefit:** Guaranteed format, no parsing retries
 
 ---
 
@@ -477,7 +453,7 @@ Expected: +15551234567
 
 **Techniques Skipped:**
 - XML Structure: Single-section prompt, unnecessary
-- Chain of Thought: Trivial task
+- High effort: Trivial task (run at `low`)
 - Examples: One is enough
 - System Role: No expertise needed
 - Long Context: Short input
@@ -492,7 +468,7 @@ Expected: +15551234567
 
 ## Complexity Progression
 
-### Level 1: Simple (Haiku)
+### Level 1: Simple (Haiku 4.5 or low effort)
 ```
 Extract the email address from: "Contact John at john@example.com"
 ```
@@ -500,7 +476,7 @@ Extract the email address from: "Contact John at john@example.com"
 - ~15 tokens
 - Obvious single answer
 
-### Level 2: Medium (Sonnet)
+### Level 2: Medium (Sonnet 5)
 ```xml
 <instructions>
 Analyze this code for potential bugs:
@@ -517,24 +493,16 @@ Analyze this code for potential bugs:
 - ~100 tokens
 - Requires some analysis
 
-### Level 3: Complex (Sonnet with Thinking)
+### Level 3: Complex (Opus 5 at high effort)
 ```xml
 <role>
 You are a security researcher analyzing potential vulnerabilities.
 </role>
 
 <instructions>
-Analyze this authentication system for security vulnerabilities.
+Analyze this authentication system for security vulnerabilities, covering authentication flows, credential handling, session management, and injection risks.
 
-<thinking>
-1. What are the authentication flows?
-2. Where could an attacker bypass auth?
-3. Are credentials handled securely?
-4. What about session management?
-5. Are there injection risks?
-</thinking>
-
-Then provide:
+Provide:
 - Vulnerabilities found (severity + location)
 - Exploitation scenarios
 - Remediation steps
@@ -544,8 +512,8 @@ Then provide:
 [Auth system code]
 </code>
 ```
-- Clarity + XML + Role + Chain of Thought
-- ~350 tokens
+- Clarity + XML + Role + high effort
+- ~250 tokens
 - Complex security analysis
 
 ---
@@ -617,7 +585,7 @@ I have these 5 documents about different topics and I want you to find common th
 2. **Start minimal**: Add techniques only when justified
 3. **Structure scales**: XML becomes essential with complexity
 4. **Examples teach patterns**: Better than description for formats
-5. **Thinking improves reasoning**: But costs 2-3x tokens
+5. **Thinking is automatic**: tune `effort`, don't script reasoning steps
 6. **Caching saves money**: Structure for reuse
 7. **Placement matters**: Documents before queries
 8. **Tools need docs**: Clear descriptions → correct usage
@@ -641,7 +609,7 @@ Consider:
 - What analysis steps are needed?
 - What format should output take?
 - Does it need examples?
-- Would thinking help?
+- What effort level does it need?
 - Should data be structured?
 - What about cost optimization?
 

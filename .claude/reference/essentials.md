@@ -20,9 +20,9 @@
 
 **brainstorming**: Collaborative ideation for projects and writing. Asks clarifying questions, suggests angles, challenges assumptions, helps refine vague ideas into concrete requirements or topics. Context-aware transitions - guides to technical-planning for projects or blog-writing for posts. Emphasizes drawing out user's ideas (not injecting your own).
 
-**research-synthesis**: Research tool usage patterns and synthesis methodology. Prioritizes built-in tools (WebFetch for URLs, WebSearch for general queries), uses MCP servers as fallback (Parallel Search for advanced synthesis, Perplexity for broad surveys, Context7 for technical docs). Synthesizes findings into narrative (not just lists), integrates naturally during conversation, maintains source attribution. Includes decision tree and quality standards.
+**research-synthesis**: Research tool usage patterns and synthesis methodology. Prioritizes built-in tools (WebFetch for URLs, WebSearch for general queries), uses MCP servers as fallback (Parallel Search for advanced synthesis, Context7 for technical docs). Synthesizes findings into narrative (not just lists), integrates naturally during conversation, maintains source attribution. Includes decision tree and quality standards.
 
-**debugging**: Systematic debugging using UNDERSTAND methodology (10-step checklist). Focuses on root cause analysis over symptom treatment. Prioritizes built-in tools (WebSearch) then MCP servers (Parallel Search for advanced research, Perplexity for broad surveys, Context7 for official docs, SequentialThinking for complex analysis). Includes antipattern awareness and decision framework for when to use which tools. Reference materials document common debugging failures.
+**debugging**: Systematic debugging using UNDERSTAND methodology (10-step checklist). Focuses on root cause analysis over symptom treatment. Prioritizes built-in tools (WebSearch) then MCP servers (Parallel Search for advanced research, Context7 for official docs). Includes antipattern awareness and decision framework for when to use which tools. Reference materials document common debugging failures.
 
 **technical-planning**: Risk-first development methodology with Last Responsible Moment decision-making. Four-phase approach: Requirements & Risk Analysis, Milestone Planning, Implementation Strategy, Execution Framework. Emphasizes "what" over "how", defers implementation decisions until execution, manages deferral explicitly, and addresses highest-risk challenges first. Includes decision timing framework (what to decide early vs. defer), task breakdown guidelines (outcome-focused vs. prescriptive), and decision framework for handling unclear requirements.
 
@@ -46,23 +46,20 @@
 
 ## Agents
 
-**senior-engineer-reviewer** (claude-opus-4-6[1m], xhigh): Brutal architecture/maintainability review with a round-aware contract — first review judges the diff against the whole repo; re-reviews are delta-only against prior findings. Verdicts on the shared reviewer scale: REJECT / NEEDS WORK / APPROVED WITH RESERVATIONS / SHIP IT — approved means the last two. Writes only to the task workspace, never the code under review. Half of the conveyor review gate.
+**senior-engineer-reviewer** (claude-opus-5-5, medium): Brutal architecture/maintainability review with a round-aware contract — first review judges the diff against the whole repo; re-reviews are delta-only against prior findings. Verdicts on the shared reviewer scale: REJECT / NEEDS WORK / APPROVED WITH RESERVATIONS / SHIP IT — approved means the last two. Writes only to the task workspace, never the code under review. Half of the conveyor review gate.
 
-**test-reviewer** (sonnet, xhigh): Brutal test-quality review — useless tests, flaky patterns, missing assertions, isolation failures; same round-aware contract. Verdicts on the same shared scale: REJECT / NEEDS WORK / APPROVED WITH RESERVATIONS / SHIP IT — approved means the last two. The other half of the gate.
+**test-reviewer** (claude-sonnet-5-5, medium): Brutal test-quality review — useless tests, flaky patterns, missing assertions, isolation failures; same round-aware contract. Verdicts on the same shared scale: REJECT / NEEDS WORK / APPROVED WITH RESERVATIONS / SHIP IT — approved means the last two. The other half of the gate.
 
 ## MCP Servers
 
 **Priority:** Built-in tools (WebFetch, WebSearch) are used first, MCP servers as fallback for advanced capabilities.
 
 - **Parallel Search**: Advanced web search with agentic mode for complex queries, fact-checking, multi-source synthesis, and deep content extraction (optional API key)
-- **Perplexity**: AI-powered search for broad research and multiple perspectives (optional API key)
 - **Context7**: Library documentation lookup for official API references and technical specs (always available)
-- **Sequential-thinking**: Structured thinking framework for complex analysis (always available)
 
 **Research tool priority order:**
 1. WebFetch (specific URLs) / WebSearch (general searches) - always available
 2. Parallel Search (advanced synthesis, fact-checking, deep extraction) - optional
-3. Perplexity (broad surveys) - optional
-4. Context7 (official technical docs only) - always available
+3. Context7 (official technical docs only) - always available
 
-Skills reference MCP tools by prefixed names (e.g., `Context7:get-library-docs`, `Parallel-Search:web_search_preview`, `Perplexity:search`).
+Skills reference MCP tools by prefixed names (e.g., `context7__query-docs`, `Parallel-Search:web_search_preview`).

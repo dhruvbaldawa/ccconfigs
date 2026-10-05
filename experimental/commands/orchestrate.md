@@ -41,7 +41,6 @@ Follow same workflow as `/implement-plan <project-name>`:
 Project: <project-name>
 Tasks: X/X completed (Foundation: Y, Integration: Z, Polish: W)
 
-Average Review Scores: Security: XX/100 | Quality: XX/100 | Performance: XX/100 | Tests: XX/100
 Final Test Coverage: XX% | Full suite: XXX/XXX passing
 Tasks rejected during review: Y (fixed)
 

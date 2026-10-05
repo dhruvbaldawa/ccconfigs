@@ -12,7 +12,7 @@ You: I want to argue that OKRs fail because they measure outputs not outcomes
 AI: [invokes research-synthesis]
     That's a common critique - let me see if there's data to support it...
 
-    [uses Perplexity: "OKR failures output vs outcome measurement"]
+    [uses WebSearch: "OKR failures output vs outcome measurement"]
 
     Found strong supporting evidence:
 
@@ -33,7 +33,7 @@ AI: [invokes research-synthesis]
 
 You: Yes, give me 2-3 examples
 
-AI: [uses Perplexity: "good OKR outcome metrics examples"]
+AI: [uses WebSearch: "good OKR outcome metrics examples"]
 
     Strong examples:
 
@@ -52,7 +52,7 @@ AI: [uses Perplexity: "good OKR outcome metrics examples"]
 ## What This Example Demonstrates
 
 **MCP Tool Selection:**
-- Used Perplexity for broad research (not a specific URL)
+- Used WebSearch for broad research (not a specific URL)
 - Searched for both validation and examples
 - Second query built on first findings
 
