@@ -44,6 +44,10 @@
 
 **wait-what**: The last message did not land. Re-pitch it with context, in ASD-STE100 Simplified Technical English, using the project's established vocabulary — starting from the step the user fell off at, not louder.
 
+**retro**: Retrospective on a coding session (current by default, or one named from session logs) that proposes improvements to the agent's *environment*, not the code: navigation pointers, automated checks and guardrails (mechanical violations get a deterministic check, not a rule), reviewer coding standards, oversized CLAUDE.md, tool economy, no-op instructions, information access. Candidates presented in order of severity. User-invoked only.
+
+**pr**: PR body template — Summary (smallest useful visual: pseudocode, call/component/file tree, Mermaid, or diff-sketch), Evidence (before/after; screenshots or test output), Merge Danger (one-way vs two-way door, blast radius). Credits Dex Horthy's `show-me` via mattpocock/skills.
+
 ## Agents
 
 **senior-engineer-reviewer** (claude-opus-5-5, medium): Brutal architecture/maintainability review with a round-aware contract — first review judges the diff against the whole repo; re-reviews are delta-only against prior findings. Verdicts on the shared reviewer scale: REJECT / NEEDS WORK / APPROVED WITH RESERVATIONS / SHIP IT — approved means the last two. Writes only to the task workspace, never the code under review. Half of the conveyor review gate.
