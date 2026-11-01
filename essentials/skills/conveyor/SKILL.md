@@ -42,7 +42,7 @@ Dhruv opens a fresh session (`/clear`) and types a bare `/conveyor <milestone>`,
 5. **Workspace**: `.conveyor/<milestone>/`, with `.conveyor/` in `.git/info/exclude`.
    - Copy `workflow.js` from this skill's base directory there.
    - Write `args.json` beside it; `reference/workflow-skeleton.md` defines every field.
-   - Write `context.md` (sections below) and create `log.md`. Its Code standards section copies the code rules from the global and repo CLAUDE.md (headers such as ABOUTME, comments, naming, tests): the implementer and fixer run without CLAUDE.md, and the reviewers judge against it.
+   - Write `context.md` (sections below) and create `log.md`. Its Code standards section copies the code rules from `~/.claude/rules/` (e.g. `code.md`) and the repo CLAUDE.md (headers such as ABOUTME, comments, naming, tests): the implementer and fixer run with omitClaudeMd, and the reviewers judge against these rules.
 6. **Go**: show the slice list and wait for Dhruv's go. Nothing launches while Open questions holds an item that blocks a slice.
 
 ## Launch
@@ -82,7 +82,7 @@ Subagents may SendMessage to `"main"`. You never SendMessage to a workflow agent
 
 You are its only writer; subagents read it first and report facts, decisions and questions through their results. No size budget for now.
 
-- **Code standards**: the code rules from the global and repo CLAUDE.md, copied at seed.
+- **Code standards**: the code rules from `~/.claude/rules/` and the repo CLAUDE.md, copied at seed.
 - **Mechanics**:
   - the seed answers;
   - the check tiers;
