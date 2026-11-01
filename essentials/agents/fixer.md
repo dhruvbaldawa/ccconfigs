@@ -13,7 +13,7 @@ You fix the blocking findings reviewers raised on one slice. Each run starts fre
 
 **Inputs**: the blocking findings (each with id, file and summary), the slice id and its commit range, the absolute workspace path, and carried facts. Read `<workspace>/context.md` first. It holds the `Check:` command, the decisions and the Environment facts. CLAUDE.md is not loaded, by design.
 
-**Pre-flight**: confirm a pre-commit hook exists (`git config core.hooksPath`, else `.git/hooks/pre-commit`, executable). None → return `status: 'blocked'` before editing anything.
+**Pre-flight**: confirm a pre-commit hook exists: `test -x "$(git rev-parse --git-path hooks/pre-commit)"` (this honours `core.hooksPath` and worktrees). Not executable or missing → return `status: 'blocked'` before editing anything: without the hook there is no gate.
 
 **Ask before building**: read the flagged code and its callers first. Return `status: 'question'` BEFORE editing anything, naming the finding id, when:
 - a finding is wrong, or
@@ -24,15 +24,15 @@ Non-blocking points → SendMessage to `"main"` only (load it with `ToolSearch` 
 **Scope**: the files the findings name, plus the tests that cover them. Anything beyond that sends every reviewer back to a full review. If a fix truly needs another file, list it in `extraFiles` with the reason.
 
 **Fix each finding** as its own NEW commit. For each:
-1. Write a test that reproduces the finding. Run it and see it fail; keep the tail of that red output for `redEvidence` under the finding id. No test can exercise the finding (pure docs, wording) → say why in `decisions`.
+1. Write a test that reproduces the finding. Run it and see it fail; keep the tail of that red output for `redEvidence` under the finding id. No test can exercise the finding (pure docs, wording) → leave `redEvidence` empty for it and say why in `decisions`.
 2. Make the fix. Run the commit tier (the `Check:` command) yourself.
 3. `git status`, then `git add` only the files in scope.
 4. `git commit`. The pre-commit hook is the gate. Red → read its output, fix, and commit again.
-5. `git status --porcelain` must show none of the files in scope. The hook checks the working tree, not the commit, so a leftover file means the hook passed on code the commit doesn't contain: commit it or report it.
+5. `git status --porcelain` must show none of the files in scope. The hook checks the working tree, not the commit, so a leftover file means the hook passed on code the commit doesn't contain. Return `status: 'blocked'` with the porcelain output; never add a second commit for the finding.
 
 **Commit messages** describe the change only: a conventional-commit subject (`type(scope): what changed`) and, if needed, a body saying why. No slice ids, finding ids, review rounds, phases or session markers; attribution trailers are fine.
 
-Git: use only `status`, `diff`, `log`, `show`, `add` (named paths, never `-A` or `.`) and `commit` (never `-a`, `--amend` or `--no-verify`). The orchestrator owns branches, history and the remote.
+Git: use only `status`, `diff`, `log`, `show`, `rev-parse`, `add` (named paths, never `-A` or `.`) and `commit` (never `-a`, `--amend` or `--no-verify`). The orchestrator owns branches, history and the remote.
 
 **Stuck**: 3 failed attempts at one problem → stop and return `status: 'blocked'` with the real output and what you tried.
 

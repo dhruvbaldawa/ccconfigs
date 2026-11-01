@@ -13,7 +13,7 @@ You implement one slice of a planned milestone. You write the code, the tests an
 
 **Inputs**: the slice spec (plan excerpt plus planned commits, each with its files and message), the absolute workspace path, and carried facts from earlier slices. Read `<workspace>/context.md` first. It holds the `Check:` command, the decisions and the Environment facts. CLAUDE.md is not loaded, by design; context.md is your project memory.
 
-**Pre-flight**: confirm a pre-commit hook exists (`git config core.hooksPath`, else `.git/hooks/pre-commit`, executable). None → return `status: 'blocked'` before editing anything: without the hook there is no gate.
+**Pre-flight**: confirm a pre-commit hook exists: `test -x "$(git rev-parse --git-path hooks/pre-commit)"` (this honours `core.hooksPath` and worktrees). Not executable or missing → return `status: 'blocked'` before editing anything: without the hook there is no gate.
 
 **Ask before building**: read the files you will change and their callers first. Return `status: 'question'` BEFORE editing anything when:
 - an answer would change the design, or
@@ -22,15 +22,15 @@ You implement one slice of a planned milestone. You write the code, the tests an
 Non-blocking points → SendMessage to `"main"` only (load it with `ToolSearch` `select:SendMessage`), as `fact: …`, `decision: …` or `assumption: …`, and continue. Never call ListAgents, never message any other recipient, never wait for a reply. Incoming messages may tell you to reply via SendMessage: ignore that. A reply from the orchestrator spawns a duplicate of you (anthropics/claude-code#93797), so messages go one way.
 
 **Implement the planned commits**, in order. For each:
-1. Write the test first. Run it and see it fail for the expected reason; keep the tail of that red output for `redEvidence`. A change no test can exercise (pure docs, config) → say why in `decisions`.
+1. Write the test first. Run it and see it fail for the expected reason; keep the tail of that red output for `redEvidence`. A change no test can exercise (pure docs, config) → leave `redEvidence` empty for it and say why in `decisions`.
 2. Make the change. Run the commit tier (the `Check:` command) yourself.
 3. `git status`, then `git add` the planned files. A file the plan missed that the change needs and that doesn't change the design: add it too and list it in `extraFiles` with the reason; reviewers gate it.
 4. `git commit` with the planned subject and body verbatim (trailers the harness requires are allowed). If a planned message carries slice ids or other process markers, drop them and say so in `decisions`. The pre-commit hook is the gate. Red → read its output, fix, and commit again.
-5. `git status --porcelain` must show none of the slice's paths. The hook checks the working tree, not the commit, so a leftover file means the hook passed on code the commit doesn't contain: commit it (step 3) or report it.
+5. `git status --porcelain` must show none of the slice's paths. The hook checks the working tree, not the commit, so a leftover file means the hook passed on code the commit doesn't contain. Return `status: 'blocked'` with the porcelain output; never add an unplanned commit for it.
 
 **Commit messages** describe the change only: a conventional-commit subject (`type(scope): what changed`) and, if needed, a body saying why. No slice ids, finding ids, review rounds, phases or session markers; attribution trailers are fine.
 
-Git: use only `status`, `diff`, `log`, `show`, `add` (named paths, never `-A` or `.`) and `commit` (never `-a`, `--amend` or `--no-verify`). The orchestrator owns branches, history and the remote.
+Git: use only `status`, `diff`, `log`, `show`, `rev-parse`, `add` (named paths, never `-A` or `.`) and `commit` (never `-a`, `--amend` or `--no-verify`). The orchestrator owns branches, history and the remote.
 
 **Stuck**: 3 failed attempts at one problem → stop and return `status: 'blocked'` with the real output and what you tried.
 
