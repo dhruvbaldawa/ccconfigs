@@ -534,6 +534,20 @@ describe('exception contents', () => {
     expect(b.result).toMatchObject({ kind: 'simplify-blocked', facts: ['F-B'] });
   });
 
+  const fixerExits: Array<[string, Record<string, any>, Record<string, Responder>, string]> = [
+    ['review-loop fixer question', {}, { 'review:senior:': () => needsWork('x'), 'fix:': () => ({ status: 'question', questions: ['q'], summary: 's', facts: ['F-X'] }) }, 'question'],
+    ['review-loop fixer blocked', {}, { 'review:senior:': () => needsWork('x'), 'fix:': () => ({ status: 'blocked', summary: 's', facts: ['F-X'] }) }, 'fixer-blocked'],
+    ['run-check fixer question', { runCheck: 'rc' }, { 'run-check:': () => ({ pass: false, tail: 't' }), 'fix:run-check': () => ({ status: 'question', questions: ['q'], summary: 's', facts: ['F-X'] }) }, 'question'],
+    ['run-check fixer blocked', { runCheck: 'rc' }, { 'run-check:': () => ({ pass: false, tail: 't' }), 'fix:run-check': () => ({ status: 'blocked', summary: 's', facts: ['F-X'] }) }, 'fixer-blocked'],
+  ];
+  for (const [name, over, responders, kind] of fixerExits) {
+    test(`${name}: the fixer's own facts reach the exception`, async () => {
+      const { result } = await run(ARGS({ slices: [SLICE('s1')], ...over }), { ...ok, ...responders });
+      expect(result).toMatchObject({ kind });
+      expect(result.facts).toContain('F-X');
+    });
+  }
+
   test('exceptions carry facts, decisions, finished slices and head', async () => {
     const { result } = await run(ARGS(), {
       ...ok,
@@ -819,6 +833,9 @@ describe('invalid args', () => {
     expect(result.kind).toBe('invalid-args');
     expect(result.problems.join(' ')).toContain('list of strings');
     expect(calls).toHaveLength(0);
+    const nonString = await run(ARGS({ answers: { 'implement:s1': [1] } }), ok);
+    expect(nonString.result.kind).toBe('invalid-args');
+    expect(nonString.calls).toHaveLength(0);
   });
 
   test('unknown reviewer, unknown cover and missing fields → invalid-args', async () => {
