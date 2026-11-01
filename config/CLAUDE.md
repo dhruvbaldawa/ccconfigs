@@ -89,7 +89,7 @@ Never: trivial (`i++ // increment i`), temporal ("improved", "refactored from"),
 
 ## Tracking
 
-TodoWrite for work tracking. Never discard tasks without Dhruv's approval.
+Never discard tasks without Dhruv's approval.
 
 ## Debugging
 

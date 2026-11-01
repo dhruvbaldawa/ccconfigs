@@ -16,20 +16,6 @@ Before starting implementation, check for `.plans/<project>/critical-patterns.md
 - Apply matching patterns during implementation
 - Violations will be flagged as CRITICAL in review
 
-**Use TodoWrite to track implementation progress:**
-```
-☐ Read task file (LLM Prompt, Working Result, Validation)
-☐ [LLM Prompt step 1]
-☐ [LLM Prompt step 2]
-...
-☐ Write tests for new functionality
-☐ Run full test suite
-☐ Mark validation checkboxes
-☐ Update status to READY_FOR_TESTING
-```
-
-Convert each step from the task's LLM Prompt into a todo. Mark completed as you progress.
-
 1. Read task file - LLM Prompt, Working Result, Validation, Files
 2. Follow LLM Prompt step-by-step, write code + tests, run full suite
 3. Update task status using Edit tool:

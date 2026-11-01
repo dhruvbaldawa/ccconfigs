@@ -40,18 +40,9 @@ Agents designed for parallel execution: launch every Agent call in a single mess
 
 # Tool Integration Patterns
 
-## TodoWrite for Progress Tracking
+## Progress Tracking
 
-Use TodoWrite in skills and commands for multi-step workflows:
-
-- **debugging**: Track UNDERSTAND checklist steps (U-N-D-E-R-S-T-A-N-D)
-- **technical-planning**: Track planning phases (1-4) and deferral decisions
-- **fix-quality**: Track issues by category (root cause, alternatives, ignores)
-- **optimize-doc**: Track optimization passes per section
-- **implementing-tasks**: Convert LLM Prompt steps into todos
-- **testing**: Track validation steps and gap identification
-
-**Exemplar**: `/implement-plan` command (Step 0) shows the gold standard for TodoWrite integration - converts Validation checklist, Working Result, and Implementation Guidance into specific, actionable todos.
+Skills and commands don't name a todo tool: Claude Code offers the task-tracking tools only on older models, and current models track multi-step work without one. Put durable progress in the plan or task file instead.
 
 ## Task Tool for Agent Invocation
 
