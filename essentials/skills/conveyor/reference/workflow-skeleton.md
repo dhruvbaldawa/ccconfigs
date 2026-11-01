@@ -35,7 +35,7 @@ Facts and decisions from every result are appended at the END of later prompts, 
 
 ## Returns
 
-- `{ status: 'complete', done, head, milestone, facts, decisions }`
+- `{ status: 'complete', done, head, runCheck, milestone, facts, decisions }`: `runCheck` holds the run check's rounds, its review rounds, open reservations and extra files.
 - or `{ status: 'exception', kind, …, done, facts, decisions }`
 
 Every return carries `done`, `head`, `facts` and `decisions` for the orchestrator to record. Exception kinds:

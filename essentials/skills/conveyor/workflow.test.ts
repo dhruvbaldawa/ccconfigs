@@ -436,6 +436,18 @@ describe('approval staleness and path hygiene', () => {
     expect(promptOf(other.calls, 'review:test:slice s1:r2')).toContain('First review');
   });
 
+  test('the finding file itself, or a finding given as an absolute path, keeps approvals', async () => {
+    const same = await run2([{ file: 'x.ts', reason: 'the finding file' }]);
+    expect(same.labels.filter((l) => l.endsWith(':r2'))).toEqual(['review:senior:slice s1:r2']);
+    const abs = await run(ARGS({ slices: [SLICE('s1')] }), {
+      ...ok,
+      'review:senior:': (_c, n) =>
+        n === 0 ? { verdict: 'NEEDS WORK', findings: [{ id: 'x', summary: 'x', file: '/home/u/repo/src/x.ts', blocking: true }] } : ship,
+      'fix:': () => committed({ extraFiles: [{ file: 'src/x.ts', reason: 'same file, relative' }] }),
+    });
+    expect(abs.labels.filter((l) => l.endsWith(':r2'))).toEqual(['review:senior:slice s1:r2']);
+  });
+
   test('a beyond-scope fix after an in-scope one still brings everyone back at full depth', async () => {
     const { calls } = await run(ARGS({ slices: [SLICE('s1')], roundsCap: 3 }), {
       ...ok,
@@ -695,6 +707,21 @@ describe('run-check fixes', () => {
       { ...ok, 'run-check:': redOnce },
     );
     expect(labels.slice(-2)).toEqual(['review:senior:run-check fixes:r1', 'review:security:run-check fixes:r1']);
+  });
+
+  test("the run-check fixes' reservations and extra files are returned", async () => {
+    const { result } = await run(ARGS({ slices: [SLICE('s1')], runCheck: 'rc' }), {
+      ...ok,
+      'run-check:': redOnce,
+      'fix:run-check': () => committed({ extraFiles: [{ file: 'cfg.ts', reason: 'config' }] }),
+      'review:senior:run-check fixes': () => ({
+        verdict: 'APPROVED WITH RESERVATIONS',
+        findings: [{ id: 'rc-nit', summary: 'n', file: 'cfg.ts', blocking: false }],
+      }),
+    });
+    expect(result.status).toBe('complete');
+    expect(result.runCheck).toMatchObject({ rounds: 2, reviewRounds: 1, extraFiles: [{ file: 'cfg.ts' }] });
+    expect(result.runCheck.open.map((f: any) => f.id)).toEqual(['rc-nit']);
   });
 
   test('a fixer that commits nothing ends the run check', async () => {

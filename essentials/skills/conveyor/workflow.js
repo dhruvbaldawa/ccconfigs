@@ -36,7 +36,7 @@ if (!['slice', 'slice+milestone', 'milestone'].includes(COVER)) invalid.push('re
 if (REVIEWERS.some(r => !['senior', 'test'].includes(r))) invalid.push('reviewers must be a subset of senior, test')
 if (!REVIEWERS.length) invalid.push('reviewers must name at least one reviewer, or commits go unreviewed')
 if (!WS || !CHECK || !head || !Array.isArray(SLICES)) invalid.push('workspace, checkCommand, baseSha and slices are required')
-if (uses('simplify', 'milestone') && !(reviewMilestone && REVIEWERS.length))
+if (uses('simplify', 'milestone') && !reviewMilestone)
   invalid.push('simplify at milestone end needs reviewers at milestone end, or its commit goes unreviewed')
 if (uses('security-audit', 'slice') && !reviewSlices)
   invalid.push('security-audit per slice needs per-slice review; with milestone-only review, choose it at milestone end')
@@ -267,6 +267,7 @@ for (const slice of SLICES) {
 const P = 'Milestone end'
 const milestoneBase = args.baseSha
 
+const runCheck = { rounds: 0, reviewRounds: 0, open: [], extraFiles: [] }
 if (RUN_CHECK) {
   const checkBase = head
   let checkRounds = 0, prevTail = null
@@ -291,6 +292,7 @@ if (RUN_CHECK) {
     if (fix.status === 'question') { absorb(fix); return exit('question', { scope: 'run-check', answerKey: fixLabel, questions: fix.questions || [], summary: fix.summary }) }
     if (fix.status !== 'committed') { absorb(fix); return exit('fixer-blocked', { scope: 'run-check', summary: fix.summary, hookLog: fix.hookLog }) }
     landed(fix)
+    runCheck.extraFiles.push(...(fix.extraFiles || []))
     if (head === fixBase) return exit('run-check-red', { tail: check.tail, rounds: checkRounds, summary: 'fixer committed nothing' })
   }
   // Run-check fixes are new code: without a milestone review to cover them,
@@ -300,7 +302,11 @@ if (RUN_CHECK) {
   if (head !== checkBase && !reviewMilestone) {
     const r = await reviewLoop('run-check fixes', checkBase, reviewerSet('slice'), P)
     if (r.exception) return r.exception
+    runCheck.reviewRounds = r.rounds
+    runCheck.open = r.open
+    runCheck.extraFiles.push(...r.extraFiles)
   }
+  runCheck.rounds = checkRounds
 }
 
 if (uses('simplify', 'milestone')) {
@@ -313,4 +319,4 @@ const endSet = reviewMilestone ? reviewerSet('milestone')
 const end = await reviewLoop('milestone', milestoneBase, endSet, P)
 if (end.exception) return end.exception
 
-return { status: 'complete', done, head, milestone: { rounds: end.rounds, open: end.open || [], extraFiles: end.extraFiles || [] }, facts, decisions }
+return { status: 'complete', done, head, runCheck, milestone: { rounds: end.rounds, open: end.open || [], extraFiles: end.extraFiles || [] }, facts, decisions }
