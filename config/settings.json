@@ -62,11 +62,6 @@
       "mcp__plugin_mcp_essentials__brave-search__brave_place_search",
       "mcp__plugin_mcp_essentials__parallel-search__web_fetch",
       "mcp__plugin_mcp_essentials__parallel-search__web_search_preview",
-      "mcp__plugin_discord_discord__reply",
-      "mcp__plugin_discord_discord__react",
-      "mcp__plugin_discord_discord__edit_message",
-      "mcp__plugin_discord_discord__fetch_messages",
-      "mcp__plugin_discord_discord__download_attachment",
       "mcp__qmd__query"
     ],
     "deny": [
@@ -248,8 +243,7 @@
     "typescript-lsp@claude-plugins-official": true,
     "pyright-lsp@claude-plugins-official": true,
     "php-lsp@claude-plugins-official": true,
-    "skill-creator@claude-plugins-official": true,
-    "discord@claude-plugins-official": true
+    "skill-creator@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
