@@ -7,12 +7,16 @@ import { join } from 'path';
 
 const SOURCE = readFileSync(join(import.meta.dir, 'workflow.js'), 'utf8');
 
-/** The script body without its `export const meta = {…}` block (a pure literal ending at a line `}`). */
+const META = /^export const meta = \{[\s\S]*?^\};?$/m;
+
+/** The script body without its `export const meta = {…}` block (a pure literal closed by `}` alone on a line). */
 function body(): string {
-  const start = SOURCE.indexOf('export const meta = {');
-  if (start < 0) throw new Error('meta block not found');
-  const end = SOURCE.indexOf('\n}\n', start);
-  return SOURCE.slice(0, start) + SOURCE.slice(end + 3);
+  const m = SOURCE.match(META);
+  if (!m) throw new Error('meta block not found');
+  const rest = SOURCE.replace(META, '');
+  // A meta block closed some other way would let the match run into the body.
+  if (!rest.includes('const WS = args.workspace')) throw new Error('meta strip cut into the script body');
+  return rest;
 }
 
 const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor;
@@ -193,6 +197,14 @@ describe('fix loop', () => {
       'review:senior:': () => needsWork('same'),
     });
     expect(result).toMatchObject({ kind: 'no-progress', slice: 's1' });
+  });
+
+  test('the same blocker set in a different order is still no-progress', async () => {
+    const { result } = await run(ARGS({ slices: [SLICE('s1')], roundsCap: 3 }), {
+      ...ok,
+      'review:senior:': (_c, n) => (n === 0 ? needsWork('a', 'b') : needsWork('b', 'a')),
+    });
+    expect(result.kind).toBe('no-progress');
   });
 
   test('rejection with no blocking findings → rejection-without-blockers', async () => {
@@ -512,6 +524,16 @@ describe('null and blocked paths', () => {
 });
 
 describe('exception contents', () => {
+  test('the asking or blocked agent\'s own facts and decisions reach the exception', async () => {
+    const q = await run(ARGS(), { ...ok, 'implement:': () => ({ status: 'question', questions: ['q'], summary: 's', facts: ['F-Q'], decisions: ['D-Q'] }) });
+    expect(q.result).toMatchObject({ kind: 'question', facts: ['F-Q'], decisions: ['D-Q'] });
+    const b = await run(ARGS({ skills: { simplify: ['slice'] } }), {
+      ...ok,
+      'simplify:': () => ({ status: 'blocked', summary: 'dirty', facts: ['F-B'] }),
+    });
+    expect(b.result).toMatchObject({ kind: 'simplify-blocked', facts: ['F-B'] });
+  });
+
   test('exceptions carry facts, decisions, finished slices and head', async () => {
     const { result } = await run(ARGS(), {
       ...ok,
@@ -787,7 +809,7 @@ describe('invalid args', () => {
 
   test('no reviewers → invalid-args, nothing launched', async () => {
     const { result, calls } = await run(ARGS({ reviewers: [] }), ok);
-    expect(result.kind).toBe('invalid-args');
+    expect(result).toMatchObject({ kind: 'invalid-args', head: 'base0', done: [], facts: [], decisions: [] });
     expect(calls).toHaveLength(0);
   });
 
@@ -795,6 +817,55 @@ describe('invalid args', () => {
     for (const over of [{ reviewers: ['bob'] }, { reviewCover: 'sometimes' }, { workspace: '' }, { baseSha: undefined }]) {
       expect((await run(ARGS(over), ok)).result.kind).toBe('invalid-args');
     }
+  });
+});
+
+describe('meta', () => {
+  test('the meta block is a literal with a name and a description, and stripping it keeps the body', () => {
+    const literal = SOURCE.match(META)![0].replace(/^export const meta = /, '').replace(/;$/, '');
+    const meta = new Function(`return (${literal})`)();
+    expect(meta.name).toBe('conveyor-run');
+    expect(typeof meta.description).toBe('string');
+    expect(body()).toContain('return { status: \'complete\'');
+  });
+});
+
+describe('milestone end', () => {
+  test('simplify at milestone end runs after the run check and before the milestone review, over the whole milestone', async () => {
+    const { calls, labels } = await run(
+      ARGS({ slices: [SLICE('s1')], reviewCover: 'milestone', runCheck: 'rc', skills: { simplify: ['milestone'] } }),
+      { ...ok, 'run-check:': () => ({ pass: true, tail: '' }), 'simplify:': () => committed({ shas: ['msimp'] }) },
+    );
+    const i = labels.indexOf('run-check:r1');
+    expect(labels.slice(i)).toEqual(['run-check:r1', 'simplify:milestone', 'review:senior:milestone:r1', 'review:test:milestone:r1']);
+    expect(promptOf(calls, 'simplify:milestone')).toContain('base0..');
+    expect(promptOf(calls, 'review:senior:milestone:r1')).toContain('base0..msimp');
+  });
+
+  for (const cover of ['milestone', 'slice+milestone']) {
+    test(`security-audit ['milestone'] joins the milestone review with cover ${cover}`, async () => {
+      const { labels } = await run(ARGS({ slices: [SLICE('s1')], reviewCover: cover, skills: { 'security-audit': ['milestone'] } }), ok);
+      expect(labels).toContain('review:security:milestone:r1');
+      expect(labels.filter((l) => l.startsWith('review:security:'))).toEqual(['review:security:milestone:r1']);
+    });
+  }
+
+  test("the milestone review's reservations and extra files are returned", async () => {
+    const { result } = await run(ARGS({ slices: [SLICE('s1')], reviewCover: 'milestone' }), {
+      ...ok,
+      'review:senior:milestone': (_c, n) =>
+        n === 0 ? needsWork('m') : { verdict: 'APPROVED WITH RESERVATIONS', findings: [{ id: 'm-nit', summary: 'n', file: 'a.ts', blocking: false }] },
+      'fix:milestone': () => committed({ extraFiles: [{ file: 'm.ts', reason: 'r' }] }),
+    });
+    expect(result.milestone).toMatchObject({ rounds: 2, extraFiles: [{ file: 'm.ts' }] });
+    expect(result.milestone.open.map((f: any) => f.id)).toEqual(['m-nit']);
+  });
+
+  test('agents run in their phase group', async () => {
+    const { calls } = await run(ARGS({ slices: [SLICE('s1')], runCheck: 'rc' }), { ...ok, 'run-check:': () => ({ pass: true, tail: '' }) });
+    expect(calls.find((c) => c.label === 'implement:s1')!.opts.phase).toBe('Slice s1');
+    expect(calls.find((c) => c.label === 'review:senior:slice s1:r1')!.opts.phase).toBe('Slice s1');
+    expect(calls.find((c) => c.label === 'run-check:r1')!.opts.phase).toBe('Milestone end');
   });
 });
 

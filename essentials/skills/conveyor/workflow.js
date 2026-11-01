@@ -40,7 +40,7 @@ if (uses('simplify', 'milestone') && !reviewMilestone)
   invalid.push('simplify at milestone end needs reviewers at milestone end, or its commit goes unreviewed')
 if (uses('security-audit', 'slice') && !reviewSlices)
   invalid.push('security-audit per slice needs per-slice review; with milestone-only review, choose it at milestone end')
-if (invalid.length) return { status: 'exception', kind: 'invalid-args', problems: invalid, done: [], facts: [], decisions: [] }
+if (invalid.length) return { status: 'exception', kind: 'invalid-args', problems: invalid, done: [], head, facts: [], decisions: [] }
 
 // ---- schemas ----
 // Only status and summary are required: unfillable required fields pressure
