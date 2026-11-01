@@ -1,202 +1,54 @@
-# Conveyor workflow skeleton
+# Conveyor workflow script
 
-Canonical per-run script: every slice in-band (implement → review → fix → commit),
-early return on exceptions, resume-friendly. Adapt it — don't re-derive the control
-flow; the null-guards, carryover, finding-aging, and path-hygiene logic below are
-the parts authored-from-scratch scripts get wrong. Everything task-specific lives
-in `args`, never in the script body: interventions resume with changed args instead
-of script surgery, and unchanged slices still replay from cache.
+The script is `../workflow.js`. At seed, copy it unchanged to `.conveyor/<milestone>/workflow.js` and write `args.json` beside it. Launch with `Workflow({scriptPath: '.conveyor/<milestone>/workflow.js', args})`. Never pass the script inline, and never edit the copy after launch. To change course, change `args` and resume with `scriptPath` + `resumeFromRunId`: unchanged agent calls replay from cache, and changed args re-run only the calls they alter.
 
-```js
-export const meta = {
-  name: 'conveyor-run',
-  description: 'Implement, review, fix, commit every slice in-band; return early on exceptions',
-  // No phases entry: each slice declares its own phase() group below. If you do
-  // list meta.phases, the titles must match the phase strings EXACTLY.
-}
+## args
 
-// ---- from context.md mechanics, passed via args ----
-const WS = args.workspace              // '.conveyor/<task-slug>'
-const SLICES = args.slices             // [{ id, planExcerpt, commits: [{ files, message }] }]
-const LOCAL_CHECKS = args.localChecks  // pre-flighted at seed: only checks that can actually run here
-const CAP = args.roundsCap             // declared per task — never default it here
-const PUSH = args.push !== false       // push per slice so CI runs async
-const STANDARDS = args.standards       // the subagent-standards block, verbatim
+| Field | Meaning |
+|---|---|
+| `workspace` | Absolute path to `.conveyor/<milestone>`. Agents read `context.md` there first. |
+| `baseSha` | The commit the milestone starts from. The first slice's range starts here, and the milestone-end review covers `baseSha..head`. |
+| `slices` | `[{ id, planExcerpt, commits: [{ files, message }] }]`, in order. Each slice has 1–3 commits. Messages describe the change only: no slice ids or other process markers. |
+| `checkCommand` | The commit tier, the repo CLAUDE.md `Check:` line. The pre-commit hook runs it; the script never does. |
+| `runCheck` | Optional. The run tier, the `Run check:` line. Runs once at milestone end via `rtk proxy`. Red → fixer with the last 80 lines → run again; counts toward `roundsCap`. |
+| `reviewers` | Subset of `['senior', 'test']`. |
+| `reviewCover` | `'slice'`, `'slice+milestone'` or `'milestone'`: when the reviewers run. |
+| `skills` | `{ simplify?: [...], 'security-audit'?: [...] }`, each a list of `'slice'` and/or `'milestone'`. |
+| `roundsCap` | Review rounds per scope (positive integer). Never defaulted: a missing cap is `invalid-args`. |
+| `standards` | Optional, short orchestrator-specific notes. The agent definitions hold the standards. |
 
-// Only `summary` is required: unfillable required fields pressure agents into
-// placeholder values, and a successful StructuredOutput call is final.
-const EVIDENCE = {
-  type: 'object', required: ['summary'],
-  properties: {
-    summary: { type: 'string' },
-    evidence: { type: 'string', description: 'real command + output tail you ran' },
-    touchedFiles: { type: 'array', items: { type: 'string' }, description: 'repo-relative paths' },
-    extraFiles: { type: 'array', description: 'files the plan missed but the slice genuinely needs — reviewers gate the addition',
-      items: { type: 'object', required: ['file', 'reason'],
-        properties: { file: { type: 'string' }, reason: { type: 'string' } } } },
-  },
-}
+## Flow
 
-// One shared verdict scale for every reviewer, enum-enforced: constrained
-// decoding makes an off-scale or verbose verdict impossible, so no string
-// matching is needed. Keep in sync with the reviewer agent definitions.
-const SCALE = ['REJECT', 'NEEDS WORK', 'APPROVED WITH RESERVATIONS', 'SHIP IT']
-const VERDICT = {
-  type: 'object', required: ['verdict', 'findings'],
-  properties: {
-    verdict: { enum: SCALE },
-    findings: { type: 'array', items: { type: 'object',
-      required: ['id', 'summary', 'file', 'blocking'],
-      properties: {
-        id: { type: 'string', description: 'stable slug: <file>-<short-issue> — reuse the exact id when re-flagging' },
-        summary: { type: 'string' },
-        file: { type: 'string', description: 'repo-relative path' },
-        blocking: { type: 'boolean' },
-        standing: { type: 'boolean', description: 'true for reservations that recur by design (unverified:<property>, cross-repo facts) — exempt from aging; they get owners in the report instead' },
-      } } } },
-}
+Per slice, in order:
+1. **Implement**: `essentials:implementer` commits the planned commits through the hook.
+2. **Simplify** (if `skills.simplify` includes `'slice'`): a default subagent runs the simplify skill on the slice's range and commits its edits through the hook.
+3. **Review** (if `reviewCover` includes slices, or `security-audit` includes `'slice'`): the reviewers run in parallel on the slice's commit range plus the last hook log. Security-audit runs as a default subagent returning the same verdict schema.
+4. **Fix**: `essentials:fixer` gets exactly the blocking findings and makes new commits, then the rejecting reviewers re-review the fix commits. Approvals carry unless the fixer reports `extraFiles`, which brings every reviewer back at full depth.
 
-const COMMIT_RESULT = {
-  type: 'object', required: ['status'],
-  properties: {
-    status: { enum: ['committed', 'checks-red', 'stage-mismatch', 'push-failed'] },
-    shas: { type: 'array', items: { type: 'string' } },
-    detail: { type: 'string' },
-  },
-}
+At milestone end:
+1. The run check, with its fix loop.
+2. Simplify, if `'milestone'`.
+3. The milestone review, if `reviewCover` includes the milestone, plus security-audit if `'milestone'`, with the same fix loop.
 
-const APPROVED = ['SHIP IT', 'APPROVED WITH RESERVATIONS']
-const TYPE = { senior: 'essentials:senior-engineer-reviewer', test: 'essentials:test-reviewer' }
-const isApproved = v => APPROVED.includes(v.verdict)
+Facts and decisions from every result are appended at the END of later prompts, so the shared prefix stays cacheable.
 
-// Path hygiene for the carryover-staleness test: touched files come back absolute,
-// finding files repo-relative — compare by suffix, and workspace/bookkeeping
-// writes never count as going beyond the findings.
-const norm = p => (p || '').replace(/\\/g, '/')
-const isWorkspace = p => norm(p).includes('.conveyor/')
-const sameFile = (a, b) => norm(a).endsWith(norm(b)) || norm(b).endsWith(norm(a))
+## Returns
 
-const done = []
-const seen = {}   // finding.id -> times flagged across the WHOLE task — deferred
-                  // defects recur across slices; per-slice counters never see it
-for (const slice of SLICES) {
-  const P = 'Slice ' + slice.id
+- `{ status: 'complete', done, head, milestone, facts, decisions }`
+- or `{ status: 'exception', kind, …, done, facts, decisions }`
 
-  // ---- IMPLEMENT (no commits) ----
-  const impl = await agent(
-    STANDARDS + '\nImplement slice ' + slice.id + ': ' + slice.planExcerpt +
-    '\nRun the local checks (' + LOCAL_CHECKS.join(' && ') + ') and exercise the change end-to-end. Do NOT commit.' +
-    '\nIf the planned file list is wrong, list the additions under extraFiles with reasons — never expand silently.',
-    { label: 'implement:' + slice.id, model: 'claude-sonnet-5-5', schema: EVIDENCE, phase: P })
-  // agent() returns null for a dead OR classifier-blocked subagent — check the
-  // run's progress errors before assuming a crash.
-  if (!impl) return { status: 'exception', kind: 'implementer-null', slice: slice.id, done }
+Every return carries `facts` and `decisions` for the orchestrator to write to `context.md`. Exception kinds:
 
-  let lastEvidence = impl.evidence || impl.summary   // re-reviews must see the LATEST evidence
-  let extras = impl.extraFiles || []
+| Kind | Meaning |
+|---|---|
+| `invalid-args` | Bad or inconsistent args. Nothing launched. |
+| `question` | An implementer or fixer needs an answer before building. Record the answer in context.md and args, then resume. |
+| `implementer-blocked`, `fixer-blocked`, `simplify-blocked` | 3 failed attempts, a missing hook, or a dirty tree after a commit. |
+| `implementer-null`, `fixer-null`, `reviewers-null`, `simplify-null`, `run-check-null` | The agent died or was classifier-blocked. Check the run's errors. |
+| `rounds-cap` | Still blocked after `roundsCap` review rounds. |
+| `no-progress` | The same blocker set came back twice. |
+| `aged-findings` | A resolvable finding was flagged a third time anywhere in the milestone. Standing findings are exempt. |
+| `rejection-without-blockers` | A rejection with no blocking finding gives the fixer nothing to act on. |
+| `run-check-red` | The run tier is still red at the cap. |
 
-  // ---- REVIEW / FIX loop: approval carryover + per-finding aging ----
-  const verdicts = {}                          // reviewer -> last verdict string, for the ledger
-  let pending = { senior: true, test: true }   // trim per the declared reviewer set
-  let firstRound = true, prior = [], blockers = [], prevIds = null, rounds = 0
-
-  while (rounds < CAP) {
-    rounds++
-    const reviews = (await parallel(Object.keys(pending).filter(r => pending[r]).map(r => () =>
-      agent(
-        STANDARDS + '\n' + (firstRound
-          ? 'First review — full depth: judge this slice against the whole repo.'
-          : 'Re-review — delta only. Prior findings (reuse each id verbatim if you re-flag it): ' + JSON.stringify(prior)) +
-        '\nReview the uncommitted diff for slice ' + slice.id + '. Latest evidence: ' + lastEvidence +
-        (extras.length ? '\nThe implementer proposes adding these files to the planned commit set — approve or flag: ' + JSON.stringify(extras) : '') +
-        '\nThe commit agent re-runs all local checks as the gate; re-run one yourself only if the evidence is stale, incomplete, or doubted.',
-        { label: 'review:' + r + ':' + slice.id + ':r' + rounds, agentType: TYPE[r], schema: VERDICT, phase: P })
-        .then(v => v && { r, v })))).filter(Boolean)
-    if (!reviews.length) return { status: 'exception', kind: 'reviewers-null', slice: slice.id, done }
-
-    for (const { r, v } of reviews) { pending[r] = !isApproved(v); verdicts[r] = v.verdict }
-    const found = reviews.flatMap(({ v }) => v.findings || [])
-    found.forEach(f => { seen[f.id] = (seen[f.id] || 0) + 1 })
-    prior = found
-    blockers = found.filter(f => f.blocking)
-
-    // Aging covers every RESOLVABLE finding, task-wide: a third flag anywhere in
-    // the run means the loop isn't converging on it. Standing reservations are
-    // exempt — they recur by design and get owners in the report instead.
-    const aged = found.filter(f => !f.standing && seen[f.id] >= 3)
-    if (aged.length) return { status: 'exception', kind: 'aged-findings', slice: slice.id, findings: aged, done }
-    if (Object.values(pending).every(p => !p)) break     // all approved
-    // A rejection carrying zero blocking findings is unactionable — never hand a
-    // fixer an empty mandate (a vacuous dispatch invites improvisation).
-    if (!blockers.length)
-      return { status: 'exception', kind: 'rejection-without-blockers', slice: slice.id, findings: prior, done }
-    const ids = blockers.map(f => f.id).sort().join('|')
-    if (ids && ids === prevIds)                          // identical blocker set = spinning, regardless of count
-      return { status: 'exception', kind: 'no-progress', slice: slice.id, findings: blockers, done }
-    prevIds = ids
-
-    const fix = await agent(
-      STANDARDS + '\nFix exactly these findings on slice ' + slice.id + ' (local checks green, nothing else): ' +
-      JSON.stringify(blockers),
-      { label: 'fix:' + slice.id + ':r' + rounds, model: 'claude-sonnet-5-5', schema: EVIDENCE, phase: P })
-    if (!fix) return { status: 'exception', kind: 'fixer-null', slice: slice.id, findings: blockers, done }
-    lastEvidence = fix.evidence || fix.summary
-    extras = extras.concat(fix.extraFiles || [])
-
-    // Fixes beyond the findings stale carried approvals: both reviewers return, full depth.
-    const findingFiles = blockers.map(f => f.file).filter(Boolean)
-    const beyond = (fix.touchedFiles || []).filter(t => !isWorkspace(t))
-      .some(t => !findingFiles.some(f => sameFile(t, f)))
-    if (beyond) { pending = { senior: true, test: true }; firstRound = true }
-    else firstRound = false
-  }
-  if (Object.values(pending).some(p => p))
-    return { status: 'exception', kind: 'rounds-cap', slice: slice.id, findings: blockers, done }
-
-  // ---- COMMIT: cheap + deterministic; its own check run is the gate ----
-  // The ledger is the deterministic review record — reviewers' own context.md
-  // appends are optional detail; this write is not.
-  const ledger = '\n### Slice ' + slice.id + ' — review ledger (harness-recorded)\n' +
-    'Rounds: ' + rounds + '. Verdicts: ' + JSON.stringify(verdicts) + '.\n' +
-    'Findings seen (id -> times flagged): ' + JSON.stringify(seen) + '\n' +
-    'Open non-blocking findings (need an owner in the report): ' +
-    JSON.stringify(prior.filter(f => !f.blocking)) + '\n'
-  const commit = await agent(
-    STANDARDS + '\nCommit slice ' + slice.id + ' mechanically:\n' +
-    '0. Append this block verbatim to ' + WS + '/context.md:\n' + ledger +
-    '1. Run: ' + LOCAL_CHECKS.join(' && ') + ' — any non-zero exit: report checks-red, commit nothing.\n' +
-    '2. git status; stage EXACTLY the planned files per commit: ' + JSON.stringify(slice.commits) +
-    (extras.length ? ' plus these reviewer-approved additions (stage with the last commit): ' + JSON.stringify(extras.map(e => e.file)) : '') +
-    '. Anything else in the tree: report stage-mismatch, commit nothing.\n' +
-    '3. Commit with the planned messages verbatim.' + (PUSH ? ' Then git push.' : ''),
-    { label: 'commit:' + slice.id, model: 'haiku', schema: COMMIT_RESULT, phase: P })
-  if (!commit || commit.status !== 'committed')
-    return { status: 'exception', kind: 'commit-' + (commit ? commit.status : 'null'),
-             slice: slice.id, detail: commit && commit.detail, done }
-
-  done.push({ slice: slice.id, shas: commit.shas, rounds })
-  log('Slice ' + slice.id + ' committed (' + rounds + ' round(s))')
-}
-
-return { status: 'complete', done }
-```
-
-Git escalation: SSH commits/pushes legitimately need the sandbox disabled in some
-environments — pre-flight this at seed and record the sanctioned workaround (and
-the integration target: branch, push destination, PR-vs-direct) in context.md's
-Known environment facts, so commit agents follow the recorded path instead of
-improvising. Keep the literal escalation flag out of script text — the classifier
-has denied launches that mention it.
-
-After the run, the orchestrator: checks CI once on the pushed branch (if CI exists);
-red → dispatch a cheap fix subagent on CI's failure output and re-enter the loop.
-On any exception return: intervene, record the decision in context.md, and relaunch
-with `resumeFromRunId` — completed slices replay from cache. To drop or change a
-slice, change `args` and resume; never edit the script body (an edited agent-call
-prompt invalidates the cache from that call onward, changed args only re-run the
-slices they alter).
-
-Parallel batches (independent slices in worktrees): wrap the per-slice body in a
-function and `parallel()` over the batch, each slice's IMPLEMENT prompt pinned to its
-own worktree path; merge back in slice order and treat conflicts or red post-merge
-checks as an exception. Keep sequential unless independence is obvious.
+The behaviour is pinned by `../workflow.test.ts` (`bun test`).
