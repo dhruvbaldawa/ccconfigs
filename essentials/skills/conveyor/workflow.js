@@ -35,6 +35,8 @@ if (!(CAP === Infinity || (Number.isInteger(CAP) && CAP >= 1))) invalid.push("ro
 if (!['slice', 'slice+milestone', 'milestone'].includes(COVER)) invalid.push('reviewCover must be slice | slice+milestone | milestone')
 if (REVIEWERS.some(r => !['senior', 'test'].includes(r))) invalid.push('reviewers must be a subset of senior, test')
 if (!REVIEWERS.length) invalid.push('reviewers must name at least one reviewer, or commits go unreviewed')
+if (typeof ANSWERS !== 'object' || Array.isArray(ANSWERS) || Object.values(ANSWERS).some(v => !Array.isArray(v) || v.some(x => typeof x !== 'string')))
+  invalid.push('answers must map each agent label to a list of strings')
 if (!WS || !CHECK || !head || !Array.isArray(SLICES)) invalid.push('workspace, checkCommand, baseSha and slices are required')
 if (uses('simplify', 'milestone') && !reviewMilestone)
   invalid.push('simplify at milestone end needs reviewers at milestone end, or its commit goes unreviewed')

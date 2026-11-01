@@ -813,6 +813,13 @@ describe('invalid args', () => {
     expect(calls).toHaveLength(0);
   });
 
+  test('an answer given as a bare string → invalid-args, nothing launched', async () => {
+    const { result, calls } = await run(ARGS({ answers: { 'implement:s2': 'use EUR' } }), ok);
+    expect(result.kind).toBe('invalid-args');
+    expect(result.problems.join(' ')).toContain('list of strings');
+    expect(calls).toHaveLength(0);
+  });
+
   test('unknown reviewer, unknown cover and missing fields → invalid-args', async () => {
     for (const over of [{ reviewers: ['bob'] }, { reviewCover: 'sometimes' }, { workspace: '' }, { baseSha: undefined }]) {
       expect((await run(ARGS(over), ok)).result.kind).toBe('invalid-args');
