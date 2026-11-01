@@ -75,6 +75,7 @@ The script is idempotent - you can run it multiple times safely.
 **What gets symlinked:**
 - `config/CLAUDE.md` → `~/.claude/CLAUDE.md` (your global working rules)
 - `config/settings.json` → `~/.claude/settings.json` (global settings)
+- `config/rules/code.md` → `~/.claude/rules/code.md` (coding rules, loaded only when working on source files)
 
 ### Install this marketplace
 
@@ -213,6 +214,7 @@ ccconfigs/
 ├── .claude-plugin/marketplace.json  # Plugin marketplace definition
 ├── config/                          # Global Claude Code configuration (symlinked to ~/.claude/)
 │   ├── CLAUDE.md                   # Global working rules
+│   ├── rules/code.md               # Coding rules, path-scoped to source files
 │   └── settings.json               # Global settings
 ├── setup-symlinks.sh               # Idempotent setup script for global config
 ├── opencode/                        # OpenCode plugin-pack registry
