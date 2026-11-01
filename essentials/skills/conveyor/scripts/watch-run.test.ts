@@ -393,23 +393,44 @@ describe('malformed input', () => {
   });
 });
 
+const WATCHER = join(import.meta.dir, 'watch-run.ts');
+
+// Every watcher a test spawns, so a failed or timed-out test never leaks one.
+const spawned: Array<ReturnType<typeof Bun.spawn>> = [];
+afterEach(() => {
+  for (const p of spawned.splice(0)) if (p.exitCode === null) p.kill();
+});
+const spawnWatcher = (args: string[], opts: Record<string, any> = { stdout: 'pipe' }) => {
+  const p = Bun.spawn(['bun', WATCHER, ...args], opts);
+  spawned.push(p);
+  return p;
+};
+// CLI tests spawn bun, which can take seconds on a cold or loaded machine.
+const CLI_TIMEOUT = 30000;
+
 // Reads stdout until `want` lines have arrived (or the deadline passes), lets a
 // few more polls run so any extra (wrong) line would show up too, then kills the
 // watcher. `wasRunning` records that it had not exited on its own.
 async function readLines(
   proc: ReturnType<typeof Bun.spawn>,
   want: number,
-  settleMs = 200,
+  settleMs = 300,
 ): Promise<{ lines: string[]; wasRunning: boolean }> {
   const reader = (proc.stdout as ReadableStream<Uint8Array>).getReader();
   const decoder = new TextDecoder();
   let text = '';
-  const deadline = Date.now() + 10000;
+  const deadline = Date.now() + CLI_TIMEOUT - 5000;
+  // One read stays pending across polls: a read dropped by the race would
+  // still take the next chunk, and that chunk would be lost.
+  let pending: Promise<ReadableStreamReadResult<Uint8Array>> | null = null;
   const pump = async (until: () => boolean, stopAt: number) => {
     while (!until() && Date.now() < stopAt) {
-      const chunk = await Promise.race([reader.read(), Bun.sleep(50).then(() => null)]);
-      if (chunk && !chunk.done) text += decoder.decode(chunk.value);
-      if (chunk?.done) break;
+      pending ??= reader.read();
+      const chunk = await Promise.race([pending, Bun.sleep(50).then(() => null)]);
+      if (!chunk) continue;
+      pending = null;
+      if (chunk.done) break;
+      text += decoder.decode(chunk.value);
     }
   };
   const count = () => text.split('\n').filter(Boolean).length;
@@ -420,48 +441,52 @@ async function readLines(
   return { lines: text.split('\n').filter(Boolean), wasRunning };
 }
 
-const WATCHER = join(import.meta.dir, 'watch-run.ts');
 
 describe('CLI', () => {
   test('missing dir prints one waiting line and keeps polling', async () => {
     const missing = join(runDir(), 'not-yet');
-    const proc = Bun.spawn(['bun', WATCHER, missing, '--poll-ms', '20'], { stdout: 'pipe' });
+    const proc = spawnWatcher([missing, '--poll-ms', '20']);
     const { lines, wasRunning } = await readLines(proc, 1);
     expect(wasRunning).toBe(true);
     expect(lines).toEqual([`waiting ${missing}`]);
-  });
+  }, CLI_TIMEOUT);
 
   test('prints events, persists state, and a relaunch replays nothing', async () => {
     const dir = runDir();
     writeFileSync(join(dir, 'journal.jsonl'), jl({ type: 'started', key: 'k1', agentId: 'a1', label: 'implement:s1' }));
-    const first = Bun.spawn(['bun', WATCHER, dir, '--poll-ms', '20'], { stdout: 'pipe' });
+    const first = spawnWatcher([dir, '--poll-ms', '20']);
     expect((await readLines(first, 1)).lines).toEqual(['started implement:s1']);
     await first.exited;
     expect(deserializeEmitted(readFileSync(join(dir, STATE_FILE), 'utf8')).started.has('k1')).toBe(true);
 
     appendFileSync(join(dir, 'journal.jsonl'), jl({ type: 'result', key: 'k1', agentId: 'a1', result: {} }));
-    const second = Bun.spawn(['bun', WATCHER, dir, '--poll-ms', '20'], { stdout: 'pipe' });
+    const second = spawnWatcher([dir, '--poll-ms', '20']);
     expect((await readLines(second, 1)).lines).toEqual(['finished implement:s1']);
-  });
+  }, CLI_TIMEOUT);
 
   test('--state writes the given file instead of the default', async () => {
     const dir = runDir();
     const statePath = join(runDir(), 's.json');
     writeFileSync(join(dir, 'journal.jsonl'), jl({ type: 'started', key: 'k1', agentId: 'a1', label: 'implement:s1' }));
-    const proc = Bun.spawn(['bun', WATCHER, dir, '--poll-ms', '20', '--state', statePath], { stdout: 'pipe' });
+    const proc = spawnWatcher([dir, '--poll-ms', '20', '--state', statePath]);
     expect((await readLines(proc, 1)).lines).toEqual(['started implement:s1']);
     await proc.exited;
     expect(existsSync(statePath)).toBe(true);
     expect(existsSync(join(dir, STATE_FILE))).toBe(false);
-  });
+
+    // A relaunch with the same --state reads it back and replays nothing.
+    appendFileSync(join(dir, 'journal.jsonl'), jl({ type: 'result', key: 'k1', agentId: 'a1', result: {} }));
+    const again = spawnWatcher([dir, '--poll-ms', '20', '--state', statePath]);
+    expect((await readLines(again, 1)).lines).toEqual(['finished implement:s1']);
+  }, CLI_TIMEOUT);
 
   test('rejects --state without a path', async () => {
-    const proc = Bun.spawn(['bun', WATCHER, runDir(), '--state', '--poll-ms', '20'], { stdout: 'pipe', stderr: 'pipe' });
+    const proc = spawnWatcher([runDir(), '--state', '--poll-ms', '20'], { stdout: 'pipe', stderr: 'pipe' });
     expect(await proc.exited).toBe(2);
-  });
+  }, CLI_TIMEOUT);
 
   test('rejects a non-positive --poll-ms', async () => {
-    const proc = Bun.spawn(['bun', WATCHER, runDir(), '--poll-ms', '0'], { stdout: 'pipe', stderr: 'pipe' });
+    const proc = spawnWatcher([runDir(), '--poll-ms', '0'], { stdout: 'pipe', stderr: 'pipe' });
     expect(await proc.exited).toBe(2);
-  });
+  }, CLI_TIMEOUT);
 });
