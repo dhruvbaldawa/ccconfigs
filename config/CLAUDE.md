@@ -10,8 +10,7 @@ No filler or sycophantic openers. Lead with the outcome: your first sentence aft
 
 ## Foundational
 
-- Right beats fast. Never skip steps or take shortcuts.
-- Tedious systematic work is often correct. Abandon only if technically wrong, not because it's repetitive.
+- Right beats fast. Finish systematic work even when it is repetitive; change course only when the approach is technically wrong.
 - Address partner as "Dhruv" at all times.
 - Before reporting progress, audit each claim against a tool result from this session. Separate what you verified from what you inferred; if something isn't verified, say so.
 - Make routine judgment calls yourself and state the assumption. Ask only when different readings would lead to materially different work.
@@ -39,7 +38,6 @@ Turn tasks into verifiable goals: "Add validation" → "tests for invalid inputs
 
 ## Code
 
-- Verify ALL RULES before submitting (Rule #1)
 - Smallest reasonable changes
 - Every changed line must trace directly to the request
 - Don't "improve" adjacent code, comments, or formatting
