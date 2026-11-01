@@ -6,10 +6,10 @@ Multi-skill workflow system using kanban file movement for complex, high-value t
 
 ## Specialized Agents
 
-**Research Agents** (3 agents - all haiku, parallel invocation):
+**Research Agent** (1 agent, haiku, up to 3 parallel instances - one per mode):
 - **researcher**: One research agent with three modes — `survey` (broad landscape via WebSearch), `deep-dive` (specific URLs via WebFetch), `official-docs` (API references via the docs tool). Launch one instance per mode.
 
-**Review Agents** (3 agents in `agents/review/`, inherits model, parallel invocation):
+**Review Agents** (3 agents in `agents/review/`, pinned to claude-sonnet-5-5, parallel invocation):
 - **security-reviewer**: OWASP Top 10, injection, auth bypasses, secrets handling, confidence scoring
 - **quality-guardian**: Promise Theory, error handling, edge cases, maintainability, readability metrics
 - **test-coverage-analyzer**: Behavioral coverage, criticality rating, test quality issues
@@ -48,7 +48,7 @@ Flags:
 
 Features:
 - **Session start verification**: Checks last completed task's test status before claiming new work
-- **Session checkpoints**: Every 3 tasks, evaluates health indicators and recommends CONTINUE/PAUSE/ESCALATE
+- **Session health**: Stops and recommends CONTINUE/PAUSE/ESCALATE when rejections or STUCK states repeat
 - **Two-tier review**: Routes to LIGHTWEIGHT or FULL review based on complexity/severity
 - **Knowledge capture**: Auto-captures learnings when blockers are resolved
 - **Critical patterns**: Loads and enforces project-level patterns during implementation and review
@@ -103,7 +103,7 @@ Features:
 - **Agents for specialized analysis**: Each agent has single, clear responsibility with detailed output format
 - **Parallel invocation**: All agents designed for parallel execution (2-3 research, 3 review)
 - **Skills orchestrate agents**: Skills determine which agents to launch and consolidate findings
-- **Model optimization**: Haiku for research/capture (cost-efficient), review agents inherit from parent
+- **Model optimization**: Haiku for research/capture (cost-efficient), Sonnet for review agents
 - **Sprint-based planning**: Same technical-planning rigor every sprint - context accumulates but process stays consistent
 - **Stateful kanban**: Tasks move through directories based on status (pending → implementation → review → testing → completed)
 - **End-to-end per task**: Each task completes fully (implement → review → fix → commit) before moving to next, with granular sub-todos for visibility
