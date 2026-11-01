@@ -20,7 +20,7 @@ Research: "$ARGUMENTS"
 
 ### Step 1: Analyze & Select Agents
 
-${isTaskFile ? 'Read task file to understand blocker context.' : 'Analyze question to determine approach.'}
+If the argument is a task file path, read it to understand the blocker; otherwise analyze the question to choose an approach.
 
 | Research Need | Modes to launch |
 |--------------|-----------------|
@@ -44,12 +44,11 @@ Use **research-synthesis skill** to:
 - Identify gaps (unanswered questions, disagreements)
 - Extract actions (implementation path, code/configs, risks)
 
-${isTaskFile ? `
-### Step 4: Update Task File
+### Step 4: Update Task File (task-file input only)
 
 Append research findings to task file:
 
-\`\`\`bash
+```bash
 cat >> "$task_file" <<EOF
 
 **research findings:**
@@ -62,10 +61,9 @@ cat >> "$task_file" <<EOF
 **next steps:**
 [Specific actions]
 EOF
-\`\`\`
+```
 
 Update status from STUCK to Pending if blocker resolved.
-` : ''}
 
 ## Output Format
 
