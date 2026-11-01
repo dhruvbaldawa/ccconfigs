@@ -20,7 +20,7 @@
       ]
     },
     "experimental": {
-      "description": "Research and review-oriented multi-agent workflows",
+      "description": "Sandbox for experimental commands, skills, and agents (currently empty)",
       "commands": "experimental/commands",
       "agents": "experimental/agents",
       "skills": "experimental/skills",

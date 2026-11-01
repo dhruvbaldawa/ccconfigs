@@ -1,7 +1,7 @@
 {
   "name": "experimental",
-  "version": "0.5.5",
-  "description": "Experimental multi-agent development workflows with planning, implementation, review, and testing agents",
+  "version": "0.6.0",
+  "description": "Sandbox for experimental commands, skills, and agents (currently empty)",
   "author": {
     "name": "Dhruv Baldawa"
   }

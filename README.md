@@ -17,7 +17,7 @@ Personal configuration repository for Claude Code - a plugin marketplace contain
 3. Install plugins:
    ```bash
    /plugin
-   # Install "essentials", "writing", and optionally "experimental" from ccconfigs
+   # Install "essentials" and "writing" from ccconfigs ("experimental" is an empty sandbox)
    ```
 
 ## OpenCode Integration
@@ -105,7 +105,7 @@ Once the marketplace is added:
 3. Select and install plugins:
    - **essentials**: For development workflows (MCP servers, task management, research, debugging/planning)
    - **writing**: For blog post writing in Dhruv's style
-   - **experimental**: For complex development workflows with specialized agents (research, review)
+   - **experimental**: Sandbox for trying new commands, skills, and agents (currently empty)
 
 Plugins automatically configure all MCP servers, slash commands, skills, and agents.
 
@@ -115,7 +115,7 @@ This repository provides a structured plugin marketplace for Claude Code with th
 
 - **essentials**: Systematic development workflows including MCP servers, task management commands, research capabilities, and debugging/planning skills
 - **writing**: Conversation-driven blog writing workflow in Dhruv Baldawa's distinctive style
-- **experimental**: Multi-skill workflow system with 6 specialized agents for complex development tasks (research, code review)
+- **experimental**: Sandbox for trying new commands, skills, and agents (currently empty)
 
 ## Plugins
 
@@ -137,13 +137,9 @@ Pre-configured integrations with Model Context Protocol servers. Built-in tools 
 
 #### Slash Commands
 
-- **`/breakdown [SPEC DOCUMENT]`**: Creates agile task breakdowns from design documents. Generates structured iteration plans with tasks, validation checklists, and LLM prompts.
-
-- **`/do [SPEC DOCUMENT] [TASK NUMBER | --resume] [CONTEXT] [--auto]`**: Executes tasks from spec documents. Updates task status to "In Progress", follows LLM prompts, validates completion. With `--auto` flag, automatically commits after each task and continues.
-
 - **`/optimize-doc [DOCUMENT]`**: Optimizes documentation for conciseness and clarity. Strengthens vague instructions, removes redundancy while preserving correctness. Can run idempotently across multiple passes.
 
-- **`/research [TASK FILE | QUESTION]`**: Research blockers or questions using specialized research agents. Analyzes question type and launches 2-3 agents in parallel (research-breadth for industry patterns, research-depth for specific solutions, research-technical for official docs). Uses research-synthesis skill to consolidate findings. For stuck tasks, updates task file with findings. For general questions, provides summary with sources.
+- **`/research [FILE | QUESTION]`**: Research a blocker or question. Launches 2-3 instances of the `researcher` agent in parallel (survey, deep-dive, official-docs modes) and consolidates findings with the research-synthesis skill. With a file argument, appends the findings to that file.
 
 #### Utility Scripts
 
@@ -208,35 +204,7 @@ Every blog post uses two files:
 
 ### Experimental Plugin
 
-Multi-skill workflow system using kanban file movement for complex, high-value development tasks. Features 6 specialized agents organized in 2 categories (research, review), all optimized for parallel invocation.
-
-#### Specialized Agents (6 total)
-
-**Research Agents** (3 agents - all haiku):
-- **researcher**: One research agent with three modes — `survey` (broad landscape via WebSearch), `deep-dive` (specific URLs via WebFetch), `official-docs` (API references via the docs tool). Launch one instance per mode.
-
-**Review Agents** (3 agents - all sonnet):
-- **test-coverage-analyzer**: Behavioral test gaps with 1-10 criticality ratings
-- **error-handling-reviewer**: Silent failures and poor error handling with severity levels
-- **security-reviewer**: OWASP Top 10 vulnerabilities with 0-100 confidence scores
-
-#### Slash Commands
-
-- **`/plan-feature [REQUEST]`**: Sprint planning for `.plans/<project>/`. Same rigor whether starting fresh or continuing - always invokes technical-planning skill with full risk analysis. For continuing sprints, loads context from completed work and applies learnings.
-
-- **`/add-task [PROJECT] [TASK DESCRIPTION]`**: Adds a single ad-hoc task to an existing project's pending queue without full planning. Creates properly formatted task file with auto-incremented task number. Useful for adding tasks discovered during implementation. Prompts for project if not specified.
-
-- **`/implement-plan [PROJECT]`**: Executes tasks through kanban workflow (pending → implementation → review → testing → completed). Launches research agents when stuck, review agents (all 3) in parallel for comprehensive analysis.
-
-- **`/orchestrate [REQUEST]`**: End-to-end workflow from planning through completion. Combines `/plan-feature` and `/implement-plan` in single command with user confirmation between phases.
-
-#### Skills
-
-- **implementing-tasks**: Launches 2-3 research agents in parallel when stuck based on blocker type, consolidates findings using research-synthesis skill
-- **reviewing-code**: Launches all 3 review agents in parallel, consolidates findings by confidence/severity, decides APPROVE or REJECT
-- **testing**: Test suite execution and validation
-
-**Design philosophy**: Agents for specialized analysis with single, clear responsibilities. Skills orchestrate agents and consolidate findings. Parallel invocation reduces latency (2-3 research, 3 review agents together). Model optimization: Haiku for research (cost-efficient), Sonnet for review (quality-critical).
+Sandbox for new commands, skills, and agents before they move to essentials. Currently empty; the earlier kanban workflow was retired in favor of the essentials **conveyor** skill.
 
 ## Repository Structure
 
@@ -259,9 +227,8 @@ ccconfigs/
 ├── essentials/                     # The essentials plugin
 │   ├── .mcp.json                  # MCP server configuration
 │   ├── .claude-plugin/plugin.json # Plugin metadata
+│   ├── agents/                    # researcher, senior-engineer-reviewer, test-reviewer
 │   ├── commands/                  # Slash command definitions
-│   │   ├── breakdown.md
-│   │   ├── do.md
 │   │   ├── optimize-doc.md
 │   │   └── research.md            # Research using specialized agents
 │   └── skills/                    # Development skills
@@ -289,22 +256,7 @@ ccconfigs/
 │   └── skills/                    # Writing skills
 │       └── blog-writing/          # Dhruv's voice and style
 │           └── SKILL.md
-└── experimental/                   # The experimental plugin
+└── experimental/                   # Sandbox plugin (currently empty)
     ├── .claude-plugin/plugin.json # Plugin metadata
-    ├── agents/                    # Specialized agents (6 total)
-    │   ├── research/              # Research agents (parallel invocation)
-    │   │   └── researcher.md
-    │   └── review/                # Code review agents
-    │       ├── test-coverage-analyzer.md
-    │       ├── error-handling-reviewer.md
-    │       └── security-reviewer.md
-    ├── commands/                  # Workflow commands
-    │   ├── plan-feature.md
-    │   ├── add-task.md
-    │   ├── implement-plan.md
-    │   └── orchestrate.md
-    └── skills/                    # Workflow skills
-        ├── implementing-tasks/
-        ├── reviewing-code/
-        └── testing/
+    └── README.md
 ```

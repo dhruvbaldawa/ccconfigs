@@ -2,19 +2,19 @@
 
 ## Slash Commands
 
-**`/breakdown [SPEC DOCUMENT]`**: Creates structured, agile task breakdowns from design documents following the **Last Responsible Moment** principle. Outputs iterations with tasks that include status, goals, constraints, dependencies, implementation guidance (not step-by-step instructions), and validation checklists. Tasks focus on outcomes and provide context for decision-making rather than prescribing implementation details. Designed to work iteratively - generates one iteration at a time to avoid token limits.
-
-**`/do [SPEC DOCUMENT] [TASK NUMBER | --resume] [ADDITIONAL CONTEXT] [--auto]`**: Executes tasks from breakdown documents. Updates task status to "In Progress", reads the implementation guidance to understand context and considerations, makes informed implementation decisions during development, and validates completion criteria. With `--auto` flag, automatically commits after each task and continues to the next. Supports `--resume` to continue from first incomplete task.
+**`/research [FILE | QUESTION]`**: Research a blocker or question. Picks 2-3 modes (survey, deep-dive, official-docs), launches one `essentials:researcher` instance per mode in parallel, and consolidates with the research-synthesis skill. With a file argument, appends the findings to that file.
 
 **`/optimize-doc [DOCUMENT]`**: Optimizes documentation for conciseness and clarity. Strengthens vague instructions, removes redundancy while preserving correctness. Can run idempotently - multiple passes won't degrade quality.
 
-**`/research [TASK FILE | QUESTION]`**: Research blockers or questions using specialized research agents. Analyzes question type and launches 2-3 agents in parallel (research-breadth for industry patterns, research-depth for specific solutions, research-technical for official docs). Uses research-synthesis skill to consolidate findings. For stuck tasks, updates task file with findings. For general questions, provides summary with sources. See `essentials/skills/research-synthesis/reference/multi-agent-invocation.md` for detailed patterns.
-
 **`/fix-quality [FILES OR PATTERN]`**: Systematically fix linting, type errors, and quality issues following root-cause-first philosophy. Priority order: (1) Fix root cause (remove unused imports, fix types), (2) Apply safety/reliability improvements (type guards, error handling), (3) Use local ignores only when necessary (inline > file > pattern > global). Documents why ignores are needed. Validates all checks pass and tests remain green. Emphasizes fixing problems over suppressing warnings.
 
-**`/interview [TOPIC or FILE (optional)]`**: Systematic interview to deeply understand what you're trying to achieve. Use when there's ambiguity, unclear requirements, or hidden complexity. Asks **non-obvious questions** that probe the "why", constraints, edge cases, tradeoffs, and assumptions. Follows threads organically until saturation. No required output - the understanding is the value.
+**`/commit [DESCRIPTION OR FILES]`**: Commit workflow that adapts to changeset size and writes conventional commit messages (haiku).
 
-**Key pattern**: `/breakdown` and `/do` work with shared state in a spec document. `/interview` can be used anytime to clarify requirements or thinking. Breakdown creates the plan, do executes tasks one by one while maintaining state in the document.
+**`/catchup`**: Summarizes all changes between the current branch and main (haiku).
+
+**`/explain-diff [COMMIT/PR/BRANCH]`**: Writes a markdown explanation of a change: background, intuition, code walkthrough, verification, alternatives, and a quiz.
+
+Planning and execution go through the **technical-planning** skill and **conveyor**; there are no separate plan/execute commands.
 
 ## Skills
 
@@ -49,6 +49,8 @@
 **pr**: PR body template — Summary (smallest useful visual: pseudocode, call/component/file tree, Mermaid, or diff-sketch), Evidence (before/after; screenshots or test output), Merge Danger (one-way vs two-way door, blast radius). Credits Dex Horthy's `show-me` via mattpocock/skills.
 
 ## Agents
+
+**researcher** (claude-haiku-5-5): Evidence-backed research in one of three modes named in its prompt: `survey` (WebSearch), `deep-dive` (WebFetch on named sources), `official-docs` (documentation tool). Called by `/research`; launch one instance per mode.
 
 **senior-engineer-reviewer** (claude-opus-5-5, medium): Brutal architecture/maintainability review with a round-aware contract — first review judges the diff against the whole repo; re-reviews are delta-only against prior findings. Verdicts on the shared reviewer scale: REJECT / NEEDS WORK / APPROVED WITH RESERVATIONS / SHIP IT — approved means the last two. Writes only to the task workspace, never the code under review. Half of the conveyor review gate.
 

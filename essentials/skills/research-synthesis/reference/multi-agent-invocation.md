@@ -4,7 +4,7 @@ Guide for using specialized research agents in parallel for comprehensive invest
 
 ## Research Agent Overview
 
-One agent, `experimental:research:researcher` (haiku), runs in the mode named at the start of its prompt:
+One agent, `essentials:researcher` (haiku), runs in the mode named at the start of its prompt:
 
 | Mode | Leads with | Use Cases | Output |
 |------|-----------|-----------|--------|
@@ -103,4 +103,3 @@ capabilities and industry best practices.
 
 **Used by**:
 - `/research` command (essentials) - User-initiated research
-- `implementing-tasks` skill (experimental) - Auto-launch when STUCK

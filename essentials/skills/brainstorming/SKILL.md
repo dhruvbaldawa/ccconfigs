@@ -107,7 +107,7 @@ Add ideas to **braindump.md**:
 
 **Iterate through conversation** - update braindump.md as ideas evolve.
 
-### For Projects (via /orchestrate --discover):
+### For Projects:
 Create **discovery.md** with:
 
 **Structured sections:**
@@ -139,8 +139,7 @@ AI: We've clarified:
     - Open questions: Documented in discovery.md
 
     Ready to create implementation plan?
-    → Recommend: /plan-feature [clarified request]
-    → Next: /plan-feature (uses technical-planning skill)
+    → Next: plan it with the technical-planning skill, then run it with /conveyor
 ```
 
 **Not ready when:**
@@ -213,6 +212,6 @@ For detailed conversation examples showing brainstorming techniques in action, s
 - **Throughout**: Update braindump.md with evolving ideas
 
 **For Projects:**
-- **After brainstorming**: Transition to **technical-planning** skill via /plan-feature
+- **After brainstorming**: Transition to the **technical-planning** skill, then /conveyor to execute
 - **During brainstorming**: Use **research-synthesis** skill to investigate approaches, docs, patterns
 - **Throughout**: Update discovery.md with findings and clarifications

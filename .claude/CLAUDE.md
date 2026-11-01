@@ -9,7 +9,7 @@ Plugin marketplace for Claude Code: essentials, writing, experimental, todoist, 
 config/                          # Global config → ~/.claude/
 essentials/                      # Commands, skills, MCP servers
 writing/                         # Blog writing workflow
-experimental/                    # Kanban workflow + agents
+experimental/                    # Sandbox for experiments (currently empty)
 todoist/ notifications/ mcp/    # Todoist link, notifications, MCP servers
 scripts/                        # Utilities
 .claude/reference/              # Plugin docs
