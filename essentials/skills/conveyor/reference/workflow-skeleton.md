@@ -44,12 +44,12 @@ Every return carries `done`, `head`, `facts` and `decisions` for the orchestrato
 |---|---|---|
 | `invalid-args` | Bad or inconsistent args (including no reviewers, an answer that is not a list of strings, simplify at milestone end without milestone reviewers, or security-audit per slice with milestone-only review). Nothing launched. | Fix args and launch. |
 | `question` | An implementer or fixer needs an answer before building. | `answers[answerKey]`. |
-| `implementer-blocked`, `fixer-blocked`, `simplify-blocked` | 3 failed attempts, a missing hook, or a dirty tree after a commit. Commits an attempt made past `head` stay; a re-run starts from `git log`. | Fix the environment (record it in Environment facts), or answer the blocked call by its label. |
+| `implementer-blocked`, `fixer-blocked`, `simplify-blocked` | 3 failed attempts, a missing hook, or a dirty tree after a commit. Commits an attempt made past `head` stay; a re-run starts from `git log`. | Answer the blocked call by its label (`implement:<id>`, `fix:…`, `simplify:<scope>`). After fixing the environment, record it in Environment facts AND key an answer such as `environment fixed: <what>` to that label: context.md is in no prompt, so without the answer the blocked result replays from cache. |
 | `implementer-null`, `fixer-null`, `reviewers-null`, `simplify-null`, `run-check-null` | The agent died or was classifier-blocked; `reviewers-null` lists the `missing` reviewers. Check the run's errors. | Fix the cause, then resume. If the null result replays from cache, key an answer to that call's label to run it live. |
 | `rounds-cap` | Still blocked after `roundsCap` review rounds. | Raise `roundsCap`, or answer the last fixer or reviewer by label. |
 | `no-progress` | The same blocker set came back twice. | Answer the reviewer (e.g. a ruling on the finding) or the fixer, by label. |
 | `aged-findings` | A resolvable finding was flagged a third time anywhere in the milestone. Standing findings are exempt. | Answer the reviewer by label: mark it standing, or rule on it. |
 | `rejection-without-blockers` | A rejection with no blocking finding gives the fixer nothing to act on. | Answer the reviewer by label. |
-| `run-check-red` | The run tier is still red at the cap, failed the same way twice, or the fixer committed nothing. | Answer the last run-check fixer by label, or fix the environment. |
+| `run-check-red` | The run tier is still red at the cap, failed the same way twice, or the fixer committed nothing. | Answer the last run-check fixer by label. After fixing the environment, key `environment fixed: <what>` to `run-check:r<N>` of the red check so it runs live. |
 
 The behaviour is pinned by `../workflow.test.ts` (`bun test`).

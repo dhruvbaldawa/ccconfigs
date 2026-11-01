@@ -110,7 +110,7 @@ Orchestrator events, outside the workflow:
 - merge conflicts;
 - CI red after push.
 
-For each: intervene with judgment, record the decision in context.md, then pull the lever. Usually that's an answer keyed to the call that should hear it, e.g. Dhruv's ruling on a finding goes in `args.answers['review:senior:slice s1:r2']`; then resume. A resume replays every call before the changed one, so a lever on an earlier call re-runs everything after it. A rejection that outlives the run is still a rejection: the fix re-enters through review via resume.
+For each: intervene with judgment, record the decision in context.md, then pull the lever. Usually that's an answer keyed to the call that should hear it, e.g. Dhruv's ruling on a finding goes in `args.answers['review:senior:slice s1:r2']`; then resume. A resume replays every call before the changed one, so a lever on an earlier call re-runs everything after it. Fixing the environment or editing context.md changes no prompt: pair it with an answer keyed to the failed call, or the same result replays from cache. After a resume, earlier results stay in `journal.jsonl`, so push shas remain findable. A rejection that outlives the run is still a rejection: the fix re-enters through review via resume.
 
 ## Report
 
