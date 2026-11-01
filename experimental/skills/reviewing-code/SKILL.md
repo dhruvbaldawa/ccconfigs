@@ -1,6 +1,6 @@
 ---
 name: reviewing-code
-description: Reviews implemented code for security, quality, performance, and test coverage using specialized review agents with clear accountability. Use when task file is in review/ directory. Launches Security Gatekeeper, Quality Guardian, and Test Auditor in parallel.
+description: Reviews implemented code for security, quality, performance, and test coverage using specialized review agents with clear accountability. Use when task file is in review/ directory. Launches security-reviewer, quality-guardian, and test-coverage-analyzer in parallel.
 ---
 
 # Review
