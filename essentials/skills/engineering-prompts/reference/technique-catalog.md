@@ -154,13 +154,13 @@ Current Claude models think adaptively by default. Control how deeply they reaso
 - Lower effort for routine, high-volume, or latency-sensitive work
 
 ### Token Cost
-Scales with effort level. `high` is the default; `low` still performs well on simple tasks.
+Scales with effort level. The default is `medium` on Opus 5.5 and Haiku 5.5, `high` on most other models - set it explicitly; `low` still performs well on simple tasks.
 
 ### Example
 
 ```python
 client.messages.create(
-    model="claude-opus-5",
+    model="claude-opus-5-5",
     output_config={"effort": "high"},
     messages=[{"role": "user", "content": "Analyze this bug: ..."}],
 )
@@ -275,7 +275,7 @@ Minimal.
 
 ```python
 client.messages.parse(
-    model="claude-opus-5",
+    model="claude-opus-5-5",
     output_config={"format": {"type": "json_schema", "schema": OrderSchema}},
     messages=[{"role": "user", "content": "Extract the order data."}],
 )

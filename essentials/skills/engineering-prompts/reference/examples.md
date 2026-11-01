@@ -408,7 +408,7 @@ Customer John Smith, ID 12345, ordered 3 items for $150
 **With Structured Outputs:**
 ```python
 client.messages.parse(
-    model="claude-opus-5",
+    model="claude-opus-5-5",
     output_config={"format": {"type": "json_schema", "schema": CustomerOrder}},
     messages=[...],
 )
@@ -468,7 +468,7 @@ Expected: +15551234567
 
 ## Complexity Progression
 
-### Level 1: Simple (Haiku 4.5 or low effort)
+### Level 1: Simple (Haiku 5.5 or low effort)
 ```
 Extract the email address from: "Contact John at john@example.com"
 ```
@@ -476,7 +476,7 @@ Extract the email address from: "Contact John at john@example.com"
 - ~15 tokens
 - Obvious single answer
 
-### Level 2: Medium (Sonnet 5)
+### Level 2: Medium (Sonnet 5.5)
 ```xml
 <instructions>
 Analyze this code for potential bugs:
@@ -493,7 +493,7 @@ Analyze this code for potential bugs:
 - ~100 tokens
 - Requires some analysis
 
-### Level 3: Complex (Opus 5 at high effort)
+### Level 3: Complex (Opus 5.5 at high effort)
 ```xml
 <role>
 You are a security researcher analyzing potential vulnerabilities.

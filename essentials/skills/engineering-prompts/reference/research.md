@@ -200,12 +200,12 @@ Latest findings from Anthropic research and community best practices for prompt 
 | Model | ID | Input/Output $/M | Best for |
 |---|---|---|---|
 | Claude Fable 5.1 | `claude-fable-5-1` | $10 / $50 | Hardest reasoning, long-horizon agentic work |
-| Claude Opus 5 | `claude-opus-5` | $5 / $25 | Default for most work |
-| Claude Sonnet 5 | `claude-sonnet-5` | $2 / $10 | Balanced production workloads |
-| Claude Haiku 4.5 | `claude-haiku-4-5` | $1 / $5 | High-volume simple tasks (200K context) |
+| Claude Opus 5.5 | `claude-opus-5-5` | $4 / $20 | Default for most work (effort defaults to `medium`) |
+| Claude Sonnet 5.5 | `claude-sonnet-5-5` | $2 / $10 | Balanced production workloads |
+| Claude Haiku 5.5 | `claude-haiku-5-5` | $0.10 / $0.50 | High-volume simple tasks |
 
 **Architectural Implication:**
-- Orchestrator on Opus 5 or Fable 5.1 + cheap subagents on Haiku 4.5 or low-effort Sonnet 5
+- Orchestrator on Opus 5.5 or Fable 5.1 + cheap subagents on Haiku 5.5 or low-effort Sonnet 5.5
 - Before adding a cheaper model, try the capable model at lower `effort` - it often matches prior-generation quality at lower cost and keeps one cache namespace
 - Task routing based on complexity assessment
 
@@ -324,7 +324,7 @@ Prompts written for older models are often too prescriptive for current ones and
 **Key Parameters:**
 - `thinking: {type: "adaptive"}` (or omit - Fable 5.1 has thinking always on)
 - `output_config.effort`: `low` / `medium` / `high` / `xhigh` / `max` - the depth control
-- `budget_tokens` is rejected on Fable 5/5.1, Opus 5/4.7/4.8, Sonnet 5
+- `budget_tokens` is rejected on Fable 5/5.1, Opus 5.5/5/4.7/4.8, Sonnet 5.5/5, Haiku 5.5
 - `display: "summarized"` to read a reasoning summary; the raw chain of thought is never returned
 
 **Use Cases:**
@@ -503,7 +503,7 @@ Yes      No
 7. **Agents need transparency**: Show reasoning, enable human verification
 8. **Context is finite**: Manage attention budget deliberately
 9. **Measure everything**: Remove techniques that don't improve outcomes
-10. **Economic optimization**: Right model and effort for the task (Haiku 4.5 → Sonnet 5 → Opus 5 → Fable 5.1)
+10. **Economic optimization**: Right model and effort for the task (Haiku 5.5 → Sonnet 5.5 → Opus 5.5 → Fable 5.1)
 
 ---
 
