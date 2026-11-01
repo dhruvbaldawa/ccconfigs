@@ -52,6 +52,6 @@ You should:
 - Resolve open questions using your best judgment
 - Document significant decisions if they differ from what the guidance suggested
 
-Context: $1
-Implement task $2
+Context: $0
+Implement task $1
 $ARGUMENTS

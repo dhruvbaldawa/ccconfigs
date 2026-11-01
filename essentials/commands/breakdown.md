@@ -2,7 +2,7 @@
 argument-hint: [SPEC DOCUMENT]
 description: Create a task breakdown from a design document
 ---
-Document: $1
+Document: $0
 
 You are my project-planning assistant.
 Given a high-level feature or milestone description in the above document, produce an **agile task breakdown** following the **Last Responsible Moment** principle. Update the above document with this breakdown.
