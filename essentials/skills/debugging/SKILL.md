@@ -1,6 +1,6 @@
 ---
 name: debugging
-description: Systematic debugging that identifies root causes rather than treating symptoms. Uses structured multi-hypothesis reasoning for complex analysis, web search for research, and structured investigation to avoid circular reasoning and whack-a-mole fixes.
+description: Systematic debugging that identifies root causes rather than treating symptoms. Use when a bug, failing test, or unexpected behavior has no obvious cause, or a first fix attempt didn't hold. Uses structured multi-hypothesis reasoning for complex analysis, web search for research, and structured investigation to avoid circular reasoning and whack-a-mole fixes.
 ---
 
 # Debugging

@@ -1,6 +1,6 @@
 ---
 argument-hint: [TOPIC]
-description: Create a new blog post with braindump and draft files, then start brainstorming conversation
+description: Create a new blog post with braindump and draft files, then refine the idea through conversation
 ---
 
 Topic: $1
@@ -78,4 +78,4 @@ status: draft
 
 ## After Setup
 
-After creating the files, invoke the brainstorming skill (from essentials plugin) and refine the idea before any drafting - the draft comes later, from an agreed outline. Explore what triggered the topic, the core argument, and the audience, and update braindump.md as ideas develop.
+After creating the files, refine the idea through questions, one at a time, before any drafting - the draft comes later, from an agreed outline. Explore what triggered the topic, the core argument, and the audience, and update braindump.md as ideas develop.

@@ -1,6 +1,6 @@
 ---
 name: project-setup
-description: Bootstrap new projects with strong typing, linting, formatting, and testing. Supports Python, TypeScript, and other languages with research fallback.
+description: Bootstrap new projects with strong typing, linting, formatting, and testing. Supports Python, TypeScript, and other languages with research fallback. Use when starting a new project or adding typing, linting, formatting, or test tooling to one that lacks it.
 ---
 
 # Project Setup

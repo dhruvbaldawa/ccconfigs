@@ -20,6 +20,7 @@ echo -e "${BLUE}Setting up Claude Code configuration symlinks...${NC}\n"
 
 # Ensure ~/.claude directory exists
 mkdir -p "${CLAUDE_DIR}"
+mkdir -p "${CLAUDE_DIR}/rules"
 mkdir -p "${STATUSLINE_DIR}"
 
 # Function to create symlink idempotently
@@ -54,6 +55,7 @@ create_symlink() {
 # Create symlinks
 create_symlink "${CONFIG_DIR}/CLAUDE.md" "${CLAUDE_DIR}/CLAUDE.md"
 create_symlink "${CONFIG_DIR}/settings.json" "${CLAUDE_DIR}/settings.json"
+create_symlink "${CONFIG_DIR}/rules/code.md" "${CLAUDE_DIR}/rules/code.md"
 create_symlink "${CONFIG_DIR}/statusline.json" "${STATUSLINE_DIR}/settings.json"
 
 echo -e "\n${BLUE}Done! Your global Claude Code configuration is now managed from:${NC}"

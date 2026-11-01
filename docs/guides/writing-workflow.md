@@ -12,7 +12,7 @@ This creates:
 - `posts/your-topic-idea/braindump.md` - Messy workspace for ideas
 - `posts/your-topic-idea/draft.md` - Polished blog post
 
-Then starts brainstorming conversation.
+Then starts a question-led conversation to refine the idea.
 
 ## Philosophy
 
@@ -31,8 +31,7 @@ Then starts brainstorming conversation.
 
 **What happens:**
 1. Creates directory structure and files
-2. Invokes **brainstorming skill** (from essentials)
-3. Starts conversation with questions
+2. Starts a conversation with questions, one at a time
 
 **Example conversation:**
 ```
@@ -93,13 +92,12 @@ Engineering managers and tech leads who've struggled with OKRs.
 
 ### Phase 2: Research (Optional)
 
-**During brainstorming**, use research naturally:
+**During ideation**, use research naturally:
 
 ```
 You: Are there studies on this? Goodhart's Law seems relevant.
 
-AI: [invokes research-synthesis skill]
-    [uses WebSearch to research]
+AI: [uses WebSearch to research]
 
     Yes! Goodhart's Law: "When a measure becomes a target, it ceases
     to be a good measure."
@@ -247,8 +245,8 @@ AI: [applies changes]
 
 ## Skills Used
 
-### brainstorming (essentials)
-**When**: During ideation phase
+### Ideation (conversation, no skill)
+**When**: After `/new-post`, before outlining
 **What**:
 - Asks questions to draw out YOUR ideas (not Claude's)
 - Explores tensions and contradictions
@@ -258,13 +256,13 @@ AI: [applies changes]
 
 **Transition**: When core argument clear + 2-3 examples → ready to outline
 
-### research-synthesis (essentials)
-**When**: During conversation (as needed)
+### Research (built-in tools)
+**When**: During conversation (as needed); use `/deep-research` for larger questions
 **What**:
 - WebSearch / Parallel Search: broad research, studies, patterns
 - WebFetch: specific URLs, implementations, examples
 - Context7: technical docs (for technical posts)
-- Synthesizes into narrative (not list dump)
+- Summarize findings as narrative (not a list dump)
 - Maintains source attribution in braindump
 
 **Natural integration**: Research happens in flow of conversation
@@ -346,7 +344,7 @@ posts/[topic]/
 └── draft.md      (with structure template)
 ```
 
-**Then:** Starts brainstorming conversation
+**Then:** Starts a question-led conversation
 
 **Example:**
 ```bash
@@ -452,7 +450,7 @@ You: Let's wrap this up with practical takeaways
 ### Start with Questions, Not Answers
 
 **Don't:** "Write about microservices"
-**Do:** Let brainstorming ask questions to refine scope
+**Do:** Let the questions refine scope
 
 The conversation will reveal the specific angle.
 

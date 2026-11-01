@@ -9,7 +9,7 @@ The user has asked for a **retrospective**. You are suggesting improvements to t
 
 ## Steps
 
-1. Invoke the `claude-md-authoring` skill for guidance on writing steering files that agents actually follow.
+1. Read Claude Code's guidance on instruction files (https://code.claude.com/docs/en/memory and https://code.claude.com/docs/en/best-practices) so your suggestions follow it: only what Claude can't infer from the code, rules with no exceptions as hooks or deny rules, part-of-codebase rules as path-scoped rules, procedures as skills.
 
 2. Read the primary sources for the session the user specifies. This may mean searching through session logs on this machine. If the user doesn't specify a session, default to the current one.
 
