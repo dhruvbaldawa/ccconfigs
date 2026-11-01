@@ -10,7 +10,7 @@ Analyzing this branch vs main...
 
 ## Branch Info
 
-Current branch: `git rev-parse --abbrev-ref HEAD`
+Current branch: !`git rev-parse --abbrev-ref HEAD`
 
 !`git fetch origin main 2>/dev/null; echo "Commits ahead of main:" && git log main..HEAD --oneline | wc -l && echo "" && echo "Files changed:" && git diff main...HEAD --name-only | wc -l`
 
