@@ -5,7 +5,7 @@ source: https://www.reddit.com/r/ClaudeCode/comments/1o3ku9t/hack_and_slash_your
 
 # Optimize Documentation
 
-**Task**: Optimize `{{arg}}`
+**Task**: Optimize `$ARGUMENTS`
 
 ## Objective
 
@@ -157,7 +157,7 @@ SUCCESS CRITERIA:
 
 ## Execution Instructions
 
-1. Read `{{arg}}`
+1. Read `$ARGUMENTS`
 2. **For large documents (>100 lines)**: Use TodoWrite to track sections:
    ```
    ☐ Section: [name] - analyze clarity

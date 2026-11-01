@@ -75,7 +75,7 @@ to application/json and validates structure separately.
 
 ## Your Task
 
-Commit message context: "${{{ARGS}}}"
+Commit message context: "$ARGUMENTS"
 
 ### Step 1: Analyze Changes
 

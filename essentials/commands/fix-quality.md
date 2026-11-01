@@ -5,7 +5,7 @@ argument-hint: [FILES OR PATTERN]
 
 # Fix Quality Issues
 
-Fix quality issues in `{{ARGS}}` (files, glob pattern, or `.` for entire project).
+Fix quality issues in `$ARGUMENTS` (files, glob pattern, or `.` for entire project).
 
 ## Priority Order
 

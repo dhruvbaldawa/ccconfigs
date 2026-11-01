@@ -5,7 +5,7 @@ argument-hint: <task description>
 
 # Plan with Atomic Commits
 
-**Task:** $ARGS
+**Task:** $ARGUMENTS
 
 **FIRST**: Use the EnterPlanMode tool immediately.
 

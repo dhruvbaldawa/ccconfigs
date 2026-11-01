@@ -16,7 +16,7 @@ Complete end-to-end workflow from planning through implementation.
 
 ### Phase 1: Planning
 
-1. Run `/plan-feature` workflow to analyze: "${{{ARGS}}}"
+1. Run `/plan-feature` workflow to analyze: "$ARGUMENTS"
    - This invokes technical-planning skill with full rigor
    - Creates `.plans/<project>/` with plan.md and tasks in pending/
 2. After planning, extract project name and summarize
@@ -36,7 +36,7 @@ Follow same workflow as `/implement-plan <project-name>`:
 ### Phase 3: Final Summary
 
 ```markdown
-✅ Feature Complete: "{{{ARGS}}}"
+✅ Feature Complete: "$ARGUMENTS"
 
 Project: <project-name>
 Tasks: X/X completed (Foundation: Y, Integration: Z, Polish: W)

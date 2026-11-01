@@ -103,7 +103,7 @@ Skipped: 2 findings
 
 Next steps:
 - Review pending/ to adjust priorities
-- Run /implement-plan {{ARGS}} to start fixing
+- Run /implement-plan $ARGUMENTS to start fixing
 ```
 
 ## Priority Mapping

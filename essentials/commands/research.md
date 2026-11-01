@@ -16,7 +16,7 @@ Research specific blocker or question using specialized research agents and MCP 
 
 ## Your Task
 
-Research: "${{{ARGS}}}"
+Research: "$ARGUMENTS"
 
 ### Step 1: Analyze & Select Agents
 

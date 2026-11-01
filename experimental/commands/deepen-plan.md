@@ -5,7 +5,7 @@ argument-hint: [PROJECT]
 
 # Deepen Plan
 
-Enhance `.plans/{{ARGS}}/plan.md` with research insights before implementation.
+Enhance `.plans/$ARGUMENTS/plan.md` with research insights before implementation.
 
 ## Usage
 
@@ -100,7 +100,7 @@ Write enhanced plan and present options:
 
 Options:
 1. View diff (show changes)
-2. Start /implement-plan {{ARGS}}
+2. Start /implement-plan $ARGUMENTS
 3. Deepen further (run additional research)
 ```
 

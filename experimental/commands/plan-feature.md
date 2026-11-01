@@ -7,7 +7,7 @@ description: Sprint planning - create or continue .plans/ with risk-prioritized 
 
 Sprint planning for `.plans/<project>/` - same rigor whether starting fresh or continuing.
 
-**Request:** $ARGS
+**Request:** $ARGUMENTS
 
 ## Detect Mode
 

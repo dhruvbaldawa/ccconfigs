@@ -17,7 +17,7 @@ If project is omitted, will prompt to select from existing projects in `.plans/`
 
 ## Your Task
 
-Create a new task file in `.plans/<project>/pending/` based on the description: "${{{ARGS}}}"
+Create a new task file in `.plans/<project>/pending/` based on the description: "$ARGUMENTS"
 
 ### Step 1: Parse arguments
 

@@ -5,7 +5,7 @@ argument-hint: [PROJECT] [--auto] [--express "task"]
 
 # Implement Plan
 
-Execute tasks from `.plans/{{ARGS}}/pending/` through the development loop.
+Execute tasks from `.plans/$ARGUMENTS/pending/` through the development loop.
 
 ## Usage
 
@@ -97,7 +97,7 @@ When escalating:
 
 ## Setup
 
-1. Verify `.plans/{{ARGS}}/pending/` has tasks (if not: "Run /plan-feature first")
+1. Verify `.plans/$ARGUMENTS/pending/` has tasks (if not: "Run /plan-feature first")
 2. Detect `--auto` flag, report: "Flag check: --auto is [PRESENT/ABSENT]"
 3. Create todo list from pending tasks
 
@@ -219,7 +219,7 @@ Append completion metadata to task file using Edit tool:
 1. Draft descriptive commit message (what was accomplished, not "task NNN")
 2. Show message, ask: "commit/yes", "skip", or "edit [message]"
 3. **STOP and WAIT** - each task needs its own confirmation
-4. Stage code + task file: `git add . .plans/{{ARGS}}/completed/NNN-*.md`
+4. Stage code + task file: `git add . .plans/$ARGUMENTS/completed/NNN-*.md`
 5. Commit, then continue to next task
 
 ### 7. Progress
@@ -318,7 +318,7 @@ Rules during execution:
 ```
 ✅ Development Loop Complete
 
-Project: {{ARGS}}
+Project: $ARGUMENTS
 Completed: X/X tasks | Blocked: Y | Commits: Z
 Final Test Coverage: XX%
 ```
@@ -338,4 +338,4 @@ Final Test Coverage: XX%
 - **Cycle limits**: Max 3 rejections or test fixes before stop-and-report
 - **Express mode**: `--express "task"` for simple changes without kanban ceremony
 - **Skills run in main conversation**: Full visibility into implementation/review
-- **State persists**: Resume anytime with `/implement-plan {{ARGS}}`
+- **State persists**: Resume anytime with `/implement-plan $ARGUMENTS`
