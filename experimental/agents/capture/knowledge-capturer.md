@@ -1,7 +1,7 @@
 ---
 name: knowledge-capturer
 description: Extracts structured learnings from problem-solving sessions when blockers are resolved
-model: claude-haiku-4-5
+model: claude-haiku-5-5
 color: green
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: researcher
 description: Research agent for unblocking implementation - broad surveys, deep-dives into specific sources, or official documentation lookups, selected by mode
-model: claude-haiku-4-5
+model: claude-haiku-5-5
 color: blue
 ---
 

@@ -1,5 +1,5 @@
 ---
-model: claude-haiku-4-5
+model: claude-haiku-5-5
 allowed-tools: Bash(git:*)
 argument-hint: "[optional: description or specific files]"
 description: "Smart commit workflow - adapts to change size"
