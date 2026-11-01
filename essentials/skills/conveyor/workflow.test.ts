@@ -329,7 +329,15 @@ describe('run check', () => {
     expect(calls.find((c) => c.label === 'fix:run-check:r1')!.prompt).toContain('TAIL-RED');
     const check = calls.find((c) => c.label === 'run-check:r1')!;
     expect(check.opts.model).toBe('haiku');
-    expect(check.prompt).toContain('rtk proxy make check-run');
+    expect(check.prompt).toContain("rtk proxy sh -c 'make check-run'");
+  });
+
+  test('a compound run check is quoted whole for sh -c', async () => {
+    const { calls } = await run(ARGS({ slices: [SLICE('s1')], runCheck: "sleep 1 && echo 'ok'" }), {
+      ...ok,
+      'run-check:': () => ({ pass: true, tail: '' }),
+    });
+    expect(promptOf(calls, 'run-check:r1')).toContain(`rtk proxy sh -c 'sleep 1 && echo '\\''ok'\\'''`);
   });
 
   test('red past the rounds cap → run-check-red', async () => {
@@ -534,6 +542,32 @@ describe('exception contents', () => {
   });
 });
 
+describe('hook log hand-off', () => {
+  test('commits without a hook log clear it, so reviewers re-run the commit tier', async () => {
+    const { calls } = await run(ARGS({ slices: [SLICE('s1')], skills: { simplify: ['slice'] } }), {
+      ...ok,
+      'implement:': () => committed({ hookLog: 'IMPL-LOG' }),
+      'simplify:': () => ({ status: 'committed', shas: ['simp'], summary: 's' }),
+    });
+    const review = promptOf(calls, 'review:senior:slice s1:r1');
+    expect(review).not.toContain('IMPL-LOG');
+    expect(review).toContain('(missing');
+    expect(promptOf(calls, 'simplify:slice s1')).toContain('git status --porcelain');
+  });
+
+  test('a re-review names the scope, the full range and the fix commits', async () => {
+    const { calls } = await run(ARGS({ slices: [SLICE('s1')] }), {
+      ...ok,
+      'implement:': () => committed({ shas: ['impl1'] }),
+      'review:senior:': (_c, n) => (n === 0 ? needsWork('x') : ship),
+      'fix:': () => committed({ shas: ['fix1'] }),
+    });
+    const p = promptOf(calls, 'review:senior:slice s1:r2');
+    expect(p).toContain('slice s1 (commit range base0..fix1)');
+    expect(p).toContain('Fix commits: impl1..fix1');
+  });
+});
+
 describe('reservations', () => {
   test('a reservation from a carried approval stays in the open ledger', async () => {
     const reserve = (id: string) => ({ verdict: 'APPROVED WITH RESERVATIONS', findings: [{ id, summary: id, file: 'a.ts', blocking: false }] });
@@ -591,6 +625,16 @@ describe('answers', () => {
     expect(promptOf(calls, 'fix:run-check:r1')).toContain('RC-ANSWER');
     expect(promptOf(calls, 'fix:milestone:r1')).toContain('MS-ANSWER');
     expect(calls.filter((c) => /RC-ANSWER|MS-ANSWER/.test(c.prompt)).map((c) => c.label)).toEqual(['fix:run-check:r1', 'fix:milestone:r1']);
+  });
+
+  test('answers reach the reviewer and run-check calls they are keyed to', async () => {
+    const { calls } = await run(
+      ARGS({ slices: [SLICE('s1')], runCheck: 'rc', answers: { 'review:senior:slice s1:r1': ['x is standing'], 'run-check:r1': ['use bun 1.4'] } }),
+      { ...ok, 'run-check:': () => ({ pass: true, tail: '' }) },
+    );
+    expect(promptOf(calls, 'review:senior:slice s1:r1').trimEnd().endsWith('- x is standing')).toBe(true);
+    expect(promptOf(calls, 'review:test:slice s1:r1')).not.toContain('x is standing');
+    expect(promptOf(calls, 'run-check:r1').trimEnd().endsWith('- use bun 1.4')).toBe(true);
   });
 
   test('a question exception names the asking call as the answer key', async () => {

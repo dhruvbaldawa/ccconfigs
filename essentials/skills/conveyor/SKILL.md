@@ -42,7 +42,7 @@ Dhruv opens a fresh session (`/clear`) and types a bare `/conveyor <milestone>`,
 5. **Workspace**: `.conveyor/<milestone>/`, with `.conveyor/` in `.git/info/exclude`.
    - Copy `workflow.js` from this skill's base directory there.
    - Write `args.json` beside it; `reference/workflow-skeleton.md` defines every field.
-   - Write `context.md` (sections below) and create `log.md`.
+   - Write `context.md` (sections below) and create `log.md`. Its Code standards section copies the code rules from the global and repo CLAUDE.md (headers such as ABOUTME, comments, naming, tests): the implementer and fixer run without CLAUDE.md, and the reviewers judge against it.
 6. **Go**: show the slice list and wait for Dhruv's go. Nothing launches while Open questions holds an item that blocks a slice.
 
 ## Launch
@@ -65,11 +65,14 @@ Arm a Monitor on the run's transcript dir (from the Workflow result):
 | Event | You do |
 |---|---|
 | `started <label>` | Nothing. The wake refreshes the cache. |
-| `finished <label>` | Read that agent's result in `journal.jsonl`. Write new facts and decisions to context.md and evidence to log.md. If push is per slice and this was the slice's last review round with every reviewer approving, push that slice's head explicitly: `git push <remote> <sha>:refs/heads/<branch>`, where `<sha>` is the last sha from the slice's implement, simplify or fix results in the journal. Never a bare `git push`: the next slice's implementer may already have committed. |
+| `finished <label>` | Read that agent's result in `journal.jsonl`. Write new facts and decisions to context.md and evidence to log.md. |
+| `started implement:<id>` or `started run-check:r1` | Push per slice: the slice before it is done and approved. Push its head explicitly: `git push <remote> <sha>:refs/heads/<branch>`, where `<sha>` is the last sha in that slice's implement, simplify and fix results in the journal. Never a bare `git push`: the next agent may already have committed. |
+| workflow returns `complete` | Push `result.head` explicitly, in both push modes: it carries the last slice and every milestone-end commit. Then write the Report. |
 | `stall <label> <tool> <N>min` | PushNotification to Dhruv with agent, tool and minutes. A permission prompt is Dhruv's to approve. A hung command: stop the run from `/workflows` and resume. |
 | `long <label> turns=N ctx=Kk` | PushNotification: "<label> is long: N turns, Kk". Dhruv decides whether to split. |
 | agent message | Write it into context.md. Never reply (see Messaging). A question that needs an answer goes to Dhruv and under Open questions. |
 | workflow returns `question` | Answer from context.md or ask Dhruv; record the decision; put the answer in `args.answers[<answerKey>]` and resume. |
+| workflow returns another exception | See Exceptions. |
 
 ## Messaging
 
@@ -79,6 +82,7 @@ Subagents may SendMessage to `"main"`. You never SendMessage to a workflow agent
 
 You are its only writer; subagents read it first and report facts, decisions and questions through their results. No size budget for now.
 
+- **Code standards**: the code rules from the global and repo CLAUDE.md, copied at seed.
 - **Mechanics**:
   - the seed answers;
   - the check tiers;
@@ -92,19 +96,21 @@ You are its only writer; subagents read it first and report facts, decisions and
 
 ## Exceptions — your only job
 
-The workflow returns early with structured state and the facts gathered so far. `reference/workflow-skeleton.md` lists every kind:
+The workflow returns early with structured state, `done`, `head` and the facts gathered so far. Its kinds, each with the lever that changes the outcome on resume, are in `reference/workflow-skeleton.md`:
 - `question` (carries the `answerKey` for `args.answers`);
-- `implementer-blocked` or `fixer-blocked` (3 failed attempts, no hook, or a dirty tree after a commit);
-- the rounds cap;
-- a resolvable finding flagged three times across the milestone (`standing` reservations exempt);
-- a rejection with zero blocking findings;
-- an identical blocker set across rounds;
-- a null agent (died or classifier-blocked: check the progress errors before assuming a crash);
-- the run check red past the cap or failing the same way twice;
+- `implementer-blocked`, `fixer-blocked` or `simplify-blocked` (3 failed attempts, no hook, or a dirty tree after a commit);
+- `rounds-cap`;
+- `aged-findings`: a resolvable finding flagged three times across the milestone (`standing` reservations exempt);
+- `rejection-without-blockers`;
+- `no-progress`: an identical blocker set across rounds;
+- a null agent, including `reviewers-null` with its `missing` list (died or classifier-blocked: check the progress errors before assuming a crash);
+- `run-check-red`.
+
+Orchestrator events, outside the workflow:
 - merge conflicts;
 - CI red after push.
 
-For each: intervene with judgment, record the decision in context.md, change args, resume. A rejection that outlives the run is still a rejection: the fix re-enters through review via resume.
+For each: intervene with judgment, record the decision in context.md, then pull the lever. Usually that's an answer keyed to the call that should hear it, e.g. Dhruv's ruling on a finding goes in `args.answers['review:senior:slice s1:r2']`; then resume. A resume replays every call before the changed one, so a lever on an earlier call re-runs everything after it. A rejection that outlives the run is still a rejection: the fix re-enters through review via resume.
 
 ## Report
 

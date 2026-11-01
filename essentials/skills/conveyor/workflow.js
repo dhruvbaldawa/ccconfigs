@@ -122,12 +122,16 @@ const prompt = (body, label) => (STANDARDS ? STANDARDS + '\n' : '') +
 const done = []
 let lastHookLog = null   // the most recent hook log any committing agent reported
 const exit = (kind, extra) => ({ status: 'exception', kind, ...extra, done, head, facts, decisions })
+// Single-quotes a string for sh, so a compound Run check (a && b) runs whole under rtk proxy.
+const shellQuote = s => "'" + s.replace(/'/g, "'\\''") + "'"
 const lastSha = r => (r.shas && r.shas.length ? r.shas[r.shas.length - 1] : null)
 
 // Takes a committing agent's result: records facts, moves head and the hook log.
+// New commits without a hook log clear it, so reviewers re-run the commit tier
+// rather than trust an older agent's log.
 const landed = r => {
   absorb(r)
-  if (lastSha(r)) { head = lastSha(r); lastHookLog = r.hookLog || lastHookLog }
+  if (lastSha(r)) { head = lastSha(r); lastHookLog = r.hookLog || null }
 }
 
 // Path hygiene for approval staleness: extraFiles may come back absolute or
@@ -177,11 +181,11 @@ async function reviewLoop(scope, base, set, P) {
           : '') +
         (firstRound
           ? 'First review — full depth: judge ' + scope + ' (commit range ' + range + ') against the whole repo.'
-          : 'Re-review — delta only. Fix commits: ' + fixRange + '. Your prior findings (reuse each id verbatim if you re-flag it): ' + JSON.stringify(prior[k] || [])) +
+          : 'Re-review — delta only, on ' + scope + ' (commit range ' + range + '). Fix commits: ' + fixRange + '. Your prior findings (reuse each id verbatim if you re-flag it): ' + JSON.stringify(prior[k] || [])) +
         '\nHook log from the last commit: ' + (lastHookLog || '(missing — re-run the commit tier yourself)')
       const opts = { label: 'review:' + k + ':' + scope + ':r' + rounds, schema: VERDICT, phase: P }
       if (who.agentType) opts.agentType = who.agentType
-      return agent(prompt(body), opts).then(v => v && { k, v })
+      return agent(prompt(body, opts.label), opts).then(v => v && { k, v })
     }))).filter(Boolean)
     // Any reviewer missing (died, skipped, classifier-blocked) is an exception:
     // treating its silence as approval or rejection would misreport the slice.
@@ -225,7 +229,8 @@ async function reviewLoop(scope, base, set, P) {
 
 async function simplify(scope, base, P) {
   const r = await agent(prompt(
-    'Invoke the simplify skill on commit range ' + base + '..' + head + ' (' + scope + '). Apply its edits, then commit them through the pre-commit hook as new commits whose messages describe the change only (never --no-verify or --amend). No edits worth making → status committed with no shas.'),
+    'Invoke the simplify skill on commit range ' + base + '..' + head + ' (' + scope + '). Apply its edits, then commit them through the pre-commit hook as new commits whose messages describe the change only (never --no-verify or --amend). No edits worth making → status committed with no shas. ' +
+    'Report hookLog: the tail of the last hook run, then `git status --porcelain` after your last commit. A path you edited still showing there means the hook passed on code the commit lacks → status blocked with that output.'),
     { label: 'simplify:' + scope, schema: IMPL, phase: P })
   if (!r) return exit('simplify-null', { scope })
   if (r.status !== 'committed') { absorb(r); return exit('simplify-blocked', { scope, summary: r.summary }) }
@@ -273,11 +278,12 @@ if (RUN_CHECK) {
   let checkRounds = 0, prevTail = null
   for (;;) {
     checkRounds++
+    const checkLabel = 'run-check:r' + checkRounds
     const check = await agent(
-      'Run exactly this command from the repo root and report the result; change nothing: rtk proxy ' + RUN_CHECK +
-      '\n(rtk proxy bypasses output rewriting; if rtk is not installed, run the command directly.)' +
-      '\npass is true only when the exit code is 0. tail is the last 80 lines of output.',
-      { label: 'run-check:r' + checkRounds, model: 'haiku', schema: CHECK_RESULT, phase: P })
+      'Run exactly this command from the repo root and report the result; change nothing: rtk proxy sh -c ' + shellQuote(RUN_CHECK) +
+      '\n(rtk proxy bypasses output rewriting; if rtk is not installed, run sh -c with the same argument.)' +
+      '\npass is true only when the exit code is 0. tail is the last 80 lines of output.' + answered(checkLabel),
+      { label: checkLabel, model: 'haiku', schema: CHECK_RESULT, phase: P })
     if (!check) return exit('run-check-null', {})
     if (check.pass) break
     if (checkRounds >= RUN_CAP || check.tail === prevTail) return exit('run-check-red', { tail: check.tail, rounds: checkRounds })
