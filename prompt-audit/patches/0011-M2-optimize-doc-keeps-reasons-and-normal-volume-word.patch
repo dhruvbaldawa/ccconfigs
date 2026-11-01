@@ -1,0 +1,68 @@
+From 00357e759322643135a6e5d89988c1a92a4ed0e5 Mon Sep 17 00:00:00 2001
+From: audit <audit@local>
+Date: Sun, 1 Nov 2026 11:53:05 +0000
+Subject: [PATCH 11/13] M2: optimize-doc keeps reasons and normal-volume
+ wording
+
+---
+ essentials/commands/optimize-doc.md | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
+
+diff --git a/essentials/commands/optimize-doc.md b/essentials/commands/optimize-doc.md
+index be756d4..7e4667a 100644
+--- a/essentials/commands/optimize-doc.md
++++ b/essentials/commands/optimize-doc.md
+@@ -37,7 +37,7 @@ Check if examples serve operational purpose:
+ 
+ | Keep If | Remove If |
+ |---------|-----------|
+-| Defines what "correct" looks like | Explains WHY (educational) |
++| Defines what "correct" looks like | Background a reader doesn't act on |
+ | Shows exact commands/success criteria | Restates clear instruction |
+ | Sequential workflow (order matters) | Obvious application of clear rule |
+ | Resolves ambiguity | Duplicate template |
+@@ -114,9 +114,9 @@ Before removing ANY content:
+    - NO → KEEP (execution-critical)
+    - YES → Continue
+ 
+-2. **Does this explain WHY (rationale/educational)?**
+-   - YES → REMOVE
+-   - NO → KEEP (operational)
++2. **Is this the reason behind a rule?**
++   - YES → KEEP, next to its rule (the reason is how the model applies the rule to cases the text doesn't name)
++   - NO → Continue
+ 
+ 3. **Does this show WHAT "correct" looks like?**
+    - YES → KEEP (execution-critical)
+@@ -128,10 +128,9 @@ Before removing ANY content:
+ 
+ ### Examples
+ 
+-❌ **Remove** (explains WHY):
++✅ **Keep, shortened** (the reason for a rule):
+ ```
+-RATIONALE: Git history rewriting can silently drop commits...
+-Manual verification is the only reliable way to ensure no data loss.
++Verify manually: history rewrites can silently drop commits.
+ ```
+ 
+ ✅ **Keep** (defines WHAT "correct" means):
+@@ -146,13 +145,13 @@ SUCCESS CRITERIA:
+ 
+ 1. **Eliminate redundancy**: Remove repeated info, consolidate overlapping instructions
+ 2. **Tighten language**: "execute" not "you MUST execute", "to" not "in order to", remove filler
+-3. **Structure over prose**: Bullets not paragraphs, tables for multi-dimensional info, numbered steps for sequences
++3. **Structure for reference, prose for behavior**: tables for multi-dimensional data, numbered steps where order matters, a sentence that carries its "because" for behavioral guidance
+ 4. **Preserve essentials**: Keep executable commands, data formats, boundaries, criteria, patterns
+ 
+ **Never sacrifice**:
+ - Scannability (vertical lists > comma-separated)
+ - Pattern recognition (checkmarks/bullets > prose)
+-- Explicit criteria ("ALL", "NEVER", exact counts/strings)
++- Explicit criteria (scope words, exact counts/strings) - stated at normal volume
+ - Prevention patterns (prohibited vs required)
+ 
+ ## Execution Instructions
+-- 
+2.43.0
+

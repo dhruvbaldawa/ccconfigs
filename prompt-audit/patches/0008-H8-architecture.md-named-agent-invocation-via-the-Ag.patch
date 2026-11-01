@@ -1,0 +1,49 @@
+From 8ae1b4b65f0d8c36cc278ef7f06e1b4b1fd4a2ce Mon Sep 17 00:00:00 2001
+From: audit <audit@local>
+Date: Sun, 1 Nov 2026 11:53:05 +0000
+Subject: [PATCH 08/13] H8: architecture.md - named-agent invocation via the
+ Agent tool, as the skills do
+
+---
+ .claude/reference/architecture.md | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/.claude/reference/architecture.md b/.claude/reference/architecture.md
+index 1c31ba3..96e47db 100644
+--- a/.claude/reference/architecture.md
++++ b/.claude/reference/architecture.md
+@@ -2,7 +2,7 @@
+ 
+ ## Commands vs Skills vs Agents
+ 
+-Commands are explicit user entry points with arguments (`/breakdown spec.md`). Skills are reusable methodologies Claude can invoke proactively or on request ("use systematic debugging"). Agents are specialized subprocesses with isolated context for focused analysis (run via Task tool). This three-tier separation allows: (1) commands to orchestrate workflows, (2) skills to guide methodology and invoke agents, (3) agents to perform specialized analysis in parallel.
++Commands are explicit user entry points with arguments (`/breakdown spec.md`). Skills are reusable methodologies Claude can invoke proactively or on request ("use systematic debugging"). Agents are specialized subprocesses with isolated context for focused analysis (run via the Agent tool). This three-tier separation allows: (1) commands to orchestrate workflows, (2) skills to guide methodology and invoke agents, (3) agents to perform specialized analysis in parallel.
+ 
+ ## Agents are for specialized analysis, not general workflows
+ 
+@@ -44,16 +44,16 @@ Agents designed for parallel execution: launch every Agent call in a single mess
+ 
+ Skills and commands don't name a todo tool: Claude Code offers the task-tracking tools only on older models, and current models track multi-step work without one. Put durable progress in the plan or task file instead.
+ 
+-## Task Tool for Agent Invocation
++## Agent Tool for Agent Invocation
+ 
+-Invoke specialized agents using Task tool with `subagent_type="general-purpose"`:
++Invoke a plugin agent by its namespaced name; the agent file supplies the prompt, so pass only the task context:
+ 
+ ```
+-Task(
++Agent(
+   description: "Analyze test coverage",
+-  prompt: "[Full agent prompt with context]",
+-  subagent_type: "general-purpose"
++  prompt: "[Task context: files, diff, task file path]",
++  subagent_type: "experimental:review:test-coverage-analyzer"
+ )
+ ```
+ 
+-For parallel invocation, call multiple Task invocations in a single message.
++For parallel invocation, put multiple Agent calls in a single message.
+-- 
+2.43.0
+

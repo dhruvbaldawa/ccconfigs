@@ -1,0 +1,40 @@
+From 3ca4b57cdb67bddb72a4f15e3fa3434ee36457d9 Mon Sep 17 00:00:00 2001
+From: audit <audit@local>
+Date: Sun, 1 Nov 2026 11:53:04 +0000
+Subject: [PATCH 02/13] H2: positional placeholders are 0-based ($0 = first
+ argument)
+
+---
+ essentials/commands/breakdown.md | 2 +-
+ essentials/commands/do.md        | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/essentials/commands/breakdown.md b/essentials/commands/breakdown.md
+index af28705..b9eea85 100644
+--- a/essentials/commands/breakdown.md
++++ b/essentials/commands/breakdown.md
+@@ -2,7 +2,7 @@
+ argument-hint: [SPEC DOCUMENT]
+ description: Create a task breakdown from a design document
+ ---
+-Document: $1
++Document: $0
+ 
+ You are my project-planning assistant.
+ Given a high-level feature or milestone description in the above document, produce an **agile task breakdown** following the **Last Responsible Moment** principle. Update the above document with this breakdown.
+diff --git a/essentials/commands/do.md b/essentials/commands/do.md
+index aa8effc..2c4f6b8 100644
+--- a/essentials/commands/do.md
++++ b/essentials/commands/do.md
+@@ -52,6 +52,6 @@ You should:
+ - Resolve open questions using your best judgment
+ - Document significant decisions if they differ from what the guidance suggested
+ 
+-Context: $1
+-Implement task $2
++Context: $0
++Implement task $1
+ $ARGUMENTS
+-- 
+2.43.0
+

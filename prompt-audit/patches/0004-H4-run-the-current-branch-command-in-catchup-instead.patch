@@ -1,0 +1,26 @@
+From df6d94120934abea2d9013012a53724f0fa0f166 Mon Sep 17 00:00:00 2001
+From: audit <audit@local>
+Date: Sun, 1 Nov 2026 11:53:05 +0000
+Subject: [PATCH 04/13] H4: run the current-branch command in /catchup instead
+ of showing it literally
+
+---
+ essentials/commands/catchup.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/essentials/commands/catchup.md b/essentials/commands/catchup.md
+index 4c622c8..a9efae0 100644
+--- a/essentials/commands/catchup.md
++++ b/essentials/commands/catchup.md
+@@ -10,7 +10,7 @@ Analyzing this branch vs main...
+ 
+ ## Branch Info
+ 
+-Current branch: `git rev-parse --abbrev-ref HEAD`
++Current branch: !`git rev-parse --abbrev-ref HEAD`
+ 
+ !`git fetch origin main 2>/dev/null; echo "Commits ahead of main:" && git log main..HEAD --oneline | wc -l && echo "" && echo "Files changed:" && git diff main...HEAD --name-only | wc -l`
+ 
+-- 
+2.43.0
+

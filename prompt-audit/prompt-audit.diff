@@ -1,0 +1,716 @@
+diff --git a/.claude/CLAUDE.md b/.claude/CLAUDE.md
+index 92cfdea..b5b28c1 100644
+--- a/.claude/CLAUDE.md
++++ b/.claude/CLAUDE.md
+@@ -1,6 +1,6 @@
+ # CLAUDE.md
+ 
+-Plugin marketplace for Claude Code: essentials, writing, experimental.
++Plugin marketplace for Claude Code: essentials, writing, experimental, todoist, notifications, mcp.
+ 
+ ## Structure
+ 
+@@ -10,6 +10,7 @@ config/                          # Global config → ~/.claude/
+ essentials/                      # Commands, skills, MCP servers
+ writing/                         # Blog writing workflow
+ experimental/                    # Kanban workflow + agents
++todoist/ notifications/ mcp/    # Todoist link, notifications, MCP servers
+ scripts/                        # Utilities
+ .claude/reference/              # Plugin docs
+ ```
+@@ -31,7 +32,7 @@ bun scripts/manage-permissions.ts   # Manage permissions
+ ## Adding Things
+ 
+ - **Plugin**: dir + `.claude-plugin/plugin.json` + register in marketplace.json
+-- **MCP server**: `essentials/.mcp.json`, use `pnpx`
++- **MCP server**: `mcp/.mcp.json`, use `pnpx`
+ - **Command**: `.md` in `[plugin]/commands/`, YAML frontmatter
+ - **Skill**: `[plugin]/skills/[name]/SKILL.md`, optional `reference/`
+ - **Agent**: `.md` in `[plugin]/agents/`, YAML frontmatter
+diff --git a/.claude/reference/architecture.md b/.claude/reference/architecture.md
+index 9d90f10..96e47db 100644
+--- a/.claude/reference/architecture.md
++++ b/.claude/reference/architecture.md
+@@ -2,7 +2,7 @@
+ 
+ ## Commands vs Skills vs Agents
+ 
+-Commands are explicit user entry points with arguments (`/breakdown spec.md`). Skills are reusable methodologies Claude can invoke proactively or on request ("use systematic debugging"). Agents are specialized subprocesses with isolated context for focused analysis (run via Task tool). This three-tier separation allows: (1) commands to orchestrate workflows, (2) skills to guide methodology and invoke agents, (3) agents to perform specialized analysis in parallel.
++Commands are explicit user entry points with arguments (`/breakdown spec.md`). Skills are reusable methodologies Claude can invoke proactively or on request ("use systematic debugging"). Agents are specialized subprocesses with isolated context for focused analysis (run via the Agent tool). This three-tier separation allows: (1) commands to orchestrate workflows, (2) skills to guide methodology and invoke agents, (3) agents to perform specialized analysis in parallel.
+ 
+ ## Agents are for specialized analysis, not general workflows
+ 
+@@ -40,29 +40,20 @@ Agents designed for parallel execution: launch every Agent call in a single mess
+ 
+ # Tool Integration Patterns
+ 
+-## TodoWrite for Progress Tracking
++## Progress Tracking
+ 
+-Use TodoWrite in skills and commands for multi-step workflows:
++Skills and commands don't name a todo tool: Claude Code offers the task-tracking tools only on older models, and current models track multi-step work without one. Put durable progress in the plan or task file instead.
+ 
+-- **debugging**: Track UNDERSTAND checklist steps (U-N-D-E-R-S-T-A-N-D)
+-- **technical-planning**: Track planning phases (1-4) and deferral decisions
+-- **fix-quality**: Track issues by category (root cause, alternatives, ignores)
+-- **optimize-doc**: Track optimization passes per section
+-- **implementing-tasks**: Convert LLM Prompt steps into todos
+-- **testing**: Track validation steps and gap identification
++## Agent Tool for Agent Invocation
+ 
+-**Exemplar**: `/implement-plan` command (Step 0) shows the gold standard for TodoWrite integration - converts Validation checklist, Working Result, and Implementation Guidance into specific, actionable todos.
+-
+-## Task Tool for Agent Invocation
+-
+-Invoke specialized agents using Task tool with `subagent_type="general-purpose"`:
++Invoke a plugin agent by its namespaced name; the agent file supplies the prompt, so pass only the task context:
+ 
+ ```
+-Task(
++Agent(
+   description: "Analyze test coverage",
+-  prompt: "[Full agent prompt with context]",
+-  subagent_type: "general-purpose"
++  prompt: "[Task context: files, diff, task file path]",
++  subagent_type: "experimental:review:test-coverage-analyzer"
+ )
+ ```
+ 
+-For parallel invocation, call multiple Task invocations in a single message.
++For parallel invocation, put multiple Agent calls in a single message.
+diff --git a/.claude/reference/experimental.md b/.claude/reference/experimental.md
+index 9130d07..46064a3 100644
+--- a/.claude/reference/experimental.md
++++ b/.claude/reference/experimental.md
+@@ -6,10 +6,10 @@ Multi-skill workflow system using kanban file movement for complex, high-value t
+ 
+ ## Specialized Agents
+ 
+-**Research Agents** (3 agents - all haiku, parallel invocation):
++**Research Agent** (1 agent, haiku, up to 3 parallel instances - one per mode):
+ - **researcher**: One research agent with three modes — `survey` (broad landscape via WebSearch), `deep-dive` (specific URLs via WebFetch), `official-docs` (API references via the docs tool). Launch one instance per mode.
+ 
+-**Review Agents** (3 agents in `agents/review/`, inherits model, parallel invocation):
++**Review Agents** (3 agents in `agents/review/`, pinned to claude-sonnet-5-5, parallel invocation):
+ - **security-reviewer**: OWASP Top 10, injection, auth bypasses, secrets handling, confidence scoring
+ - **quality-guardian**: Promise Theory, error handling, edge cases, maintainability, readability metrics
+ - **test-coverage-analyzer**: Behavioral coverage, criticality rating, test quality issues
+@@ -48,7 +48,7 @@ Flags:
+ 
+ Features:
+ - **Session start verification**: Checks last completed task's test status before claiming new work
+-- **Session checkpoints**: Every 3 tasks, evaluates health indicators and recommends CONTINUE/PAUSE/ESCALATE
++- **Session health**: Stops and recommends CONTINUE/PAUSE/ESCALATE when rejections or STUCK states repeat
+ - **Two-tier review**: Routes to LIGHTWEIGHT or FULL review based on complexity/severity
+ - **Knowledge capture**: Auto-captures learnings when blockers are resolved
+ - **Critical patterns**: Loads and enforces project-level patterns during implementation and review
+@@ -103,7 +103,7 @@ Features:
+ - **Agents for specialized analysis**: Each agent has single, clear responsibility with detailed output format
+ - **Parallel invocation**: All agents designed for parallel execution (2-3 research, 3 review)
+ - **Skills orchestrate agents**: Skills determine which agents to launch and consolidate findings
+-- **Model optimization**: Haiku for research/capture (cost-efficient), review agents inherit from parent
++- **Model optimization**: Haiku for research/capture (cost-efficient), Sonnet for review agents
+ - **Sprint-based planning**: Same technical-planning rigor every sprint - context accumulates but process stays consistent
+ - **Stateful kanban**: Tasks move through directories based on status (pending → implementation → review → testing → completed)
+ - **End-to-end per task**: Each task completes fully (implement → review → fix → commit) before moving to next, with granular sub-todos for visibility
+diff --git a/config/CLAUDE.md b/config/CLAUDE.md
+index dfc5c55..00e9826 100644
+--- a/config/CLAUDE.md
++++ b/config/CLAUDE.md
+@@ -10,8 +10,7 @@ No filler or sycophantic openers. Lead with the outcome: your first sentence aft
+ 
+ ## Foundational
+ 
+-- Right beats fast. Never skip steps or take shortcuts.
+-- Tedious systematic work is often correct. Abandon only if technically wrong, not because it's repetitive.
++- Right beats fast. Finish systematic work even when it is repetitive; change course only when the approach is technically wrong.
+ - Address partner as "Dhruv" at all times.
+ - Before reporting progress, audit each claim against a tool result from this session. Separate what you verified from what you inferred; if something isn't verified, say so.
+ - Make routine judgment calls yourself and state the assumption. Ask only when different readings would lead to materially different work.
+@@ -39,7 +38,6 @@ Turn tasks into verifiable goals: "Add validation" → "tests for invalid inputs
+ 
+ ## Code
+ 
+-- Verify ALL RULES before submitting (Rule #1)
+ - Smallest reasonable changes
+ - Every changed line must trace directly to the request
+ - Don't "improve" adjacent code, comments, or formatting
+@@ -89,7 +87,7 @@ Never: trivial (`i++ // increment i`), temporal ("improved", "refactored from"),
+ 
+ ## Tracking
+ 
+-TodoWrite for work tracking. Never discard tasks without Dhruv's approval.
++Never discard tasks without Dhruv's approval.
+ 
+ ## Debugging
+ 
+diff --git a/essentials/commands/breakdown.md b/essentials/commands/breakdown.md
+index af28705..b9eea85 100644
+--- a/essentials/commands/breakdown.md
++++ b/essentials/commands/breakdown.md
+@@ -2,7 +2,7 @@
+ argument-hint: [SPEC DOCUMENT]
+ description: Create a task breakdown from a design document
+ ---
+-Document: $1
++Document: $0
+ 
+ You are my project-planning assistant.
+ Given a high-level feature or milestone description in the above document, produce an **agile task breakdown** following the **Last Responsible Moment** principle. Update the above document with this breakdown.
+diff --git a/essentials/commands/catchup.md b/essentials/commands/catchup.md
+index 4c622c8..723eac8 100644
+--- a/essentials/commands/catchup.md
++++ b/essentials/commands/catchup.md
+@@ -1,5 +1,5 @@
+ ---
+-model: claude-haiku-4-5
++model: claude-haiku-5-5
+ description: "Review all changes between current branch and main"
+ allowed-tools: Bash(git:*), Read
+ ---
+@@ -10,7 +10,7 @@ Analyzing this branch vs main...
+ 
+ ## Branch Info
+ 
+-Current branch: `git rev-parse --abbrev-ref HEAD`
++Current branch: !`git rev-parse --abbrev-ref HEAD`
+ 
+ !`git fetch origin main 2>/dev/null; echo "Commits ahead of main:" && git log main..HEAD --oneline | wc -l && echo "" && echo "Files changed:" && git diff main...HEAD --name-only | wc -l`
+ 
+diff --git a/essentials/commands/commit.md b/essentials/commands/commit.md
+index 2b8cf29..e968c9a 100644
+--- a/essentials/commands/commit.md
++++ b/essentials/commands/commit.md
+@@ -1,5 +1,5 @@
+ ---
+-model: claude-haiku-4-5
++model: claude-haiku-5-5
+ allowed-tools: Bash(git:*)
+ argument-hint: "[optional: description or specific files]"
+ description: "Smart commit workflow - adapts to change size"
+@@ -75,7 +75,7 @@ to application/json and validates structure separately.
+ 
+ ## Your Task
+ 
+-Commit message context: "${{{ARGS}}}"
++Commit message context: "$ARGUMENTS"
+ 
+ ### Step 1: Analyze Changes
+ 
+diff --git a/essentials/commands/do.md b/essentials/commands/do.md
+index aa8effc..2c4f6b8 100644
+--- a/essentials/commands/do.md
++++ b/essentials/commands/do.md
+@@ -52,6 +52,6 @@ You should:
+ - Resolve open questions using your best judgment
+ - Document significant decisions if they differ from what the guidance suggested
+ 
+-Context: $1
+-Implement task $2
++Context: $0
++Implement task $1
+ $ARGUMENTS
+diff --git a/essentials/commands/fix-quality.md b/essentials/commands/fix-quality.md
+index 2478cf6..d0f3e9c 100644
+--- a/essentials/commands/fix-quality.md
++++ b/essentials/commands/fix-quality.md
+@@ -5,7 +5,7 @@ argument-hint: [FILES OR PATTERN]
+ 
+ # Fix Quality Issues
+ 
+-Fix quality issues in `{{ARGS}}` (files, glob pattern, or `.` for entire project).
++Fix quality issues in `$ARGUMENTS` (files, glob pattern, or `.` for entire project).
+ 
+ ## Priority Order
+ 
+@@ -31,25 +31,11 @@ Fix quality issues in `{{ARGS}}` (files, glob pattern, or `.` for entire project
+ **1. Gather & Categorize**
+ Run linting and type checking tools to collect all issues. Group by: root cause fixable, needs alternative approach, legitimate ignore.
+ 
+-**For large codebases (>20 issues)**: Use TodoWrite to track fixes by category:
+-```
+-☐ Root cause fixes (X issues)
+-  ☐ Remove unused imports (N files)
+-  ☐ Fix type errors (N issues)
+-  ☐ Add missing return types (N functions)
+-☐ Safety alternatives (Y issues)
+-☐ Legitimate ignores (Z issues)
+-☐ Validate all checks pass
+-☐ Run full test suite
+-```
+-
+ **2. Fix in Priority Order**
+ - Root causes: Remove unused, fix types, add return types
+ - Safety alternatives: Refactor without deteriorating quality
+ - Ignores: Document reason, choose local scope, specific rule
+ 
+-Mark todos completed as you fix each category. This prevents losing track when interrupted.
+-
+ **3. Validate**
+ All linting checks + full test suite must pass.
+ 
+diff --git a/essentials/commands/optimize-doc.md b/essentials/commands/optimize-doc.md
+index 7962e3f..7e4667a 100644
+--- a/essentials/commands/optimize-doc.md
++++ b/essentials/commands/optimize-doc.md
+@@ -5,7 +5,7 @@ source: https://www.reddit.com/r/ClaudeCode/comments/1o3ku9t/hack_and_slash_your
+ 
+ # Optimize Documentation
+ 
+-**Task**: Optimize `{{arg}}`
++**Task**: Optimize `$ARGUMENTS`
+ 
+ ## Objective
+ 
+@@ -37,7 +37,7 @@ Check if examples serve operational purpose:
+ 
+ | Keep If | Remove If |
+ |---------|-----------|
+-| Defines what "correct" looks like | Explains WHY (educational) |
++| Defines what "correct" looks like | Background a reader doesn't act on |
+ | Shows exact commands/success criteria | Restates clear instruction |
+ | Sequential workflow (order matters) | Obvious application of clear rule |
+ | Resolves ambiguity | Duplicate template |
+@@ -114,9 +114,9 @@ Before removing ANY content:
+    - NO → KEEP (execution-critical)
+    - YES → Continue
+ 
+-2. **Does this explain WHY (rationale/educational)?**
+-   - YES → REMOVE
+-   - NO → KEEP (operational)
++2. **Is this the reason behind a rule?**
++   - YES → KEEP, next to its rule (the reason is how the model applies the rule to cases the text doesn't name)
++   - NO → Continue
+ 
+ 3. **Does this show WHAT "correct" looks like?**
+    - YES → KEEP (execution-critical)
+@@ -128,10 +128,9 @@ Before removing ANY content:
+ 
+ ### Examples
+ 
+-❌ **Remove** (explains WHY):
++✅ **Keep, shortened** (the reason for a rule):
+ ```
+-RATIONALE: Git history rewriting can silently drop commits...
+-Manual verification is the only reliable way to ensure no data loss.
++Verify manually: history rewrites can silently drop commits.
+ ```
+ 
+ ✅ **Keep** (defines WHAT "correct" means):
+@@ -146,30 +145,22 @@ SUCCESS CRITERIA:
+ 
+ 1. **Eliminate redundancy**: Remove repeated info, consolidate overlapping instructions
+ 2. **Tighten language**: "execute" not "you MUST execute", "to" not "in order to", remove filler
+-3. **Structure over prose**: Bullets not paragraphs, tables for multi-dimensional info, numbered steps for sequences
++3. **Structure for reference, prose for behavior**: tables for multi-dimensional data, numbered steps where order matters, a sentence that carries its "because" for behavioral guidance
+ 4. **Preserve essentials**: Keep executable commands, data formats, boundaries, criteria, patterns
+ 
+ **Never sacrifice**:
+ - Scannability (vertical lists > comma-separated)
+ - Pattern recognition (checkmarks/bullets > prose)
+-- Explicit criteria ("ALL", "NEVER", exact counts/strings)
++- Explicit criteria (scope words, exact counts/strings) - stated at normal volume
+ - Prevention patterns (prohibited vs required)
+ 
+ ## Execution Instructions
+ 
+-1. Read `{{arg}}`
+-2. **For large documents (>100 lines)**: Use TodoWrite to track sections:
+-   ```
+-   ☐ Section: [name] - analyze clarity
+-   ☐ Section: [name] - analyze clarity
+-   ...
+-   ☐ Apply all optimizations
+-   ☐ Verify quality standards met
+-   ```
+-3. Analyze each section using methodology above
+-4. Optimize directly: strengthen vague instructions, remove redundancy, apply conciseness strategies
+-5. Report changes to user
+-6. Commit with descriptive message
++1. Read `$ARGUMENTS`
++2. Analyze each section using methodology above
++3. Optimize directly: strengthen vague instructions, remove redundancy, apply conciseness strategies
++4. Report changes to user
++5. Commit with descriptive message
+ 
+ ## Quality Standards
+ 
+diff --git a/essentials/commands/plan.md b/essentials/commands/plan.md
+index 324ba34..7a9c15c 100644
+--- a/essentials/commands/plan.md
++++ b/essentials/commands/plan.md
+@@ -5,7 +5,7 @@ argument-hint: <task description>
+ 
+ # Plan with Atomic Commits
+ 
+-**Task:** $ARGS
++**Task:** $ARGUMENTS
+ 
+ **FIRST**: Use the EnterPlanMode tool immediately.
+ 
+diff --git a/essentials/commands/research.md b/essentials/commands/research.md
+index 3905a7c..59a0b08 100644
+--- a/essentials/commands/research.md
++++ b/essentials/commands/research.md
+@@ -16,11 +16,11 @@ Research specific blocker or question using specialized research agents and MCP
+ 
+ ## Your Task
+ 
+-Research: "${{{ARGS}}}"
++Research: "$ARGUMENTS"
+ 
+ ### Step 1: Analyze & Select Agents
+ 
+-${isTaskFile ? 'Read task file to understand blocker context.' : 'Analyze question to determine approach.'}
++If the argument is a task file path, read it to understand the blocker; otherwise analyze the question to choose an approach.
+ 
+ | Research Need | Modes to launch |
+ |--------------|-----------------|
+@@ -44,12 +44,11 @@ Use **research-synthesis skill** to:
+ - Identify gaps (unanswered questions, disagreements)
+ - Extract actions (implementation path, code/configs, risks)
+ 
+-${isTaskFile ? `
+-### Step 4: Update Task File
++### Step 4: Update Task File (task-file input only)
+ 
+ Append research findings to task file:
+ 
+-\`\`\`bash
++```bash
+ cat >> "$task_file" <<EOF
+ 
+ **research findings:**
+@@ -62,10 +61,9 @@ cat >> "$task_file" <<EOF
+ **next steps:**
+ [Specific actions]
+ EOF
+-\`\`\`
++```
+ 
+ Update status from STUCK to Pending if blocker resolved.
+-` : ''}
+ 
+ ## Output Format
+ 
+diff --git a/essentials/skills/engineering-prompts/reference/examples.md b/essentials/skills/engineering-prompts/reference/examples.md
+index 63d013f..e9d32ba 100644
+--- a/essentials/skills/engineering-prompts/reference/examples.md
++++ b/essentials/skills/engineering-prompts/reference/examples.md
+@@ -408,7 +408,7 @@ Customer John Smith, ID 12345, ordered 3 items for $150
+ **With Structured Outputs:**
+ ```python
+ client.messages.parse(
+-    model="claude-opus-5",
++    model="claude-opus-5-5",
+     output_config={"format": {"type": "json_schema", "schema": CustomerOrder}},
+     messages=[...],
+ )
+@@ -468,7 +468,7 @@ Expected: +15551234567
+ 
+ ## Complexity Progression
+ 
+-### Level 1: Simple (Haiku 4.5 or low effort)
++### Level 1: Simple (Haiku 5.5 or low effort)
+ ```
+ Extract the email address from: "Contact John at john@example.com"
+ ```
+@@ -476,7 +476,7 @@ Extract the email address from: "Contact John at john@example.com"
+ - ~15 tokens
+ - Obvious single answer
+ 
+-### Level 2: Medium (Sonnet 5)
++### Level 2: Medium (Sonnet 5.5)
+ ```xml
+ <instructions>
+ Analyze this code for potential bugs:
+@@ -493,7 +493,7 @@ Analyze this code for potential bugs:
+ - ~100 tokens
+ - Requires some analysis
+ 
+-### Level 3: Complex (Opus 5 at high effort)
++### Level 3: Complex (Opus 5.5 at high effort)
+ ```xml
+ <role>
+ You are a security researcher analyzing potential vulnerabilities.
+diff --git a/essentials/skills/engineering-prompts/reference/research.md b/essentials/skills/engineering-prompts/reference/research.md
+index c9b550e..d80972d 100644
+--- a/essentials/skills/engineering-prompts/reference/research.md
++++ b/essentials/skills/engineering-prompts/reference/research.md
+@@ -200,12 +200,12 @@ Latest findings from Anthropic research and community best practices for prompt
+ | Model | ID | Input/Output $/M | Best for |
+ |---|---|---|---|
+ | Claude Fable 5.1 | `claude-fable-5-1` | $10 / $50 | Hardest reasoning, long-horizon agentic work |
+-| Claude Opus 5 | `claude-opus-5` | $5 / $25 | Default for most work |
+-| Claude Sonnet 5 | `claude-sonnet-5` | $2 / $10 | Balanced production workloads |
+-| Claude Haiku 4.5 | `claude-haiku-4-5` | $1 / $5 | High-volume simple tasks (200K context) |
++| Claude Opus 5.5 | `claude-opus-5-5` | $4 / $20 | Default for most work (effort defaults to `medium`) |
++| Claude Sonnet 5.5 | `claude-sonnet-5-5` | $2 / $10 | Balanced production workloads |
++| Claude Haiku 5.5 | `claude-haiku-5-5` | $0.10 / $0.50 | High-volume simple tasks |
+ 
+ **Architectural Implication:**
+-- Orchestrator on Opus 5 or Fable 5.1 + cheap subagents on Haiku 4.5 or low-effort Sonnet 5
++- Orchestrator on Opus 5.5 or Fable 5.1 + cheap subagents on Haiku 5.5 or low-effort Sonnet 5.5
+ - Before adding a cheaper model, try the capable model at lower `effort` - it often matches prior-generation quality at lower cost and keeps one cache namespace
+ - Task routing based on complexity assessment
+ 
+@@ -324,7 +324,7 @@ Prompts written for older models are often too prescriptive for current ones and
+ **Key Parameters:**
+ - `thinking: {type: "adaptive"}` (or omit - Fable 5.1 has thinking always on)
+ - `output_config.effort`: `low` / `medium` / `high` / `xhigh` / `max` - the depth control
+-- `budget_tokens` is rejected on Fable 5/5.1, Opus 5/4.7/4.8, Sonnet 5
++- `budget_tokens` is rejected on Fable 5/5.1, Opus 5.5/5/4.7/4.8, Sonnet 5.5/5, Haiku 5.5
+ - `display: "summarized"` to read a reasoning summary; the raw chain of thought is never returned
+ 
+ **Use Cases:**
+@@ -503,7 +503,7 @@ Yes      No
+ 7. **Agents need transparency**: Show reasoning, enable human verification
+ 8. **Context is finite**: Manage attention budget deliberately
+ 9. **Measure everything**: Remove techniques that don't improve outcomes
+-10. **Economic optimization**: Right model and effort for the task (Haiku 4.5 → Sonnet 5 → Opus 5 → Fable 5.1)
++10. **Economic optimization**: Right model and effort for the task (Haiku 5.5 → Sonnet 5.5 → Opus 5.5 → Fable 5.1)
+ 
+ ---
+ 
+diff --git a/essentials/skills/engineering-prompts/reference/technique-catalog.md b/essentials/skills/engineering-prompts/reference/technique-catalog.md
+index 3bcea3d..fb398b0 100644
+--- a/essentials/skills/engineering-prompts/reference/technique-catalog.md
++++ b/essentials/skills/engineering-prompts/reference/technique-catalog.md
+@@ -154,13 +154,13 @@ Current Claude models think adaptively by default. Control how deeply they reaso
+ - Lower effort for routine, high-volume, or latency-sensitive work
+ 
+ ### Token Cost
+-Scales with effort level. `high` is the default; `low` still performs well on simple tasks.
++Scales with effort level. The default is `medium` on Opus 5.5 and Haiku 5.5, `high` on most other models - set it explicitly; `low` still performs well on simple tasks.
+ 
+ ### Example
+ 
+ ```python
+ client.messages.create(
+-    model="claude-opus-5",
++    model="claude-opus-5-5",
+     output_config={"effort": "high"},
+     messages=[{"role": "user", "content": "Analyze this bug: ..."}],
+ )
+@@ -275,7 +275,7 @@ Minimal.
+ 
+ ```python
+ client.messages.parse(
+-    model="claude-opus-5",
++    model="claude-opus-5-5",
+     output_config={"format": {"type": "json_schema", "schema": OrderSchema}},
+     messages=[{"role": "user", "content": "Extract the order data."}],
+ )
+diff --git a/experimental/agents/capture/knowledge-capturer.md b/experimental/agents/capture/knowledge-capturer.md
+index 58b2338..5b83a7e 100644
+--- a/experimental/agents/capture/knowledge-capturer.md
++++ b/experimental/agents/capture/knowledge-capturer.md
+@@ -1,7 +1,7 @@
+ ---
+ name: knowledge-capturer
+ description: Extracts structured learnings from problem-solving sessions when blockers are resolved
+-model: claude-haiku-4-5
++model: claude-haiku-5-5
+ color: green
+ ---
+ 
+diff --git a/experimental/agents/research/researcher.md b/experimental/agents/research/researcher.md
+index 136007a..348c26c 100644
+--- a/experimental/agents/research/researcher.md
++++ b/experimental/agents/research/researcher.md
+@@ -1,7 +1,7 @@
+ ---
+ name: researcher
+ description: Research agent for unblocking implementation - broad surveys, deep-dives into specific sources, or official documentation lookups, selected by mode
+-model: claude-haiku-4-5
++model: claude-haiku-5-5
+ color: blue
+ ---
+ 
+diff --git a/experimental/commands/add-task.md b/experimental/commands/add-task.md
+index bffefd6..9c70fd4 100644
+--- a/experimental/commands/add-task.md
++++ b/experimental/commands/add-task.md
+@@ -17,7 +17,7 @@ If project is omitted, will prompt to select from existing projects in `.plans/`
+ 
+ ## Your Task
+ 
+-Create a new task file in `.plans/<project>/pending/` based on the description: "${{{ARGS}}}"
++Create a new task file in `.plans/<project>/pending/` based on the description: "$ARGUMENTS"
+ 
+ ### Step 1: Parse arguments
+ 
+diff --git a/experimental/commands/deepen-plan.md b/experimental/commands/deepen-plan.md
+index 7e85b04..1041278 100644
+--- a/experimental/commands/deepen-plan.md
++++ b/experimental/commands/deepen-plan.md
+@@ -5,7 +5,7 @@ argument-hint: [PROJECT]
+ 
+ # Deepen Plan
+ 
+-Enhance `.plans/{{ARGS}}/plan.md` with research insights before implementation.
++Enhance `.plans/$ARGUMENTS/plan.md` with research insights before implementation.
+ 
+ ## Usage
+ 
+@@ -100,7 +100,7 @@ Write enhanced plan and present options:
+ 
+ Options:
+ 1. View diff (show changes)
+-2. Start /implement-plan {{ARGS}}
++2. Start /implement-plan $ARGUMENTS
+ 3. Deepen further (run additional research)
+ ```
+ 
+diff --git a/experimental/commands/implement-plan.md b/experimental/commands/implement-plan.md
+index b9c6a41..b3ab3a5 100644
+--- a/experimental/commands/implement-plan.md
++++ b/experimental/commands/implement-plan.md
+@@ -5,7 +5,7 @@ argument-hint: [PROJECT] [--auto] [--express "task"]
+ 
+ # Implement Plan
+ 
+-Execute tasks from `.plans/{{ARGS}}/pending/` through the development loop.
++Execute tasks from `.plans/$ARGUMENTS/pending/` through the development loop.
+ 
+ ## Usage
+ 
+@@ -97,7 +97,7 @@ When escalating:
+ 
+ ## Setup
+ 
+-1. Verify `.plans/{{ARGS}}/pending/` has tasks (if not: "Run /plan-feature first")
++1. Verify `.plans/$ARGUMENTS/pending/` has tasks (if not: "Run /plan-feature first")
+ 2. Detect `--auto` flag, report: "Flag check: --auto is [PRESENT/ABSENT]"
+ 3. Create todo list from pending tasks
+ 
+@@ -219,7 +219,7 @@ Append completion metadata to task file using Edit tool:
+ 1. Draft descriptive commit message (what was accomplished, not "task NNN")
+ 2. Show message, ask: "commit/yes", "skip", or "edit [message]"
+ 3. **STOP and WAIT** - each task needs its own confirmation
+-4. Stage code + task file: `git add . .plans/{{ARGS}}/completed/NNN-*.md`
++4. Stage code + task file: `git add . .plans/$ARGUMENTS/completed/NNN-*.md`
+ 5. Commit, then continue to next task
+ 
+ ### 7. Progress
+@@ -318,7 +318,7 @@ Rules during execution:
+ ```
+ ✅ Development Loop Complete
+ 
+-Project: {{ARGS}}
++Project: $ARGUMENTS
+ Completed: X/X tasks | Blocked: Y | Commits: Z
+ Final Test Coverage: XX%
+ ```
+@@ -338,4 +338,4 @@ Final Test Coverage: XX%
+ - **Cycle limits**: Max 3 rejections or test fixes before stop-and-report
+ - **Express mode**: `--express "task"` for simple changes without kanban ceremony
+ - **Skills run in main conversation**: Full visibility into implementation/review
+-- **State persists**: Resume anytime with `/implement-plan {{ARGS}}`
++- **State persists**: Resume anytime with `/implement-plan $ARGUMENTS`
+diff --git a/experimental/commands/orchestrate.md b/experimental/commands/orchestrate.md
+index 68283dd..d03b68c 100644
+--- a/experimental/commands/orchestrate.md
++++ b/experimental/commands/orchestrate.md
+@@ -16,7 +16,7 @@ Complete end-to-end workflow from planning through implementation.
+ 
+ ### Phase 1: Planning
+ 
+-1. Run `/plan-feature` workflow to analyze: "${{{ARGS}}}"
++1. Run `/plan-feature` workflow to analyze: "$ARGUMENTS"
+    - This invokes technical-planning skill with full rigor
+    - Creates `.plans/<project>/` with plan.md and tasks in pending/
+ 2. After planning, extract project name and summarize
+@@ -36,7 +36,7 @@ Follow same workflow as `/implement-plan <project-name>`:
+ ### Phase 3: Final Summary
+ 
+ ```markdown
+-✅ Feature Complete: "{{{ARGS}}}"
++✅ Feature Complete: "$ARGUMENTS"
+ 
+ Project: <project-name>
+ Tasks: X/X completed (Foundation: Y, Integration: Z, Polish: W)
+diff --git a/experimental/commands/plan-feature.md b/experimental/commands/plan-feature.md
+index 1662ef5..e6e1ace 100644
+--- a/experimental/commands/plan-feature.md
++++ b/experimental/commands/plan-feature.md
+@@ -7,7 +7,7 @@ description: Sprint planning - create or continue .plans/ with risk-prioritized
+ 
+ Sprint planning for `.plans/<project>/` - same rigor whether starting fresh or continuing.
+ 
+-**Request:** $ARGS
++**Request:** $ARGUMENTS
+ 
+ ## Detect Mode
+ 
+diff --git a/experimental/commands/triage.md b/experimental/commands/triage.md
+index cab8c8b..5b2ec8d 100644
+--- a/experimental/commands/triage.md
++++ b/experimental/commands/triage.md
+@@ -103,7 +103,7 @@ Skipped: 2 findings
+ 
+ Next steps:
+ - Review pending/ to adjust priorities
+-- Run /implement-plan {{ARGS}} to start fixing
++- Run /implement-plan $ARGUMENTS to start fixing
+ ```
+ 
+ ## Priority Mapping
+diff --git a/experimental/skills/implementing-tasks/SKILL.md b/experimental/skills/implementing-tasks/SKILL.md
+index eb22710..7f3c6b1 100644
+--- a/experimental/skills/implementing-tasks/SKILL.md
++++ b/experimental/skills/implementing-tasks/SKILL.md
+@@ -16,20 +16,6 @@ Before starting implementation, check for `.plans/<project>/critical-patterns.md
+ - Apply matching patterns during implementation
+ - Violations will be flagged as CRITICAL in review
+ 
+-**Use TodoWrite to track implementation progress:**
+-```
+-☐ Read task file (LLM Prompt, Working Result, Validation)
+-☐ [LLM Prompt step 1]
+-☐ [LLM Prompt step 2]
+-...
+-☐ Write tests for new functionality
+-☐ Run full test suite
+-☐ Mark validation checkboxes
+-☐ Update status to READY_FOR_TESTING
+-```
+-
+-Convert each step from the task's LLM Prompt into a todo. Mark completed as you progress.
+-
+ 1. Read task file - LLM Prompt, Working Result, Validation, Files
+ 2. Follow LLM Prompt step-by-step, write code + tests, run full suite
+ 3. Update task status using Edit tool:
+diff --git a/experimental/skills/reviewing-code/SKILL.md b/experimental/skills/reviewing-code/SKILL.md
+index 9d0d303..f6ecb49 100644
+--- a/experimental/skills/reviewing-code/SKILL.md
++++ b/experimental/skills/reviewing-code/SKILL.md
+@@ -1,6 +1,6 @@
+ ---
+ name: reviewing-code
+-description: Reviews implemented code for security, quality, performance, and test coverage using specialized review agents with clear accountability. Use when task file is in review/ directory. Launches Security Gatekeeper, Quality Guardian, and Test Auditor in parallel.
++description: Reviews implemented code for security, quality, performance, and test coverage using specialized review agents with clear accountability. Use when task file is in review/ directory. Launches security-reviewer, quality-guardian, and test-coverage-analyzer in parallel.
+ ---
+ 
+ # Review
+diff --git a/experimental/skills/testing/SKILL.md b/experimental/skills/testing/SKILL.md
+index 42d1365..573a571 100644
+--- a/experimental/skills/testing/SKILL.md
++++ b/experimental/skills/testing/SKILL.md
+@@ -9,16 +9,6 @@ Given task file path `.plans/<project>/testing/NNN-task.md`:
+ 
+ ## Process
+ 
+-**Use TodoWrite to track testing validation:**
+-```
+-☐ Validate existing tests (behavior-focused?)
+-☐ Check coverage of Validation checklist items
+-☐ Identify gaps (empty/null, boundaries, errors)
+-☐ Add tests for genuine gaps
+-☐ Run coverage (>80% statements, >75% branches)
+-☐ Update task status
+-```
+-
+ 1. Validate existing tests - behavior-focused? Covers Validation?
+ 2. Identify gaps - empty/null inputs, boundaries, errors, race conditions, security
+ 3. Add minimal tests if genuinely missing

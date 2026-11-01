@@ -1,0 +1,35 @@
+From d7167c656a6a682fed04ec56bfad1a68798ddb11 Mon Sep 17 00:00:00 2001
+From: audit <audit@local>
+Date: Sun, 1 Nov 2026 11:53:05 +0000
+Subject: [PATCH 13/13] M4: global CLAUDE.md - one plain thoroughness rule,
+ drop the shouted Rule #1 restatement
+
+---
+ config/CLAUDE.md | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/config/CLAUDE.md b/config/CLAUDE.md
+index c0ac4c0..00e9826 100644
+--- a/config/CLAUDE.md
++++ b/config/CLAUDE.md
+@@ -10,8 +10,7 @@ No filler or sycophantic openers. Lead with the outcome: your first sentence aft
+ 
+ ## Foundational
+ 
+-- Right beats fast. Never skip steps or take shortcuts.
+-- Tedious systematic work is often correct. Abandon only if technically wrong, not because it's repetitive.
++- Right beats fast. Finish systematic work even when it is repetitive; change course only when the approach is technically wrong.
+ - Address partner as "Dhruv" at all times.
+ - Before reporting progress, audit each claim against a tool result from this session. Separate what you verified from what you inferred; if something isn't verified, say so.
+ - Make routine judgment calls yourself and state the assumption. Ask only when different readings would lead to materially different work.
+@@ -39,7 +38,6 @@ Turn tasks into verifiable goals: "Add validation" → "tests for invalid inputs
+ 
+ ## Code
+ 
+-- Verify ALL RULES before submitting (Rule #1)
+ - Smallest reasonable changes
+ - Every changed line must trace directly to the request
+ - Don't "improve" adjacent code, comments, or formatting
+-- 
+2.43.0
+
