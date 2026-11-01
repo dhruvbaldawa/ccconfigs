@@ -2,7 +2,7 @@
 
 ## Commands vs Skills vs Agents
 
-Commands are explicit user entry points with arguments (`/breakdown spec.md`). Skills are reusable methodologies Claude can invoke proactively or on request ("use systematic debugging"). Agents are specialized subprocesses with isolated context for focused analysis (run via Task tool). This three-tier separation allows: (1) commands to orchestrate workflows, (2) skills to guide methodology and invoke agents, (3) agents to perform specialized analysis in parallel.
+Commands are explicit user entry points with arguments (`/breakdown spec.md`). Skills are reusable methodologies Claude can invoke proactively or on request ("use systematic debugging"). Agents are specialized subprocesses with isolated context for focused analysis (run via the Agent tool). This three-tier separation allows: (1) commands to orchestrate workflows, (2) skills to guide methodology and invoke agents, (3) agents to perform specialized analysis in parallel.
 
 ## Agents are for specialized analysis, not general workflows
 
@@ -44,16 +44,16 @@ Agents designed for parallel execution: launch every Agent call in a single mess
 
 Skills and commands don't name a todo tool: Claude Code offers the task-tracking tools only on older models, and current models track multi-step work without one. Put durable progress in the plan or task file instead.
 
-## Task Tool for Agent Invocation
+## Agent Tool for Agent Invocation
 
-Invoke specialized agents using Task tool with `subagent_type="general-purpose"`:
+Invoke a plugin agent by its namespaced name; the agent file supplies the prompt, so pass only the task context:
 
 ```
-Task(
+Agent(
   description: "Analyze test coverage",
-  prompt: "[Full agent prompt with context]",
-  subagent_type: "general-purpose"
+  prompt: "[Task context: files, diff, task file path]",
+  subagent_type: "experimental:review:test-coverage-analyzer"
 )
 ```
 
-For parallel invocation, call multiple Task invocations in a single message.
+For parallel invocation, put multiple Agent calls in a single message.
