@@ -20,8 +20,9 @@ Dhruv opens a fresh session (`/clear`) and types a bare `/conveyor <milestone>`,
 2. **Ask** the seed questions in two AskUserQuestion calls:
    - Call 1: **Execution** (/conveyor · manual) · **Reviewers**, multi-select (senior-engineer-reviewer · test-reviewer) · **When reviewers run** (each slice · each slice + milestone end · milestone end only) · **Rounds cap** (1 · 2 · 3 · until approved).
    - Call 2: **Extra skills**, multi-select (simplify · security-audit) · **When the selected skills run** (each slice · milestone end · both) · **Push** (after each slice · at milestone end).
-   - Rounds cap "until approved" → `roundsCap: 'until-approved'`: no cap, but no-progress, aging and a repeated run-check failure still end a loop.
+   - Rounds cap "until approved" → `roundsCap: 'until-approved'`: no cap on review rounds, but no-progress and aging still end a loop, and the run check stops after 3 rounds.
    - Refuse, because a commit would go unreviewed or a choice would be silently skipped:
+     - no reviewers selected;
      - simplify at milestone end without reviewers at milestone end;
      - security-audit per slice with milestone-only review;
      - push after each slice with milestone-only review.
@@ -50,7 +51,7 @@ Dhruv opens a fresh session (`/clear`) and types a bare `/conveyor <milestone>`,
 - Never pass the script inline.
 - Never edit the copy after launch.
 - Re-plan by changing `args`, then resume with `scriptPath` + `resumeFromRunId`. Resume replays the longest unchanged prefix of agent calls from cache; the first changed call and everything after it run live. So:
-  - Answer a question in `args.answers[<answerKey>]` (the exception names the key). It rides at the very end of that one prompt, so only the asking call onward re-runs.
+  - Answer a question in `args.answers[<answerKey>]`. The key is the asking call's label, e.g. `fix:slice s1:r2`, and the exception names it. The answer rides at the very end of that one prompt, so only the asking call onward re-runs.
   - Never put an answer in `standards`: it opens every prompt, so changing it re-runs the whole milestone, committed slices included.
 - One workflow call runs the whole milestone; needing a new script mid-run is itself an exception, recorded in context.md.
 

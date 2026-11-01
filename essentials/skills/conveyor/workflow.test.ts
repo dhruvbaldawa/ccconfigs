@@ -198,9 +198,9 @@ describe('fix loop', () => {
   test('rejection with no blocking findings → rejection-without-blockers', async () => {
     const { result, labels } = await run(ARGS({ slices: [SLICE('s1')] }), {
       ...ok,
-      'review:senior:': () => ({ verdict: 'REJECT', findings: [] }),
+      'review:senior:': () => ({ verdict: 'REJECT', findings: [{ id: 'nb', summary: 'n', file: 'a.ts', blocking: false }] }),
     });
-    expect(result).toMatchObject({ kind: 'rejection-without-blockers' });
+    expect(result).toMatchObject({ kind: 'rejection-without-blockers', findings: [{ id: 'nb' }] });
     expect(labels.some((l) => l.startsWith('fix:'))).toBe(false);
   });
 
@@ -224,7 +224,7 @@ describe('fix loop', () => {
       'review:senior:': () => needsWork('x'),
       'fix:': () => ({ status: 'question', questions: ['is x real?'], summary: 'doubt' }),
     });
-    expect(result).toMatchObject({ kind: 'question', scope: 'slice s1', questions: ['is x real?'] });
+    expect(result).toMatchObject({ kind: 'question', scope: 'slice s1', answerKey: 'fix:slice s1:r1', questions: ['is x real?'] });
   });
 });
 
@@ -333,11 +333,12 @@ describe('run check', () => {
   });
 
   test('red past the rounds cap → run-check-red', async () => {
+    // A different failure each round, so only the cap can end the loop.
     const { result, labels } = await run(ARGS({ slices: [SLICE('s1')], runCheck: 'make check-run' }), {
       ...ok,
-      'run-check:': () => ({ pass: false, tail: 'still red' }),
+      'run-check:': (_c, n) => ({ pass: false, tail: `red ${n}` }),
     });
-    expect(result).toMatchObject({ kind: 'run-check-red', tail: 'still red' });
+    expect(result).toMatchObject({ kind: 'run-check-red', tail: 'red 1', rounds: 2 });
     expect(labels.filter((l) => l.startsWith('run-check:'))).toHaveLength(2);
   });
 });
@@ -426,6 +427,15 @@ describe('approval staleness and path hygiene', () => {
     expect(labels.filter((l) => l.endsWith(':r2'))).toEqual(['review:senior:slice s1:r2']);
   });
 
+  test('a different file sharing a name suffix is beyond the findings', async () => {
+    // finding file x.ts: src/x.ts is the same file, src/max.ts is not
+    const same = await run2([{ file: 'src/x.ts', reason: 'same file, relative' }]);
+    expect(same.labels.filter((l) => l.endsWith(':r2'))).toEqual(['review:senior:slice s1:r2']);
+    const other = await run2([{ file: 'src/max.ts', reason: 'different file' }]);
+    expect(other.labels.filter((l) => l.endsWith(':r2'))).toEqual(['review:senior:slice s1:r2', 'review:test:slice s1:r2']);
+    expect(promptOf(other.calls, 'review:test:slice s1:r2')).toContain('First review');
+  });
+
   test('a beyond-scope fix after an in-scope one still brings everyone back at full depth', async () => {
     const { calls } = await run(ARGS({ slices: [SLICE('s1')], roundsCap: 3 }), {
       ...ok,
@@ -461,7 +471,7 @@ describe('null and blocked paths', () => {
   const blocked = () => ({ status: 'blocked', summary: 'stuck', hookLog: 'red' });
   const cases: Array<[string, Record<string, any>, Record<string, Responder>, Record<string, any>, string]> = [
     ['implementer null', {}, { 'implement:': () => null }, { kind: 'implementer-null', slice: 's1' }, 'implement:s1'],
-    ['fixer null', {}, { 'review:senior:': () => needsWork('x'), 'fix:': () => null }, { kind: 'fixer-null', slice: 's1' }, 'fix:slice s1:r1'],
+    ['fixer null', {}, { 'review:senior:': () => needsWork('x'), 'fix:': () => null }, { kind: 'fixer-null', slice: 's1', findings: [{ id: 'x' }] }, 'fix:slice s1:r1'],
     ['fixer blocked', {}, { 'review:senior:': () => needsWork('x'), 'fix:': blocked }, { kind: 'fixer-blocked', slice: 's1', hookLog: 'red' }, 'fix:slice s1:r1'],
     ['simplify null', { skills: { simplify: ['slice'] } }, { 'simplify:': () => null }, { kind: 'simplify-null', slice: 's1' }, 'simplify:slice s1'],
     ['simplify blocked', { skills: { simplify: ['slice'] } }, { 'simplify:': blocked }, { kind: 'simplify-blocked', slice: 's1' }, 'simplify:slice s1'],
@@ -469,7 +479,7 @@ describe('null and blocked paths', () => {
     ['one reviewer null, the other ships', {}, { 'review:test:': () => null }, { kind: 'reviewers-null', slice: 's1', missing: ['test'] }, 'review:test:slice s1:r1'],
     ['run check null', { runCheck: 'rc' }, { 'run-check:': () => null }, { kind: 'run-check-null' }, 'run-check:r1'],
     ['run-check fixer null', { runCheck: 'rc' }, { 'run-check:': () => ({ pass: false, tail: 't' }), 'fix:run-check': () => null }, { kind: 'fixer-null', scope: 'run-check' }, 'fix:run-check:r1'],
-    ['run-check fixer question', { runCheck: 'rc' }, { 'run-check:': () => ({ pass: false, tail: 't' }), 'fix:run-check': () => ({ status: 'question', questions: ['q'], summary: 's' }) }, { kind: 'question', scope: 'run-check', answerKey: 'run-check' }, 'fix:run-check:r1'],
+    ['run-check fixer question', { runCheck: 'rc' }, { 'run-check:': () => ({ pass: false, tail: 't' }), 'fix:run-check': () => ({ status: 'question', questions: ['q'], summary: 's' }) }, { kind: 'question', scope: 'run-check', answerKey: 'fix:run-check:r1' }, 'fix:run-check:r1'],
     ['run-check fixer blocked', { runCheck: 'rc' }, { 'run-check:': () => ({ pass: false, tail: 't' }), 'fix:run-check': blocked }, { kind: 'fixer-blocked', scope: 'run-check' }, 'fix:run-check:r1'],
   ];
   for (const [name, over, responders, expected, lastLabel] of cases) {
@@ -512,9 +522,22 @@ describe('exception contents', () => {
   });
 });
 
+describe('reservations', () => {
+  test('a reservation from a carried approval stays in the open ledger', async () => {
+    const reserve = (id: string) => ({ verdict: 'APPROVED WITH RESERVATIONS', findings: [{ id, summary: id, file: 'a.ts', blocking: false }] });
+    const { result } = await run(ARGS({ slices: [SLICE('s1')] }), {
+      ...ok,
+      'review:test:': () => reserve('test-nit'),
+      'review:senior:': (_c, n) => (n === 0 ? needsWork('x') : reserve('senior-nit')),
+    });
+    expect(result.status).toBe('complete');
+    expect(result.done[0].open.map((f: any) => f.id).sort()).toEqual(['senior-nit', 'test-nit']);
+  });
+});
+
 describe('answers', () => {
-  test("answers ride at the end of the asking slice's implementer prompt only", async () => {
-    const { calls } = await run(ARGS({ answers: { s2: ['use the v2 API'] } }), {
+  test("answers ride at the end of the asking implementer's prompt only", async () => {
+    const { calls } = await run(ARGS({ answers: { 'implement:s2': ['use the v2 API'] } }), {
       ...ok,
       'implement:s1': () => committed({ facts: ['F1'] }),
     });
@@ -525,17 +548,48 @@ describe('answers', () => {
     expect(promptOf(calls, 'review:senior:slice s2:r1')).not.toContain('use the v2 API');
   });
 
-  test("answers keyed by slice reach that slice's fixer", async () => {
-    const { calls } = await run(ARGS({ slices: [SLICE('s1')], answers: { s1: ['finding x is real'] } }), {
+  test("an answer to a round-2 fixer leaves every earlier prompt byte-identical, so resume replays them", async () => {
+    const responders: Record<string, Responder> = {
       ...ok,
-      'review:senior:': (_c, n) => (n === 0 ? needsWork('x') : ship),
-    });
-    expect(promptOf(calls, 'fix:slice s1:r1')).toContain('finding x is real');
+      'review:senior:': (_c, n) => (n < 2 ? needsWork(`x${n}`) : ship),
+    };
+    const a = ARGS({ slices: [SLICE('s1')], roundsCap: 3 });
+    const before = await run(a, responders);
+    const after = await run({ ...a, answers: { 'fix:slice s1:r2': ['x1 is real'] } }, responders);
+    const i = after.labels.indexOf('fix:slice s1:r2');
+    expect(after.calls.slice(0, i).map((c) => c.prompt)).toEqual(before.calls.slice(0, i).map((c) => c.prompt));
+    expect(after.calls[i].prompt.trimEnd().endsWith('- x1 is real')).toBe(true);
+    expect(after.calls.filter((c) => c.prompt.includes('x1 is real')).map((c) => c.label)).toEqual(['fix:slice s1:r2']);
   });
 
-  test('a question exception names the answer key to fill', async () => {
+  test('milestone and run-check fixers get the answers keyed by their own labels', async () => {
+    const { calls } = await run(
+      ARGS({
+        slices: [SLICE('s1')],
+        reviewCover: 'milestone',
+        runCheck: 'rc',
+        answers: { 'fix:run-check:r1': ['RC-ANSWER'], 'fix:milestone:r1': ['MS-ANSWER'] },
+      }),
+      {
+        ...ok,
+        'run-check:': (_c, n) => (n === 0 ? { pass: false, tail: 'red' } : { pass: true, tail: '' }),
+        'review:senior:': (_c, n) => (n === 0 ? needsWork('m') : ship),
+      },
+    );
+    expect(promptOf(calls, 'fix:run-check:r1')).toContain('RC-ANSWER');
+    expect(promptOf(calls, 'fix:milestone:r1')).toContain('MS-ANSWER');
+    expect(calls.filter((c) => /RC-ANSWER|MS-ANSWER/.test(c.prompt)).map((c) => c.label)).toEqual(['fix:run-check:r1', 'fix:milestone:r1']);
+  });
+
+  test('a question exception names the asking call as the answer key', async () => {
     const { result } = await run(ARGS(), { ...ok, 'implement:': () => ({ status: 'question', questions: ['q'], summary: 's' }) });
-    expect(result.answerKey).toBe('s1');
+    expect(result.answerKey).toBe('implement:s1');
+    const rc = await run(ARGS({ slices: [SLICE('s1')], runCheck: 'rc' }), {
+      ...ok,
+      'run-check:': () => ({ pass: false, tail: 'red' }),
+      'fix:run-check': () => ({ status: 'question', questions: ['q'], summary: 's' }),
+    });
+    expect(rc.result).toMatchObject({ kind: 'question', scope: 'run-check', answerKey: 'fix:run-check:r1' });
   });
 });
 
@@ -564,6 +618,15 @@ describe("roundsCap 'until-approved'", () => {
     });
     expect(result).toMatchObject({ kind: 'run-check-red', rounds: 2 });
     expect(labels.filter((l) => l.startsWith('fix:run-check'))).toHaveLength(1);
+  });
+
+  test('a run check failing differently every round still stops after 3 rounds', async () => {
+    const { result, labels } = await run(ARGS({ slices: [SLICE('s1')], roundsCap: 'until-approved', runCheck: 'rc' }), {
+      ...ok,
+      'run-check:': (_c, n) => ({ pass: false, tail: `red ${n}` }),
+    });
+    expect(result).toMatchObject({ kind: 'run-check-red', rounds: 3 });
+    expect(labels.filter((l) => l.startsWith('fix:run-check'))).toHaveLength(2);
   });
 
   test('other strings are rejected', async () => {
@@ -600,6 +663,40 @@ describe('run-check fixes', () => {
     expect(promptOf(calls, 'review:senior:run-check fixes:r1')).toContain('impl1..rcfix');
   });
 
+  test('a rejected run-check fix is an exception, not a complete milestone', async () => {
+    const { result } = await run(ARGS({ slices: [SLICE('s1')], runCheck: 'rc' }), {
+      ...ok,
+      'run-check:': redOnce,
+      'review:senior:run-check fixes': (_c, n) => needsWork(`rc${n}`),
+    });
+    expect(result).toMatchObject({ status: 'exception', kind: 'rounds-cap', scope: 'run-check fixes' });
+  });
+
+  test('with a milestone review, run-check fixes are not reviewed twice', async () => {
+    const { labels } = await run(ARGS({ slices: [SLICE('s1')], runCheck: 'rc', reviewCover: 'slice+milestone' }), {
+      ...ok,
+      'run-check:': redOnce,
+    });
+    expect(labels.some((l) => l.includes('run-check fixes'))).toBe(false);
+    expect(labels).toContain('review:senior:milestone:r1');
+  });
+
+  test('a run check green the first time adds no review', async () => {
+    const { labels } = await run(ARGS({ slices: [SLICE('s1')], runCheck: 'rc' }), {
+      ...ok,
+      'run-check:': () => ({ pass: true, tail: '' }),
+    });
+    expect(labels.at(-1)).toBe('run-check:r1');
+  });
+
+  test('a per-slice security-audit also reviews the run-check fixes', async () => {
+    const { labels } = await run(
+      ARGS({ slices: [SLICE('s1')], runCheck: 'rc', reviewers: ['senior'], skills: { 'security-audit': ['slice'] } }),
+      { ...ok, 'run-check:': redOnce },
+    );
+    expect(labels.slice(-2)).toEqual(['review:senior:run-check fixes:r1', 'review:security:run-check fixes:r1']);
+  });
+
   test('a fixer that commits nothing ends the run check', async () => {
     const { result } = await run(ARGS({ slices: [SLICE('s1')], runCheck: 'rc' }), {
       ...ok,
@@ -615,6 +712,12 @@ describe('invalid args', () => {
     const { result, labels } = await run(ARGS({ reviewCover: 'milestone', skills: { 'security-audit': ['slice'] } }), ok);
     expect(result.kind).toBe('invalid-args');
     expect(labels).toEqual([]);
+  });
+
+  test('no reviewers → invalid-args, nothing launched', async () => {
+    const { result, calls } = await run(ARGS({ reviewers: [] }), ok);
+    expect(result.kind).toBe('invalid-args');
+    expect(calls).toHaveLength(0);
   });
 
   test('unknown reviewer, unknown cover and missing fields → invalid-args', async () => {

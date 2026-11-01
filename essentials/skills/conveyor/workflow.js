@@ -15,11 +15,14 @@ const RUN_CHECK = args.runCheck || null       // optional run tier, once at mile
 const REVIEWERS = args.reviewers || []        // subset of ['senior', 'test']
 const COVER = args.reviewCover                // 'slice' | 'slice+milestone' | 'milestone'
 const SKILLS = args.skills || {}              // { simplify?: [...], 'security-audit'?: [...] } of 'slice' | 'milestone'
-const ANSWERS = args.answers || {}            // { <slice id> | 'milestone' | 'run-check': [answer, ...] }
+const ANSWERS = args.answers || {}            // { <label of the asking call>: [answer, ...] }
 const STANDARDS = args.standards || ''        // short orchestrator-specific notes only
 // Rounds cap per review scope: a positive integer, or 'until-approved' (no cap;
 // the no-progress and aging exits still end a loop that isn't converging).
 const CAP = args.roundsCap === 'until-approved' ? Infinity : args.roundsCap
+// The run check compares failures by their tail, which timings and timestamps
+// defeat, so an uncapped run check still stops after 3 rounds.
+const RUN_CAP = CAP === Infinity ? 3 : CAP
 let head = args.baseSha                       // commit ranges start here
 
 const uses = (skill, when) => (SKILLS[skill] || []).includes(when)
@@ -31,6 +34,7 @@ const invalid = []
 if (!(CAP === Infinity || (Number.isInteger(CAP) && CAP >= 1))) invalid.push("roundsCap must be a positive integer or 'until-approved'")
 if (!['slice', 'slice+milestone', 'milestone'].includes(COVER)) invalid.push('reviewCover must be slice | slice+milestone | milestone')
 if (REVIEWERS.some(r => !['senior', 'test'].includes(r))) invalid.push('reviewers must be a subset of senior, test')
+if (!REVIEWERS.length) invalid.push('reviewers must name at least one reviewer, or commits go unreviewed')
 if (!WS || !CHECK || !head || !Array.isArray(SLICES)) invalid.push('workspace, checkCommand, baseSha and slices are required')
 if (uses('simplify', 'milestone') && !(reviewMilestone && REVIEWERS.length))
   invalid.push('simplify at milestone end needs reviewers at milestone end, or its commit goes unreviewed')
@@ -95,8 +99,9 @@ const isApproved = v => APPROVED.includes(v.verdict)
 // ---- facts carry-forward and answers ----
 // Facts and decisions from every result ride at the END of later prompts, so
 // the shared prompt prefix stays cacheable and replayed calls keep their keys.
-// Answers to a question ride at the very end of the prompt that asked it, so a
-// resume re-runs only that call onward.
+// Answers are keyed by the label of the call that asked and ride at the very
+// end of that one prompt, so a resume replays every earlier call from cache
+// and re-runs only the asking call onward.
 const facts = []
 const decisions = []
 const absorb = r => {
@@ -110,9 +115,9 @@ const carried = () => (facts.length || decisions.length)
 const answered = key => (ANSWERS[key] || []).length
   ? '\n\n## Answers from the orchestrator\n' + ANSWERS[key].map(a => '- ' + a).join('\n')
   : ''
-const prompt = (body, answerKey) => (STANDARDS ? STANDARDS + '\n' : '') +
+const prompt = (body, label) => (STANDARDS ? STANDARDS + '\n' : '') +
   'Workspace: ' + WS + ' (read context.md there first). Commit tier: ' + CHECK + '\n' + body + carried() +
-  (answerKey ? answered(answerKey) : '')
+  (label ? answered(label) : '')
 
 const done = []
 let lastHookLog = null   // the most recent hook log any committing agent reported
@@ -129,7 +134,13 @@ const landed = r => {
 // relative, and workspace writes never count as going beyond the findings.
 const norm = p => (p || '').replace(/\\/g, '/')
 const isWorkspace = p => norm(p).includes('.conveyor/')
-const sameFile = (a, b) => !!norm(a) && !!norm(b) && (norm(a).endsWith(norm(b)) || norm(b).endsWith(norm(a)))
+// Same file: equal, or one is the other with leading directories (an absolute
+// path vs a repo-relative one). Matching on a segment boundary keeps
+// src/data.ts from passing for a.ts.
+const sameFile = (a, b) => {
+  const x = norm(a), y = norm(b)
+  return !!x && !!y && (x === y || x.endsWith('/' + y) || y.endsWith('/' + x))
+}
 const beyondFindings = (extra, findings) => (extra || []).map(e => e.file)
   .filter(f => !isWorkspace(f))
   .some(f => !findings.some(x => sameFile(f, x.file)))
@@ -147,7 +158,7 @@ function reviewerSet(when) {
   return set
 }
 
-async function reviewLoop(scope, answerKey, base, set, P) {
+async function reviewLoop(scope, base, set, P) {
   const keys = Object.keys(set)
   if (!keys.length) return { ok: true, rounds: 0, open: [], extraFiles: [] }
   let pending = Object.fromEntries(keys.map(k => [k, true]))
@@ -193,11 +204,12 @@ async function reviewLoop(scope, answerKey, base, set, P) {
     if (rounds >= CAP) break
 
     const fixBase = head
+    const fixLabel = 'fix:' + scope + ':r' + rounds
     const fix = await agent(prompt(
-      'Fix exactly these blocking findings on ' + scope + ' (commit range ' + range + '):\n' + JSON.stringify(blockers), answerKey),
-      { label: 'fix:' + scope + ':r' + rounds, agentType: 'essentials:fixer', schema: IMPL, phase: P })
+      'Fix exactly these blocking findings on ' + scope + ' (commit range ' + range + '):\n' + JSON.stringify(blockers), fixLabel),
+      { label: fixLabel, agentType: 'essentials:fixer', schema: IMPL, phase: P })
     if (!fix) return { exception: exit('fixer-null', { scope, findings: blockers }) }
-    if (fix.status === 'question') { absorb(fix); return { exception: exit('question', { scope, answerKey, questions: fix.questions || [], summary: fix.summary }) } }
+    if (fix.status === 'question') { absorb(fix); return { exception: exit('question', { scope, answerKey: fixLabel, questions: fix.questions || [], summary: fix.summary }) } }
     if (fix.status !== 'committed') { absorb(fix); return { exception: exit('fixer-blocked', { scope, summary: fix.summary, hookLog: fix.hookLog }) } }
     landed(fix)
     fixRange = fixBase + '..' + head
@@ -228,10 +240,10 @@ for (const slice of SLICES) {
 
   const impl = await agent(prompt(
     'Implement slice ' + slice.id + ': ' + slice.planExcerpt +
-    '\nPlanned commits, in order: ' + JSON.stringify(slice.commits), slice.id),
+    '\nPlanned commits, in order: ' + JSON.stringify(slice.commits), 'implement:' + slice.id),
     { label: 'implement:' + slice.id, agentType: 'essentials:implementer', schema: IMPL, phase: P })
   if (!impl) return exit('implementer-null', { slice: slice.id })
-  if (impl.status === 'question') { absorb(impl); return exit('question', { slice: slice.id, answerKey: slice.id, questions: impl.questions || [], summary: impl.summary }) }
+  if (impl.status === 'question') { absorb(impl); return exit('question', { slice: slice.id, answerKey: 'implement:' + slice.id, questions: impl.questions || [], summary: impl.summary }) }
   if (impl.status !== 'committed') { absorb(impl); return exit('implementer-blocked', { slice: slice.id, summary: impl.summary, hookLog: impl.hookLog }) }
   landed(impl)
 
@@ -242,7 +254,7 @@ for (const slice of SLICES) {
 
   let result = { rounds: 0, open: [], extraFiles: [] }
   if (reviewSlices) {
-    result = await reviewLoop('slice ' + slice.id, slice.id, base, reviewerSet('slice'), P)
+    result = await reviewLoop('slice ' + slice.id, base, reviewerSet('slice'), P)
     if (result.exception) return { ...result.exception, slice: slice.id }
   }
 
@@ -267,23 +279,26 @@ if (RUN_CHECK) {
       { label: 'run-check:r' + checkRounds, model: 'haiku', schema: CHECK_RESULT, phase: P })
     if (!check) return exit('run-check-null', {})
     if (check.pass) break
-    if (checkRounds >= CAP || check.tail === prevTail) return exit('run-check-red', { tail: check.tail, rounds: checkRounds })
+    if (checkRounds >= RUN_CAP || check.tail === prevTail) return exit('run-check-red', { tail: check.tail, rounds: checkRounds })
     prevTail = check.tail
     const fixBase = head
+    const fixLabel = 'fix:run-check:r' + checkRounds
     const fix = await agent(prompt(
       'The milestone run check is red. Fix exactly this finding, as new commits (commit range ' + milestoneBase + '..' + head + '):\n' +
-      JSON.stringify([{ id: 'run-check-red', file: '', blocking: true, summary: RUN_CHECK + ' failed; last 80 lines:\n' + check.tail }]), 'run-check'),
-      { label: 'fix:run-check:r' + checkRounds, agentType: 'essentials:fixer', schema: IMPL, phase: P })
+      JSON.stringify([{ id: 'run-check-red', file: '', blocking: true, summary: RUN_CHECK + ' failed; last 80 lines:\n' + check.tail }]), fixLabel),
+      { label: fixLabel, agentType: 'essentials:fixer', schema: IMPL, phase: P })
     if (!fix) return exit('fixer-null', { scope: 'run-check' })
-    if (fix.status === 'question') { absorb(fix); return exit('question', { scope: 'run-check', answerKey: 'run-check', questions: fix.questions || [], summary: fix.summary }) }
+    if (fix.status === 'question') { absorb(fix); return exit('question', { scope: 'run-check', answerKey: fixLabel, questions: fix.questions || [], summary: fix.summary }) }
     if (fix.status !== 'committed') { absorb(fix); return exit('fixer-blocked', { scope: 'run-check', summary: fix.summary, hookLog: fix.hookLog }) }
     landed(fix)
     if (head === fixBase) return exit('run-check-red', { tail: check.tail, rounds: checkRounds, summary: 'fixer committed nothing' })
   }
   // Run-check fixes are new code: without a milestone review to cover them,
   // the slice reviewers review them here so no commit goes unreviewed.
-  if (head !== checkBase && !reviewMilestone && REVIEWERS.length) {
-    const r = await reviewLoop('run-check fixes', 'run-check', checkBase, reviewerSet('slice'), P)
+  // Known gap: fixes made by this review or the milestone review are not run
+  // through the run check again; CI after push catches what they break.
+  if (head !== checkBase && !reviewMilestone) {
+    const r = await reviewLoop('run-check fixes', checkBase, reviewerSet('slice'), P)
     if (r.exception) return r.exception
   }
 }
@@ -295,7 +310,7 @@ if (uses('simplify', 'milestone')) {
 
 const endSet = reviewMilestone ? reviewerSet('milestone')
   : (uses('security-audit', 'milestone') ? { security: { skill: 'security-audit' } } : {})
-const end = await reviewLoop('milestone', 'milestone', milestoneBase, endSet, P)
+const end = await reviewLoop('milestone', milestoneBase, endSet, P)
 if (end.exception) return end.exception
 
 return { status: 'complete', done, head, milestone: { rounds: end.rounds, open: end.open || [], extraFiles: end.extraFiles || [] }, facts, decisions }
