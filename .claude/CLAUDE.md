@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Plugin marketplace for Claude Code: essentials, writing, experimental.
+Plugin marketplace for Claude Code: essentials, writing, experimental, todoist, notifications, mcp.
 
 ## Structure
 
@@ -10,6 +10,7 @@ config/                          # Global config → ~/.claude/
 essentials/                      # Commands, skills, MCP servers
 writing/                         # Blog writing workflow
 experimental/                    # Kanban workflow + agents
+todoist/ notifications/ mcp/    # Todoist link, notifications, MCP servers
 scripts/                        # Utilities
 .claude/reference/              # Plugin docs
 ```
@@ -31,7 +32,7 @@ bun scripts/manage-permissions.ts   # Manage permissions
 ## Adding Things
 
 - **Plugin**: dir + `.claude-plugin/plugin.json` + register in marketplace.json
-- **MCP server**: `essentials/.mcp.json`, use `pnpx`
+- **MCP server**: `mcp/.mcp.json`, use `pnpx`
 - **Command**: `.md` in `[plugin]/commands/`, YAML frontmatter
 - **Skill**: `[plugin]/skills/[name]/SKILL.md`, optional `reference/`
 - **Agent**: `.md` in `[plugin]/agents/`, YAML frontmatter
