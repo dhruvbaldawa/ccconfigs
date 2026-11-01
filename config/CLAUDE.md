@@ -63,7 +63,7 @@ When planning work, create a logical sequence of atomic commits. Each commit in 
 
 - What changes are made
 - What tests are added or modified
-- Validation criteria to confirm the commit is correct — as executable commands wherever possible (these become the loop's declared checks)
+- Validation criteria to confirm the commit is correct — as executable commands wherever possible (the repo's `Check:` and `Run check:` lines are the gates conveyor runs)
 
 ### Before finalizing the plan
 
@@ -78,6 +78,6 @@ These are two-way doors: state each choice in the plan with its rationale; Dhruv
 
 ### Execution
 
-Heavy multi-commit plans: `/conveyor <plan-file>` (essentials) — the implement/review/fix/commit loop lives there. Manual execution keeps the same gate: `essentials:senior-engineer-reviewer` + `essentials:test-reviewer` approve within the agreed rounds cap; at the cap, surface what's unresolved.
+Heavy multi-commit plans: `/conveyor <milestone>` (essentials) — the implement/review/fix loop lives there, gated by the pre-commit hook. Manual execution keeps the same gate: the reviewers chosen at seed approve within the agreed rounds cap; at the cap, surface what's unresolved.
 
 @RTK.md
