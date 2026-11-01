@@ -2,7 +2,7 @@
 // ABOUTME: Covers started/finished ordering, stall and long thresholds, dedup across scans, malformed lines, and labels.
 
 import { afterEach, describe, expect, test } from 'bun:test';
-import { appendFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs';
+import { appendFileSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 
@@ -11,6 +11,7 @@ import {
   diffEvents,
   newEmitted,
   readRun,
+  saveEmitted,
   serializeEmitted,
   STATE_FILE,
   type Thresholds,
@@ -130,6 +131,20 @@ describe('stall', () => {
       ),
     );
     writeFileSync(join(dir, 'agent-a1.jsonl'), jl(assistant('m1', minsAgo(30), [toolUse('tu1', 'Bash')])));
+    expect(scan(dir)).toEqual(['started implement:s1', 'finished implement:s1']);
+  });
+
+  test('a finished agent never reports long, even past both thresholds', () => {
+    const dir = runDir();
+    writeFileSync(
+      join(dir, 'journal.jsonl'),
+      jl(
+        { type: 'started', key: 'k1', agentId: 'a1', label: 'implement:s1' },
+        { type: 'result', key: 'k1', agentId: 'a1', result: {} },
+      ),
+    );
+    const turns = Array.from({ length: 200 }, (_, i) => assistant(`m${i}`, minsAgo(1), [], { input_tokens: 300000 }));
+    writeFileSync(join(dir, 'agent-a1.jsonl'), jl(...turns));
     expect(scan(dir)).toEqual(['started implement:s1', 'finished implement:s1']);
   });
 
@@ -266,6 +281,21 @@ describe('ordering across keys and agents', () => {
   });
 });
 
+describe('agent order', () => {
+  test('stall lines follow agent id order regardless of scan insertion order', () => {
+    const stalled = (name: string) => new Map([[`tu-${name}`, { name, minutes: 20 }]]);
+    const next = {
+      journal: { started: new Map(), finished: new Set<string>(), order: [] },
+      agents: new Map([
+        ['b2', { turns: 1, ctx: 0, stalled: stalled('Read') }],
+        ['b1', { turns: 1, ctx: 0, stalled: stalled('Bash') }],
+      ]),
+      labels: new Map<string, string>(),
+    };
+    expect(diffEvents(newEmitted(), next, T)).toEqual(['stall b1 Bash 20min', 'stall b2 Read 20min']);
+  });
+});
+
 describe('restart and labels', () => {
   test('state survives a restart: a reloaded watcher emits nothing old, only new events', () => {
     const dir = runDir();
@@ -277,6 +307,7 @@ describe('restart and labels', () => {
 
     const reloaded = deserializeEmitted(serializeEmitted(first));
     expect(scan(dir, reloaded)).toEqual([]);
+    meta(dir, 'a1', 'renamed after restart'); // pinned labels must survive the round-trip
     appendFileSync(journal, jl({ type: 'result', key: 'k1', agentId: 'a1', result: {} }));
     expect(scan(dir, reloaded)).toEqual(['finished implement:s1']);
   });
@@ -295,6 +326,45 @@ describe('restart and labels', () => {
     meta(dir, 'a1', 'something else');
     appendFileSync(journal, jl({ type: 'result', key: 'k1', agentId: 'a1', result: {} }));
     expect(scan(dir, emitted)).toEqual(['finished implement:s1']);
+  });
+});
+
+describe('stall label pinning', () => {
+  test('a stall label is pinned when printed; a later meta file does not rename it', () => {
+    const dir = runDir();
+    const path = join(dir, 'agent-a7.jsonl');
+    writeFileSync(path, jl(assistant('m1', minsAgo(20), [toolUse('tu1', 'Bash')])));
+    const emitted = newEmitted();
+    expect(scan(dir, emitted)).toEqual(['stall a7 Bash 20min']);
+    meta(dir, 'a7', 'late meta');
+    appendFileSync(path, jl(assistant('m2', minsAgo(15), [toolUse('tu2', 'Read')])));
+    expect(scan(dir, emitted)).toEqual(['stall a7 Read 15min']);
+  });
+
+  test('a label is not pinned by a scan that prints nothing for that agent', () => {
+    const dir = runDir();
+    const path = join(dir, 'agent-a7.jsonl');
+    writeFileSync(path, jl(assistant('m1', minsAgo(1), [toolUse('tu1', 'Bash')])));
+    const emitted = newEmitted();
+    expect(scan(dir, emitted)).toEqual([]);
+    meta(dir, 'a7', 'implement:s7');
+    expect(scan(dir, emitted, NOW + 20 * 60000)).toEqual(['stall implement:s7 Bash 21min']);
+  });
+});
+
+describe('saveEmitted', () => {
+  test('writes via a temp file and leaves no temp behind', () => {
+    const dir = runDir();
+    const statePath = join(dir, 'state.json');
+    const e = newEmitted();
+    e.started.add('k1');
+    saveEmitted(statePath, e);
+    expect(deserializeEmitted(readFileSync(statePath, 'utf8')).started.has('k1')).toBe(true);
+    expect(existsSync(`${statePath}.tmp`)).toBe(false);
+  });
+
+  test('an unwritable path is reported, not thrown', () => {
+    expect(() => saveEmitted(join(runDir(), 'no-such-dir', 'state.json'), newEmitted())).not.toThrow();
   });
 });
 
@@ -372,6 +442,22 @@ describe('CLI', () => {
     appendFileSync(join(dir, 'journal.jsonl'), jl({ type: 'result', key: 'k1', agentId: 'a1', result: {} }));
     const second = Bun.spawn(['bun', WATCHER, dir, '--poll-ms', '20'], { stdout: 'pipe' });
     expect((await readLines(second, 1)).lines).toEqual(['finished implement:s1']);
+  });
+
+  test('--state writes the given file instead of the default', async () => {
+    const dir = runDir();
+    const statePath = join(runDir(), 's.json');
+    writeFileSync(join(dir, 'journal.jsonl'), jl({ type: 'started', key: 'k1', agentId: 'a1', label: 'implement:s1' }));
+    const proc = Bun.spawn(['bun', WATCHER, dir, '--poll-ms', '20', '--state', statePath], { stdout: 'pipe' });
+    expect((await readLines(proc, 1)).lines).toEqual(['started implement:s1']);
+    await proc.exited;
+    expect(existsSync(statePath)).toBe(true);
+    expect(existsSync(join(dir, STATE_FILE))).toBe(false);
+  });
+
+  test('rejects --state without a path', async () => {
+    const proc = Bun.spawn(['bun', WATCHER, runDir(), '--state', '--poll-ms', '20'], { stdout: 'pipe', stderr: 'pipe' });
+    expect(await proc.exited).toBe(2);
   });
 
   test('rejects a non-positive --poll-ms', async () => {

@@ -1,7 +1,7 @@
 // ABOUTME: Watches a conveyor Workflow transcript dir and prints one line per new event (started/finished/stall/long).
 // ABOUTME: Runs under Monitor and never exits; state persists across the Monitor's 30-min relaunches (the cache heartbeat).
 
-import { existsSync, readdirSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 // Default state file name, kept inside the transcript dir so each run has its own.
@@ -202,15 +202,16 @@ export function diffEvents(emitted: Emitted, next: RunState, t: Thresholds): str
 
   for (const [agentId, scan] of [...next.agents].sort(([a], [b]) => a.localeCompare(b))) {
     if (finishedAgents.has(agentId)) continue;
-    const label = stableLabel(agentId, next.labels.get(agentId) ?? agentId);
+    // resolved lazily: a label is pinned only when a line is actually printed
+    const label = () => stableLabel(agentId, next.labels.get(agentId) ?? agentId);
     for (const [toolId, { name, minutes }] of scan.stalled) {
       if (emitted.stalls.has(toolId)) continue;
       emitted.stalls.add(toolId);
-      lines.push(`stall ${label} ${name} ${minutes}min`);
+      lines.push(`stall ${label()} ${name} ${minutes}min`);
     }
     if (!emitted.long.has(agentId) && (scan.turns >= t.longTurns || scan.ctx >= t.longCtx)) {
       emitted.long.add(agentId);
-      lines.push(`long ${label} turns=${scan.turns} ctx=${Math.round(scan.ctx / 1000)}k`);
+      lines.push(`long ${label()} turns=${scan.turns} ctx=${Math.round(scan.ctx / 1000)}k`);
     }
   }
   return lines;
@@ -269,6 +270,10 @@ function parseArgs(argv: string[]): { dir: string; t: Thresholds; pollMs: number
       const name = a.slice(2);
       if (name === 'state') {
         statePath = argv[++i] ?? '';
+        if (!statePath || statePath.startsWith('--')) {
+          console.error('--state needs a file path');
+          process.exit(2);
+        }
         continue;
       }
       const value = Number(argv[++i]);
@@ -293,6 +298,21 @@ function parseArgs(argv: string[]): { dir: string; t: Thresholds; pollMs: number
   };
 }
 
+/**
+ * Writes the state file via temp file + rename, so a Monitor kill mid-write
+ * can't leave truncated JSON (which would reload as empty and replay history).
+ * A failed write is reported once per poll on stderr and never kills the watcher.
+ */
+export function saveEmitted(statePath: string, emitted: Emitted): void {
+  const tmp = `${statePath}.tmp`;
+  try {
+    writeFileSync(tmp, serializeEmitted(emitted));
+    renameSync(tmp, statePath);
+  } catch (err) {
+    console.error(`state write failed (${statePath}): ${(err as Error).message}`);
+  }
+}
+
 async function main(): Promise<void> {
   const { dir, t, pollMs, statePath } = parseArgs(process.argv.slice(2));
   const emitted = deserializeEmitted(readText(statePath));
@@ -304,7 +324,7 @@ async function main(): Promise<void> {
     } else {
       const lines = diffEvents(emitted, readRun(dir, Date.now(), t), t);
       for (const line of lines) console.log(line);
-      if (lines.length) writeFileSync(statePath, serializeEmitted(emitted));
+      if (lines.length) saveEmitted(statePath, emitted);
     }
     await Bun.sleep(pollMs);
   }
