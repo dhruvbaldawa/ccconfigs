@@ -20,7 +20,11 @@ Dhruv opens a fresh session (`/clear`) and types a bare `/conveyor <milestone>`,
 2. **Ask** the seed questions in two AskUserQuestion calls:
    - Call 1: **Execution** (/conveyor · manual) · **Reviewers**, multi-select (senior-engineer-reviewer · test-reviewer) · **When reviewers run** (each slice · each slice + milestone end · milestone end only) · **Rounds cap** (1 · 2 · 3 · until approved).
    - Call 2: **Extra skills**, multi-select (simplify · security-audit) · **When the selected skills run** (each slice · milestone end · both) · **Push** (after each slice · at milestone end).
-   - Refuse simplify at milestone end without reviewers at milestone end: its commit would go unreviewed.
+   - Rounds cap "until approved" → `roundsCap: 'until-approved'`: no cap, but no-progress, aging and a repeated run-check failure still end a loop.
+   - Refuse, because a commit would go unreviewed or a choice would be silently skipped:
+     - simplify at milestone end without reviewers at milestone end;
+     - security-audit per slice with milestone-only review;
+     - push after each slice with milestone-only review.
    - Manual: stop here and execute in this session with the same gate.
 3. **Check tiers**, from the repo CLAUDE.md:
    - `Check: <command>`, the commit tier, run by the pre-commit hook on every commit.
@@ -31,6 +35,8 @@ Dhruv opens a fresh session (`/clear`) and types a bare `/conveyor <milestone>`,
    - The commit tier passes on the base SHA.
    - A pre-commit hook runs the `Check:` command: `test -x "$(git rev-parse --git-path hooks/pre-commit)"` and read it. If not, stop and offer to install one.
    - Every command the slices need is allowed in `.claude/settings.json`. Otherwise list the missing ones and ask Dhruv once. A permission prompt nobody sees stalls the run for hours.
+   - The selected extra skills (simplify, security-audit) are installed, since default subagents invoke them by name.
+   - Push access works: `git push --dry-run` to the integration target.
    - Record the integration target: branch, push destination, PR or direct.
 5. **Workspace**: `.conveyor/<milestone>/`, with `.conveyor/` in `.git/info/exclude`.
    - Copy `workflow.js` from this skill's base directory there.
@@ -43,7 +49,9 @@ Dhruv opens a fresh session (`/clear`) and types a bare `/conveyor <milestone>`,
 `Workflow({scriptPath: '.conveyor/<milestone>/workflow.js', args})`.
 - Never pass the script inline.
 - Never edit the copy after launch.
-- Re-plan or answer a question by changing `args` (and context.md), then resume with `scriptPath` + `resumeFromRunId`: completed slices replay from cache.
+- Re-plan by changing `args`, then resume with `scriptPath` + `resumeFromRunId`. Resume replays the longest unchanged prefix of agent calls from cache; the first changed call and everything after it run live. So:
+  - Answer a question in `args.answers[<answerKey>]` (the exception names the key). It rides at the very end of that one prompt, so only the asking call onward re-runs.
+  - Never put an answer in `standards`: it opens every prompt, so changing it re-runs the whole milestone, committed slices included.
 - One workflow call runs the whole milestone; needing a new script mid-run is itself an exception, recorded in context.md.
 
 ## Watch
@@ -56,11 +64,11 @@ Arm a Monitor on the run's transcript dir (from the Workflow result):
 | Event | You do |
 |---|---|
 | `started <label>` | Nothing. The wake refreshes the cache. |
-| `finished <label>` | Read that agent's result in `journal.jsonl`. Write new facts and decisions to context.md and evidence to log.md. If push is per slice and the slice is approved, `git push`. |
+| `finished <label>` | Read that agent's result in `journal.jsonl`. Write new facts and decisions to context.md and evidence to log.md. If push is per slice and this was the slice's last review round with every reviewer approving, push that slice's head explicitly: `git push <remote> <sha>:refs/heads/<branch>`, where `<sha>` is the last sha from the slice's implement, simplify or fix results in the journal. Never a bare `git push`: the next slice's implementer may already have committed. |
 | `stall <label> <tool> <N>min` | PushNotification to Dhruv with agent, tool and minutes. A permission prompt is Dhruv's to approve. A hung command: stop the run from `/workflows` and resume. |
 | `long <label> turns=N ctx=Kk` | PushNotification: "<label> is long: N turns, Kk". Dhruv decides whether to split. |
 | agent message | Write it into context.md. Never reply (see Messaging). A question that needs an answer goes to Dhruv and under Open questions. |
-| workflow returns `question` | Answer from context.md or ask Dhruv; record the decision; resume with updated args. |
+| workflow returns `question` | Answer from context.md or ask Dhruv; record the decision; put the answer in `args.answers[<answerKey>]` and resume. |
 
 ## Messaging
 
@@ -84,22 +92,18 @@ You are its only writer; subagents read it first and report facts, decisions and
 ## Exceptions — your only job
 
 The workflow returns early with structured state and the facts gathered so far. `reference/workflow-skeleton.md` lists every kind:
-- `question`;
+- `question` (carries the `answerKey` for `args.answers`);
 - `implementer-blocked` or `fixer-blocked` (3 failed attempts, no hook, or a dirty tree after a commit);
 - the rounds cap;
 - a resolvable finding flagged three times across the milestone (`standing` reservations exempt);
 - a rejection with zero blocking findings;
 - an identical blocker set across rounds;
 - a null agent (died or classifier-blocked: check the progress errors before assuming a crash);
-- the run check red past the cap;
+- the run check red past the cap or failing the same way twice;
 - merge conflicts;
 - CI red after push.
 
 For each: intervene with judgment, record the decision in context.md, change args, resume. A rejection that outlives the run is still a rejection: the fix re-enters through review via resume.
-
-## Parallelism
-
-Independent slices only (different files, no shared interfaces), at most 2–3; when in doubt, run sequentially. Each parallel slice gets its own `git worktree` and branch, merged back in slice order. A conflict or a red hook after a merge is an exception.
 
 ## Report
 

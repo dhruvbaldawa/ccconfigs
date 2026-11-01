@@ -43,7 +43,7 @@ Git: use only `status`, `diff`, `log`, `show`, `rev-parse`, `add` (named paths, 
 - `shas`
 - `fixed`: one `{id, sha}` per finding, mapping each finding id to the commit that fixes it
 - `hookLog`: the tail of the last hook run, then the `git status --porcelain` output after your last commit
-- `redEvidence`: one failing-test tail per finding id
+- `redEvidence`: `{id, tail}` per finding id, the reproducing test's failing tail
 - `extraFiles`
 - `facts`
 - `decisions`

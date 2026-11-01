@@ -40,7 +40,7 @@ Git: use only `status`, `diff`, `log`, `show`, `rev-parse`, `add` (named paths, 
 - `status`: `committed` | `question` | `blocked`
 - `shas`
 - `hookLog`: the tail of the last hook run, then the `git status --porcelain` output after your last commit
-- `redEvidence`: one failing-test tail per behaviour
+- `redEvidence`: `{id, tail}` per behaviour, the failing-test tail seen before the change
 - `extraFiles`
 - `facts`: reusable environment truths, one line each
 - `decisions`: choices later slices must follow, one line plus the reason

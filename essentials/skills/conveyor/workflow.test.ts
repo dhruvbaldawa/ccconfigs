@@ -31,11 +31,15 @@ type Responder = (call: Call, nth: number) => any;
  * same prefix, so a test can script round-by-round answers.
  */
 async function run(args: Record<string, any>, responders: Record<string, Responder>) {
+  shaN = 0;
   const calls: Call[] = [];
   const counts: Record<string, number> = {};
   const agent = async (prompt: string, opts: Record<string, any> = {}) => {
     const call = { label: opts.label ?? '', prompt, opts };
     calls.push(call);
+    // The real runtime caps a run at 1000 agents; stubbed agents resolve
+    // synchronously, so without a cap a runaway loop would hang the suite.
+    if (calls.length > 1000) throw new Error('agent cap exceeded: runaway loop');
     const prefix = Object.keys(responders)
       .filter((p) => call.label.startsWith(p))
       .sort((a, b) => b.length - a.length)[0];
@@ -320,7 +324,8 @@ describe('run check', () => {
       'run-check:': (_c, n) => (n === 0 ? { pass: false, tail: 'TAIL-RED' } : { pass: true, tail: 'ok' }),
     });
     expect(result.status).toBe('complete');
-    expect(labels.slice(-3)).toEqual(['run-check:r1', 'fix:run-check:r1', 'run-check:r2']);
+    const i = labels.indexOf('run-check:r1');
+    expect(labels.slice(i, i + 3)).toEqual(['run-check:r1', 'fix:run-check:r1', 'run-check:r2']);
     expect(calls.find((c) => c.label === 'fix:run-check:r1')!.prompt).toContain('TAIL-RED');
     const check = calls.find((c) => c.label === 'run-check:r1')!;
     expect(check.opts.model).toBe('haiku');
@@ -334,6 +339,288 @@ describe('run check', () => {
     });
     expect(result).toMatchObject({ kind: 'run-check-red', tail: 'still red' });
     expect(labels.filter((l) => l.startsWith('run-check:'))).toHaveLength(2);
+  });
+});
+
+const promptOf = (calls: Call[], label: string) => {
+  const c = calls.find((x) => x.label === label);
+  if (!c) throw new Error(`no call ${label}`);
+  return c.prompt;
+};
+
+describe('commit ranges and hook logs', () => {
+  test("slice 2's reviewers get slice 2's range only, with slice 2's hook log", async () => {
+    const { calls } = await run(ARGS(), {
+      ...ok,
+      'implement:s1': () => committed({ shas: ['s1a', 's1b'], hookLog: 'HOOK-S1' }),
+      'implement:s2': () => committed({ shas: ['s2a'], hookLog: 'HOOK-S2' }),
+    });
+    const r = promptOf(calls, 'review:senior:slice s2:r1');
+    expect(r).toContain('s1b..s2a');
+    expect(r).toContain('HOOK-S2');
+    expect(r).not.toContain('base0..');
+    expect(promptOf(calls, 'review:senior:slice s1:r1')).toContain('base0..s1b');
+  });
+
+  test("simplify's commit is inside the reviewed range and its hook log reaches reviewers", async () => {
+    const { calls } = await run(ARGS({ slices: [SLICE('s1')], skills: { simplify: ['slice'] } }), {
+      ...ok,
+      'implement:': () => committed({ shas: ['impl1'], hookLog: 'HOOK-IMPL' }),
+      'simplify:': () => committed({ shas: ['simp1'], hookLog: 'HOOK-SIMP' }),
+    });
+    expect(promptOf(calls, 'simplify:slice s1')).toContain('base0..impl1');
+    const r = promptOf(calls, 'review:senior:slice s1:r1');
+    expect(r).toContain('base0..simp1');
+    expect(r).toContain('HOOK-SIMP');
+  });
+
+  test('simplify with nothing to change keeps head and hook log', async () => {
+    const { calls } = await run(ARGS({ slices: [SLICE('s1')], skills: { simplify: ['slice'] } }), {
+      ...ok,
+      'implement:': () => committed({ shas: ['impl1'], hookLog: 'HOOK-IMPL' }),
+      'simplify:': () => ({ status: 'committed', shas: [], summary: 'nothing' }),
+    });
+    const r = promptOf(calls, 'review:senior:slice s1:r1');
+    expect(r).toContain('base0..impl1');
+    expect(r).toContain('HOOK-IMPL');
+  });
+
+  test("a re-review gets the fixer's range, its own prior findings and the fixer's hook log", async () => {
+    const { calls } = await run(ARGS({ slices: [SLICE('s1')] }), {
+      ...ok,
+      'implement:': () => committed({ shas: ['impl1'] }),
+      'review:senior:': (_c, n) => (n === 0 ? needsWork('sen-bug') : ship),
+      'review:test:': (_c, n) => (n === 0 ? needsWork('tst-bug') : ship),
+      'fix:': () => committed({ shas: ['fix1'], hookLog: 'HOOK-FIX' }),
+    });
+    expect(promptOf(calls, 'fix:slice s1:r1')).toContain('base0..impl1');
+    const senior = promptOf(calls, 'review:senior:slice s1:r2');
+    expect(senior).toContain('Re-review');
+    expect(senior).toContain('impl1..fix1');
+    expect(senior).toContain('HOOK-FIX');
+    expect(senior).toContain('sen-bug');
+    expect(senior).not.toContain('tst-bug'); // each reviewer sees only its own findings
+    expect(promptOf(calls, 'review:test:slice s1:r2')).toContain('tst-bug');
+  });
+});
+
+describe('approval staleness and path hygiene', () => {
+  const run2 = (extraFiles: any[]) =>
+    run(ARGS({ slices: [SLICE('s1')] }), {
+      ...ok,
+      'review:senior:': (_c, n) => (n === 0 ? needsWork('x') : ship), // finding file: x.ts
+      'fix:': () => committed({ extraFiles }),
+    });
+
+  test('a file beyond the findings brings every reviewer back at full depth', async () => {
+    const { calls, labels } = await run2([{ file: 'src/other.ts', reason: 'needed' }]);
+    expect(labels.filter((l) => l.endsWith(':r2'))).toEqual(['review:senior:slice s1:r2', 'review:test:slice s1:r2']);
+    expect(promptOf(calls, 'review:test:slice s1:r2')).toContain('First review');
+  });
+
+  test('workspace paths and absolute paths of the finding files do not stale approvals', async () => {
+    const { labels } = await run2([
+      { file: '/repo/.conveyor/m1/notes.md', reason: 'scratch' },
+      { file: '/home/u/repo/x.ts', reason: 'same file, absolute' },
+    ]);
+    expect(labels.filter((l) => l.endsWith(':r2'))).toEqual(['review:senior:slice s1:r2']);
+  });
+
+  test('a beyond-scope fix after an in-scope one still brings everyone back at full depth', async () => {
+    const { calls } = await run(ARGS({ slices: [SLICE('s1')], roundsCap: 3 }), {
+      ...ok,
+      'review:senior:': (_c, n) => (n < 2 ? needsWork(`x${n}`) : ship),
+      'fix:': (_c, n) => committed({ extraFiles: n === 1 ? [{ file: 'src/other.ts', reason: 'needed' }] : [] }),
+    });
+    expect(promptOf(calls, 'review:senior:slice s1:r2')).toContain('Re-review');
+    expect(promptOf(calls, 'review:senior:slice s1:r3')).toContain('First review');
+    expect(promptOf(calls, 'review:test:slice s1:r3')).toContain('First review');
+  });
+
+  test("the fixers' extraFiles are reported with the slice", async () => {
+    const { result } = await run2([{ file: 'src/other.ts', reason: 'needed' }]);
+    expect(result.done[0].extraFiles).toEqual([{ file: 'src/other.ts', reason: 'needed' }]);
+  });
+});
+
+describe('review cover slice+milestone', () => {
+  test('per-slice reviews, then one milestone review over the whole milestone', async () => {
+    const { calls, labels } = await run(ARGS({ reviewCover: 'slice+milestone' }), ok);
+    expect(labels.filter((l) => l.startsWith('review:senior:'))).toEqual([
+      'review:senior:slice s1:r1',
+      'review:senior:slice s2:r1',
+      'review:senior:milestone:r1',
+    ]);
+    const lastImpl = labels.lastIndexOf('implement:s2');
+    expect(labels.indexOf('review:senior:milestone:r1')).toBeGreaterThan(lastImpl);
+    expect(promptOf(calls, 'review:senior:milestone:r1')).toContain('base0..sha2');
+  });
+});
+
+describe('null and blocked paths', () => {
+  const blocked = () => ({ status: 'blocked', summary: 'stuck', hookLog: 'red' });
+  const cases: Array<[string, Record<string, any>, Record<string, Responder>, Record<string, any>, string]> = [
+    ['implementer null', {}, { 'implement:': () => null }, { kind: 'implementer-null', slice: 's1' }, 'implement:s1'],
+    ['fixer null', {}, { 'review:senior:': () => needsWork('x'), 'fix:': () => null }, { kind: 'fixer-null', slice: 's1' }, 'fix:slice s1:r1'],
+    ['fixer blocked', {}, { 'review:senior:': () => needsWork('x'), 'fix:': blocked }, { kind: 'fixer-blocked', slice: 's1', hookLog: 'red' }, 'fix:slice s1:r1'],
+    ['simplify null', { skills: { simplify: ['slice'] } }, { 'simplify:': () => null }, { kind: 'simplify-null', slice: 's1' }, 'simplify:slice s1'],
+    ['simplify blocked', { skills: { simplify: ['slice'] } }, { 'simplify:': blocked }, { kind: 'simplify-blocked', slice: 's1' }, 'simplify:slice s1'],
+    ['all reviewers null', {}, { 'review:': () => null }, { kind: 'reviewers-null', slice: 's1', missing: ['senior', 'test'] }, 'review:test:slice s1:r1'],
+    ['one reviewer null, the other ships', {}, { 'review:test:': () => null }, { kind: 'reviewers-null', slice: 's1', missing: ['test'] }, 'review:test:slice s1:r1'],
+    ['run check null', { runCheck: 'rc' }, { 'run-check:': () => null }, { kind: 'run-check-null' }, 'run-check:r1'],
+    ['run-check fixer null', { runCheck: 'rc' }, { 'run-check:': () => ({ pass: false, tail: 't' }), 'fix:run-check': () => null }, { kind: 'fixer-null', scope: 'run-check' }, 'fix:run-check:r1'],
+    ['run-check fixer question', { runCheck: 'rc' }, { 'run-check:': () => ({ pass: false, tail: 't' }), 'fix:run-check': () => ({ status: 'question', questions: ['q'], summary: 's' }) }, { kind: 'question', scope: 'run-check', answerKey: 'run-check' }, 'fix:run-check:r1'],
+    ['run-check fixer blocked', { runCheck: 'rc' }, { 'run-check:': () => ({ pass: false, tail: 't' }), 'fix:run-check': blocked }, { kind: 'fixer-blocked', scope: 'run-check' }, 'fix:run-check:r1'],
+  ];
+  for (const [name, over, responders, expected, lastLabel] of cases) {
+    test(`${name} → ${expected.kind}, and nothing runs after it`, async () => {
+      const { result, labels } = await run(ARGS({ slices: [SLICE('s1')], ...over }), { ...ok, ...responders });
+      expect(result).toMatchObject({ status: 'exception', ...expected });
+      expect(labels[labels.length - 1]).toBe(lastLabel);
+    });
+  }
+});
+
+describe('exception contents', () => {
+  test('exceptions carry facts, decisions, finished slices and head', async () => {
+    const { result } = await run(ARGS(), {
+      ...ok,
+      'implement:s1': () => committed({ shas: ['s1head'], facts: ['F1'], decisions: ['D1'] }),
+      'implement:s2': () => ({ status: 'blocked', summary: 'x', decisions: ['D2'] }),
+    });
+    expect(result).toMatchObject({ kind: 'implementer-blocked', head: 's1head', facts: ['F1'], decisions: ['D1', 'D2'] });
+    expect(result.done).toEqual([expect.objectContaining({ slice: 's1', base: 'base0', head: 's1head', rounds: 1 })]);
+  });
+
+  test('rounds-cap carries the open blockers and the last verdicts', async () => {
+    const { result } = await run(ARGS({ slices: [SLICE('s1')] }), { ...ok, 'review:senior:': (_c, n) => needsWork(`f${n}`) });
+    expect(result.findings.map((f: any) => f.id)).toEqual(['f1']);
+    expect(result.verdicts).toEqual({ senior: 'NEEDS WORK', test: 'SHIP IT' });
+  });
+
+  test('complete returns head, open reservations and the facts of fixers and simplify', async () => {
+    const { result } = await run(ARGS({ slices: [SLICE('s1')], skills: { simplify: ['slice'] } }), {
+      ...ok,
+      'simplify:': () => committed({ shas: ['simp'], facts: ['F-SIMP'] }),
+      'review:senior:': (_c, n) =>
+        n === 0 ? needsWork('x') : { verdict: 'APPROVED WITH RESERVATIONS', findings: [{ id: 'nit', summary: 'n', file: 'a.ts', blocking: false }] },
+      'fix:': () => committed({ shas: ['fixsha'], facts: ['F-FIX'] }),
+    });
+    expect(result).toMatchObject({ status: 'complete', head: 'fixsha' });
+    expect(result.facts).toEqual(expect.arrayContaining(['F-SIMP', 'F-FIX']));
+    expect(result.done[0].open.map((f: any) => f.id)).toEqual(['nit']);
+  });
+});
+
+describe('answers', () => {
+  test("answers ride at the end of the asking slice's implementer prompt only", async () => {
+    const { calls } = await run(ARGS({ answers: { s2: ['use the v2 API'] } }), {
+      ...ok,
+      'implement:s1': () => committed({ facts: ['F1'] }),
+    });
+    expect(promptOf(calls, 'implement:s1')).not.toContain('use the v2 API');
+    const p2 = promptOf(calls, 'implement:s2');
+    expect(p2.trimEnd().endsWith('- use the v2 API')).toBe(true);
+    expect(p2.indexOf('F1')).toBeLessThan(p2.indexOf('use the v2 API'));
+    expect(promptOf(calls, 'review:senior:slice s2:r1')).not.toContain('use the v2 API');
+  });
+
+  test("answers keyed by slice reach that slice's fixer", async () => {
+    const { calls } = await run(ARGS({ slices: [SLICE('s1')], answers: { s1: ['finding x is real'] } }), {
+      ...ok,
+      'review:senior:': (_c, n) => (n === 0 ? needsWork('x') : ship),
+    });
+    expect(promptOf(calls, 'fix:slice s1:r1')).toContain('finding x is real');
+  });
+
+  test('a question exception names the answer key to fill', async () => {
+    const { result } = await run(ARGS(), { ...ok, 'implement:': () => ({ status: 'question', questions: ['q'], summary: 's' }) });
+    expect(result.answerKey).toBe('s1');
+  });
+});
+
+describe("roundsCap 'until-approved'", () => {
+  test('keeps reviewing past any fixed number until approved', async () => {
+    const { result, labels } = await run(ARGS({ slices: [SLICE('s1')], roundsCap: 'until-approved' }), {
+      ...ok,
+      'review:senior:': (_c, n) => (n < 5 ? needsWork(`f${n}`) : ship),
+    });
+    expect(result.status).toBe('complete');
+    expect(labels.filter((l) => l.startsWith('fix:'))).toHaveLength(5);
+  });
+
+  test('still ends on no-progress', async () => {
+    const { result } = await run(ARGS({ slices: [SLICE('s1')], roundsCap: 'until-approved' }), {
+      ...ok,
+      'review:senior:': () => needsWork('same'),
+    });
+    expect(result.kind).toBe('no-progress');
+  });
+
+  test('the run check ends when the same failure comes back', async () => {
+    const { result, labels } = await run(ARGS({ slices: [SLICE('s1')], roundsCap: 'until-approved', runCheck: 'rc' }), {
+      ...ok,
+      'run-check:': () => ({ pass: false, tail: 'same failure' }),
+    });
+    expect(result).toMatchObject({ kind: 'run-check-red', rounds: 2 });
+    expect(labels.filter((l) => l.startsWith('fix:run-check'))).toHaveLength(1);
+  });
+
+  test('other strings are rejected', async () => {
+    const { result } = await run(ARGS({ roundsCap: 'forever' }), ok);
+    expect(result.kind).toBe('invalid-args');
+  });
+});
+
+describe('run-check fixes', () => {
+  const redOnce: Responder = (_c, n) => (n === 0 ? { pass: false, tail: 'TAIL' } : { pass: true, tail: '' });
+
+  test('the fixer gets a finding and the milestone range; its commit moves head', async () => {
+    const { result, calls } = await run(ARGS({ slices: [SLICE('s1')], runCheck: 'rc', reviewCover: 'milestone' }), {
+      ...ok,
+      'implement:': () => committed({ shas: ['impl1'] }),
+      'run-check:': redOnce,
+      'fix:run-check': () => committed({ shas: ['rcfix'] }),
+    });
+    const fix = promptOf(calls, 'fix:run-check:r1');
+    expect(fix).toContain('"id":"run-check-red"');
+    expect(fix).toContain('base0..impl1');
+    expect(result.head).toBe('rcfix');
+    expect(promptOf(calls, 'review:senior:milestone:r1')).toContain('base0..rcfix');
+  });
+
+  test('with per-slice review only, the run-check fixes get their own review', async () => {
+    const { calls, labels } = await run(ARGS({ slices: [SLICE('s1')], runCheck: 'rc' }), {
+      ...ok,
+      'implement:': () => committed({ shas: ['impl1'] }),
+      'run-check:': redOnce,
+      'fix:run-check': () => committed({ shas: ['rcfix'] }),
+    });
+    expect(labels.slice(-2)).toEqual(['review:senior:run-check fixes:r1', 'review:test:run-check fixes:r1']);
+    expect(promptOf(calls, 'review:senior:run-check fixes:r1')).toContain('impl1..rcfix');
+  });
+
+  test('a fixer that commits nothing ends the run check', async () => {
+    const { result } = await run(ARGS({ slices: [SLICE('s1')], runCheck: 'rc' }), {
+      ...ok,
+      'run-check:': () => ({ pass: false, tail: 'red' }),
+      'fix:run-check': () => ({ status: 'committed', shas: [], summary: 'nothing to do' }),
+    });
+    expect(result).toMatchObject({ kind: 'run-check-red', summary: 'fixer committed nothing' });
+  });
+});
+
+describe('invalid args', () => {
+  test('security-audit per slice with milestone-only review → invalid-args', async () => {
+    const { result, labels } = await run(ARGS({ reviewCover: 'milestone', skills: { 'security-audit': ['slice'] } }), ok);
+    expect(result.kind).toBe('invalid-args');
+    expect(labels).toEqual([]);
+  });
+
+  test('unknown reviewer, unknown cover and missing fields → invalid-args', async () => {
+    for (const over of [{ reviewers: ['bob'] }, { reviewCover: 'sometimes' }, { workspace: '' }, { baseSha: undefined }]) {
+      expect((await run(ARGS(over), ok)).result.kind).toBe('invalid-args');
+    }
   });
 });
 
