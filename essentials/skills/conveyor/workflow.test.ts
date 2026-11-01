@@ -575,6 +575,7 @@ describe('hook log hand-off', () => {
     expect(review).not.toContain('IMPL-LOG');
     expect(review).toContain('(missing');
     expect(promptOf(calls, 'simplify:slice s1')).toContain('git status --porcelain');
+    expect(promptOf(calls, 'simplify:slice s1')).toContain('conventional-commit subject');
   });
 
   test('a re-review names the scope, the full range and the fix commits', async () => {

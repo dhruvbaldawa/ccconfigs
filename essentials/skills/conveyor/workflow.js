@@ -231,7 +231,7 @@ async function reviewLoop(scope, base, set, P) {
 
 async function simplify(scope, base, P) {
   const r = await agent(prompt(
-    'Invoke the simplify skill on commit range ' + base + '..' + head + ' (' + scope + '). Apply its edits, then commit them through the pre-commit hook as new commits whose messages describe the change only (never --no-verify or --amend). No edits worth making → status committed with no shas. ' +
+    'Invoke the simplify skill on commit range ' + base + '..' + head + ' (' + scope + '). Apply its edits, then commit them through the pre-commit hook as new commits whose messages describe the change only, with a conventional-commit subject such as `refactor(scope): what changed` (never --no-verify or --amend). No edits worth making → status committed with no shas. ' +
     'Report hookLog: the tail of the last hook run, then `git status --porcelain` after your last commit. A path you edited still showing there means the hook passed on code the commit lacks → status blocked with that output.'),
     { label: 'simplify:' + scope, schema: IMPL, phase: P })
   if (!r) return exit('simplify-null', { scope })
