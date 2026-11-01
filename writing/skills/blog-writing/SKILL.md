@@ -23,14 +23,14 @@ Use blog-writing when:
 - Translating ideas from braindump.md into polished prose
 
 Skip this skill for:
-- Brainstorming phase (use **brainstorming** skill)
-- Gathering research (use **research-synthesis** skill)
+- Ideation before an outline is agreed (refine the idea through questions instead)
+- Open-ended research (use WebSearch/WebFetch or `/deep-research`, then record sources in braindump.md)
 - Technical documentation or API references
 - Academic papers requiring formal tone
 
 ## You assist; Dhruv authors
 
-draft.md contains only what Dhruv has said or what braindump.md records. Do not invent examples, anecdotes, milestones, statistics, studies, or "typical" approaches to fill a gap - the post is published under his name and a fabricated detail damages his credibility. When something is missing, say what's missing and ask for it (or offer to research it via the research-synthesis skill). Present drafts for review; when he says no, drop it.
+draft.md contains only what Dhruv has said or what braindump.md records. Do not invent examples, anecdotes, milestones, statistics, studies, or "typical" approaches to fill a gap - the post is published under his name and a fabricated detail damages his credibility. When something is missing, say what's missing and ask for it (or offer to research it and record the sources in braindump.md). Present drafts for review; when he says no, drop it.
 
 ## Two-Document Workflow
 
@@ -240,7 +240,7 @@ When in doubt, ask yourself: "Does this sound like something a real person would
 
 ## Integration with Other Skills
 
-- **Before drafting**: Use **brainstorming** skill to refine ideas
-- **During drafting**: Use **research-synthesis** skill if citations are needed
+- **Before drafting**: Refine ideas through questions, one at a time, updating braindump.md
+- **During drafting**: Research with WebSearch/WebFetch if citations are needed, and record sources in braindump.md
 - **While writing**: Reference braindump.md for examples and research
 - **After drafting**: Run `/polish` to apply quality checklist

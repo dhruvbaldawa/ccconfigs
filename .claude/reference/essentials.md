@@ -2,27 +2,15 @@
 
 ## Slash Commands
 
-**`/research [FILE | QUESTION]`**: Research a blocker or question. Picks 2-3 modes (survey, deep-dive, official-docs), launches one `essentials:researcher` instance per mode in parallel, and consolidates with the research-synthesis skill. With a file argument, appends the findings to that file.
-
 **`/optimize-doc [DOCUMENT]`**: Optimizes documentation for conciseness and clarity. Strengthens vague instructions, removes redundancy while preserving correctness. Can run idempotently - multiple passes won't degrade quality.
 
-**`/fix-quality [FILES OR PATTERN]`**: Systematically fix linting, type errors, and quality issues following root-cause-first philosophy. Priority order: (1) Fix root cause (remove unused imports, fix types), (2) Apply safety/reliability improvements (type guards, error handling), (3) Use local ignores only when necessary (inline > file > pattern > global). Documents why ignores are needed. Validates all checks pass and tests remain green. Emphasizes fixing problems over suppressing warnings.
-
-**`/commit [DESCRIPTION OR FILES]`**: Commit workflow that adapts to changeset size and writes conventional commit messages (haiku).
-
 **`/catchup`**: Summarizes all changes between the current branch and main (haiku).
-
-**`/explain-diff [COMMIT/PR/BRANCH]`**: Writes a markdown explanation of a change: background, intuition, code walkthrough, verification, alternatives, and a quiz.
 
 Planning and execution go through the **technical-planning** skill and **conveyor**; there are no separate plan/execute commands.
 
 ## Skills
 
-**brainstorming**: Collaborative ideation for projects and writing. Asks clarifying questions, suggests angles, challenges assumptions, helps refine vague ideas into concrete requirements or topics. Context-aware transitions - guides to technical-planning for projects or blog-writing for posts. Emphasizes drawing out user's ideas (not injecting your own).
-
-**research-synthesis**: Research tool usage patterns and synthesis methodology. Prioritizes built-in tools (WebFetch for URLs, WebSearch for general queries), uses MCP servers as fallback (Parallel Search for advanced synthesis, Context7 for technical docs). Synthesizes findings into narrative (not just lists), integrates naturally during conversation, maintains source attribution. Includes decision tree and quality standards.
-
-**debugging**: Systematic debugging using UNDERSTAND methodology (10-step checklist). Focuses on root cause analysis over symptom treatment. Prioritizes built-in tools (WebSearch) then MCP servers (Parallel Search for advanced research, Context7 for official docs). Includes antipattern awareness and decision framework for when to use which tools. Reference materials document common debugging failures.
+**debugging**: Systematic debugging using UNDERSTAND methodology (10-step checklist). Focuses on root cause analysis over symptom treatment. Includes antipattern awareness and reference materials on common debugging failures.
 
 **technical-planning**: Risk-first development methodology with Last Responsible Moment decision-making. Four-phase approach: Requirements & Risk Analysis, Milestone Planning, Implementation Strategy, Execution Framework. Emphasizes "what" over "how", defers implementation decisions until execution, manages deferral explicitly, and addresses highest-risk challenges first. Includes decision timing framework (what to decide early vs. defer), task breakdown guidelines (outcome-focused vs. prescriptive), and decision framework for handling unclear requirements.
 
@@ -44,26 +32,18 @@ Planning and execution go through the **technical-planning** skill and **conveyo
 
 **retro**: Retrospective on a coding session (current by default, or one named from session logs) that proposes improvements to the agent's *environment*, not the code: navigation pointers, automated checks and guardrails (mechanical violations get a deterministic check, not a rule), reviewer coding standards, oversized CLAUDE.md, tool economy, no-op instructions, information access. Candidates presented in order of severity. User-invoked only.
 
+**explainer-artifact**: Turns a debugging or design session into a concept-first Artifact for an engineer who wasn't there. Also has a change-walkthrough mode for a commit, PR, or branch: background, intuition, code walkthrough, verification, alternatives, and a quiz.
+
+**writing-documentation**: Strunk & White principles applied to technical documentation.
+
 **pr**: PR body template — Summary (smallest useful visual: pseudocode, call/component/file tree, Mermaid, or diff-sketch), Evidence (before/after; screenshots or test output), Merge Danger (one-way vs two-way door, blast radius). Credits Dex Horthy's `show-me` via mattpocock/skills.
 
 ## Agents
-
-**researcher** (claude-haiku-5-5): Evidence-backed research in one of three modes named in its prompt: `survey` (WebSearch), `deep-dive` (WebFetch on named sources), `official-docs` (documentation tool). Called by `/research`; launch one instance per mode.
 
 **senior-engineer-reviewer** (claude-opus-5-5, medium): Brutal architecture/maintainability review with a round-aware contract — first review judges the diff against the whole repo; re-reviews are delta-only against prior findings. Verdicts on the shared reviewer scale: REJECT / NEEDS WORK / APPROVED WITH RESERVATIONS / SHIP IT — approved means the last two. Writes only to the task workspace, never the code under review. Half of the conveyor review gate.
 
 **test-reviewer** (claude-sonnet-5-5, medium): Brutal test-quality review — useless tests, flaky patterns, missing assertions, isolation failures; same round-aware contract. Verdicts on the same shared scale: REJECT / NEEDS WORK / APPROVED WITH RESERVATIONS / SHIP IT — approved means the last two. The other half of the gate.
 
-## MCP Servers
+## Research
 
-**Priority:** Built-in tools (WebFetch, WebSearch) are used first, MCP servers as fallback for advanced capabilities.
-
-- **Parallel Search**: Advanced web search with agentic mode for complex queries, fact-checking, multi-source synthesis, and deep content extraction (optional API key)
-- **Context7**: Library documentation lookup for official API references and technical specs (always available)
-
-**Research tool priority order:**
-1. WebFetch (specific URLs) / WebSearch (general searches) - always available
-2. Parallel Search (advanced synthesis, fact-checking, deep extraction) - optional
-3. Context7 (official technical docs only) - always available
-
-Skills reference MCP tools by prefixed names (e.g., `context7__query-docs`, `Parallel-Search:web_search_preview`).
+There is no research command or agent. Use the built-in `/deep-research` for cited multi-source research, and WebSearch/WebFetch or the `mcp` plugin's gateway tools (Context7, Parallel, Brave) for quick lookups.

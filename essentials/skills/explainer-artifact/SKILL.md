@@ -1,6 +1,6 @@
 ---
 name: explainer-artifact
-description: Turns a debugging/design session into a polished, concept-first Artifact that explains a technical problem and its fix to an engineer who wasn't there. Use when the user asks for an "explainer", to "explain this visually", to make something "easy to understand", to "create an artifact explaining X", for a "walkthrough for the team", or wants a postmortem/incident/design story turned into a shareable page. The deliverable is a published Artifact, not chat text.
+description: Turns a debugging/design session into a polished, concept-first Artifact that explains a technical problem and its fix to an engineer who wasn't there. Use when the user asks for an "explainer", to "explain this visually", to make something "easy to understand", to "create an artifact explaining X", for a "walkthrough for the team", or wants a postmortem/incident/design story turned into a shareable page. Also use to explain a code change (a commit, PR, branch, or this session's latest changes) as a walkthrough. The deliverable is a published Artifact, not chat text.
 ---
 
 # Explainer Artifact
@@ -21,10 +21,11 @@ description: Turns a debugging/design session into a polished, concept-first Art
 - User wants a postmortem, incident writeup, or design decision turned into a shareable page
 - A debugging session or architecture discussion needs to reach someone who wasn't in it
 - User explicitly asks for an artifact/page rather than a chat explanation
+- User wants a code change (commit, PR, branch) explained — use the change-walkthrough mode below
 
 **Skip when:**
 - User wants the raw technical writeup itself (use `writing-documentation` instead)
-- The audience already has full context — just needs a decision or a diff (use `explain-diff`-style chat output)
+- The audience already has full context and needs only a decision or the diff itself (answer in chat)
 - Nothing was actually debugged or decided yet — there's no story to tell
 
 ## The Methodology
@@ -83,6 +84,17 @@ The order you discovered things while debugging is almost never the order that t
 2. Publish with the `Artifact` tool: stable favicon (1-2 emoji, keep it across redeploys), a one-sentence `description`.
 3. Give the user the URL. Note it's private by default.
 4. Offer one round of audience-tuning — shorter for a share-out, deeper on a specific section — before considering it done.
+
+## Change-walkthrough mode
+
+Use this mode when the subject is a code change rather than a debugging or design story. The input is a commit hash, PR, branch comparison, or file paths; with none named, explain the most recent changes from this conversation. Steps 0, 2, 4, and 5 apply unchanged; replace Step 3's structure with these sections:
+
+- **Background**: the existing system the change touches. Explore the surrounding code. Give a skippable deep background for newcomers, then the narrow background the change depends on.
+- **Intuition**: the essence of the change, with concrete examples on toy data and a diagram where it helps.
+- **Code**: a high-level walkthrough of the diff, grouped and ordered for understanding rather than by file.
+- **Verification**: how correctness was checked (which tests, which commands), plus step-by-step manual QA.
+- **Alternatives**: 1–2 genuinely different approaches with a pros/cons comparison table. Omit the section if there are none.
+- **Quiz**: 5 medium-difficulty multiple-choice questions that need real understanding of the change, with each answer hidden in a collapsible element that explains why it is right or wrong.
 
 ## Worked Example
 

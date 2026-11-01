@@ -2,11 +2,11 @@
 
 ## Commands vs Skills vs Agents
 
-Commands are explicit user entry points with arguments (`/research "question"`). Skills are reusable methodologies Claude can invoke proactively or on request ("use systematic debugging"). Agents are specialized subprocesses with isolated context for focused analysis (run via the Agent tool). This three-tier separation allows: (1) commands to orchestrate workflows, (2) skills to guide methodology and invoke agents, (3) agents to perform specialized analysis in parallel.
+Commands are explicit user entry points with arguments (`/new-post "topic"`). Skills are reusable methodologies Claude can invoke proactively or on request ("use systematic debugging"). Agents are specialized subprocesses with isolated context for focused analysis (run via the Agent tool). This three-tier separation allows: (1) commands to orchestrate workflows, (2) skills to guide methodology and invoke agents, (3) agents to perform specialized analysis in parallel.
 
 ## Agents are for specialized analysis, not general workflows
 
-Agents should have single, clear responsibilities with detailed output formats (the researcher agent in survey mode, test-reviewer for test quality). General workflows use skills that orchestrate agents. Methodologies (debugging, prompt engineering) are skills, not agents.
+Agents should have single, clear responsibilities with detailed output formats (senior-engineer-reviewer for design, test-reviewer for test quality). General workflows use skills that orchestrate agents. Methodologies (debugging, planning) are skills, not agents.
 
 ## Stateful commands
 
@@ -18,11 +18,11 @@ Human-readable, version control friendly, no compilation required. Skills are st
 
 ## Reference subdirectories
 
-Complex skills (debugging, technical-planning, brainstorming, research-synthesis) include `reference/` directories with supporting materials that provide deeper context without cluttering the main skill file. Following best practices: keep SKILL.md under 500 lines, move examples and detailed patterns to reference files.
+Complex skills (debugging, conveyor, codebase-design, prototype, teach) include `reference/` directories with supporting materials that provide deeper context without cluttering the main skill file. Following best practices: keep SKILL.md under 500 lines, move examples and detailed patterns to reference files.
 
 ## Conversation-driven workflow (writing plugin)
 
-Emphasizes natural dialogue over rigid command sequences. Skills guide conversation flow (brainstorming → research → drafting → polishing), while commands are minimal utilities (`/new-post`, `/polish`). Most operations happen through chat, not separate commands.
+Emphasizes natural dialogue over rigid command sequences. Skills guide conversation flow (ideation → research → drafting → polishing), while commands are minimal utilities (`/new-post`, `/polish`). Most operations happen through chat, not separate commands.
 
 ## Two-document pattern (writing plugin)
 
@@ -30,7 +30,7 @@ Separates messy ideation (braindump.md) from polished output (draft.md). Allows 
 
 ## Parallel agent invocation
 
-Launch independent Agent calls in a single message so they run concurrently: `/research` launches 2-3 researcher instances, and conveyor runs senior-engineer-reviewer and test-reviewer in parallel on each slice.
+Launch independent Agent calls in a single message so they run concurrently: conveyor runs senior-engineer-reviewer and test-reviewer in parallel on each slice.
 
 ---
 
@@ -46,9 +46,9 @@ Invoke a plugin agent by its namespaced name; the agent file supplies the prompt
 
 ```
 Agent(
-  description: "Survey rate-limiting patterns",
-  prompt: "Mode: survey. [Research question and context]",
-  subagent_type: "essentials:researcher"
+  description: "Review the slice diff for test quality",
+  prompt: "[Diff scope, task workspace path, review round]",
+  subagent_type: "essentials:test-reviewer"
 )
 ```
 

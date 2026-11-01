@@ -1,264 +1,38 @@
 # ccconfigs
 
-Personal configuration repository for Claude Code - a plugin marketplace containing essential tools and workflows.
+Dhruv's Claude Code setup: a plugin marketplace plus the global config that `~/.claude/` links to.
 
-## Quick Start
-
-1. Install the marketplace:
-   ```bash
-   /plugin marketplace add dhruvbaldawa/ccconfigs
-   ```
-
-2. Set API keys (optional - for MCP servers):
-   ```bash
-   export PARALLEL_API_KEY=your_parallel_key       # Optional: Parallel Search
-   ```
-
-3. Install plugins:
-   ```bash
-   /plugin
-   # Install "essentials" and "writing" from ccconfigs ("experimental" is an empty sandbox)
-   ```
-
-## OpenCode Integration
-
-Reuse this repository's Claude assets in OpenCode with minimal duplication.
+## Setup
 
 ```bash
-# Interactive (recommended)
-bun scripts/manage-opencode.ts
-
-# Global baseline
-bun scripts/manage-opencode.ts --scope global --set essentials
-
-# Repo-local add-ons
-bun scripts/manage-opencode.ts --scope repo --set writing,experimental
-```
-
-OpenCode merges global and local config. A practical setup is:
-- Keep global plugin packs minimal (for example, `essentials`)
-- Enable specialized packs per repository (`writing`, `experimental`)
-
-See `docs/guides/opencode-workflow.md` for the full workflow.
-
-## Installation
-
-### Environment Variables
-
-**All MCP servers are optional.** The essentials plugin uses built-in tools (WebFetch, WebSearch) first, with MCP servers as fallback for advanced capabilities.
-
-**Parallel Search** (advanced web search with agentic mode):
-1. Get API key from [parallel.ai](https://parallel.ai)
-2. Set environment variable:
-   ```bash
-   export PARALLEL_API_KEY=your_key_here
-   ```
-
-Add this variable to your shell profile (.zshrc, .bashrc) for persistence. Without this key, built-in tools (WebFetch, WebSearch) still provide full functionality.
-
-### Global Configuration (Optional)
-
-This repository includes global Claude Code configuration that can be shared across all projects:
-
-```bash
-# After cloning, run the setup script to create symlinks
+git clone https://github.com/dhruvbaldawa/ccconfigs.git
+cd ccconfigs
 ./setup-symlinks.sh
 ```
 
-This creates symlinks from `~/.claude/` to the `config/` directory in this repository, allowing you to:
-- Version control your global Claude Code settings
-- Edit your personal working rules from this repository
-- Sync configuration across machines
+`setup-symlinks.sh` is idempotent. It links:
 
-The script is idempotent - you can run it multiple times safely.
+- `config/CLAUDE.md` → `~/.claude/CLAUDE.md` (global working rules)
+- `config/rules/code.md` → `~/.claude/rules/code.md` (coding rules, loaded only for source files)
+- `config/settings.json` → `~/.claude/settings.json`
+- `config/statusline.json` → `~/.config/ccstatusline/settings.json`
 
-**What gets symlinked:**
-- `config/CLAUDE.md` → `~/.claude/CLAUDE.md` (your global working rules)
-- `config/settings.json` → `~/.claude/settings.json` (global settings)
-- `config/rules/code.md` → `~/.claude/rules/code.md` (coding rules, loaded only when working on source files)
-
-### Install this marketplace
-
-If this repository is hosted on GitHub:
+Then add the marketplace and install plugins from it:
 
 ```bash
-# In any Claude Code session, run:
 /plugin marketplace add dhruvbaldawa/ccconfigs
+/plugin
 ```
-
-If using a local clone:
-
-```bash
-# Clone the repository
-git clone https://github.com/dhruvbaldawa/ccconfigs.git
-# Or use your local path
-
-# In Claude Code, add the local marketplace:
-/plugin marketplace add /Users/dhruv/Code/ccconfigs
-```
-
-### Install plugins
-
-Once the marketplace is added:
-
-1. Open the plugin menu: `/plugin`
-2. Browse available plugins from the ccconfigs marketplace
-3. Select and install plugins:
-   - **essentials**: For development workflows (MCP servers, task management, research, debugging/planning)
-   - **writing**: For blog post writing in Dhruv's style
-   - **experimental**: Sandbox for trying new commands, skills, and agents (currently empty)
-
-Plugins automatically configure all MCP servers, slash commands, skills, and agents.
-
-## Overview
-
-This repository provides a structured plugin marketplace for Claude Code with three plugins:
-
-- **essentials**: Systematic development workflows including MCP servers, task management commands, research capabilities, and debugging/planning skills
-- **writing**: Conversation-driven blog writing workflow in Dhruv Baldawa's distinctive style
-- **experimental**: Sandbox for trying new commands, skills, and agents (currently empty)
 
 ## Plugins
 
-### Essentials Plugin
+| Plugin | What it holds | Docs |
+|---|---|---|
+| **essentials** | Conveyor (implement/review/commit loop) and its reviewer agents; skills for planning, debugging, design, prototyping, explainers, handoffs, retros, and PR bodies; `/catchup`, `/optimize-doc` | `.claude/reference/essentials.md` |
+| **writing** | Blog workflow in Dhruv's voice: `/new-post`, `/polish`, blog-writing, writing-like-me | `.claude/reference/writing.md` |
+| **mcp** | MCPJungle gateway for the essentials tool group (Context7, Parallel, Brave). Needs `MCP_PROXY_HOST` and `MCP_PROXY_AUTH` set | `mcp/.mcp.json` |
+| **notifications** | Apprise push when Claude Code needs input | `notifications/` |
+| **todoist** | Links a session to a Todoist task | `todoist/` |
+| **experimental** | Empty sandbox for trying things before they move to essentials | `.claude/reference/experimental.md` |
 
-Systematic development workflows including MCP servers, task management commands, and debugging/planning skills.
-
-#### MCP Servers
-
-Pre-configured integrations with Model Context Protocol servers. Built-in tools (WebFetch, WebSearch) are prioritized, with MCP servers as fallback for advanced capabilities:
-
-- **Parallel Search**: Advanced web search with agentic mode for complex queries, fact-checking, multi-source synthesis, and deep content extraction (optional API key)
-- **Context7**: Library documentation lookup for official API references and technical specs (always available)
-
-**Research tool priority order:**
-1. **Built-in tools** (always available): WebFetch (specific URLs) / WebSearch (general searches)
-2. **Parallel Search** (optional): Advanced synthesis, fact-checking, agentic mode, deep extraction
-3. **Context7** (always available): Official technical docs only
-
-#### Slash Commands
-
-- **`/optimize-doc [DOCUMENT]`**: Optimizes documentation for conciseness and clarity. Strengthens vague instructions, removes redundancy while preserving correctness. Can run idempotently across multiple passes.
-
-- **`/research [FILE | QUESTION]`**: Research a blocker or question. Launches 2-3 instances of the `researcher` agent in parallel (survey, deep-dive, official-docs modes) and consolidates findings with the research-synthesis skill. With a file argument, appends the findings to that file.
-
-#### Utility Scripts
-
-**`manage-permissions.ts`**: Interactive tool for managing Claude Code permissions across projects. Auto-discovers projects by recursively scanning for `.claude/settings.local.json` files. Two modes: **promote** (default) moves permissions to global config, or **cleanup** removes permissions from project locals.
-
-**`manage-opencode.ts`**: Interactive and CLI tool for enabling OpenCode plugin packs by scope (global or repository-local). Reuses Claude assets by generating OpenCode command/agent adapters, symlinking skills, and translating MCP config.
-
-**Promote permissions to global:**
-```bash
-bun scripts/manage-permissions.ts                    # From home dir
-bun scripts/manage-permissions.ts ~/Code ~/Projects  # From specific roots
-bun scripts/manage-permissions.ts --dry-run          # Preview only
-```
-
-**Remove permissions from projects:**
-```bash
-bun scripts/manage-permissions.ts --cleanup          # Remove permissions
-bun scripts/manage-permissions.ts --cleanup ~/Code   # From specific root
-bun scripts/manage-permissions.ts --cleanup --dry-run  # Preview only
-```
-
-**Manage OpenCode plugin packs:**
-```bash
-bun scripts/manage-opencode.ts                                 # Interactive
-bun scripts/manage-opencode.ts --scope global --set essentials # Global baseline
-bun scripts/manage-opencode.ts --scope repo --set writing      # Repo-local
-bun scripts/manage-opencode.ts --scope repo --set essentials --dry-run
-```
-
-#### Skills
-
-- **Debugging**: Systematic debugging framework using the UNDERSTAND methodology (10-step checklist). Focuses on root cause analysis over symptom treatment, with antipattern avoidance and reference materials.
-
-- **Technical Planning**: Risk-first development methodology that emphasizes "what" over "how". Four-phase approach covering requirements & risk analysis, milestone planning, implementation strategy, and execution framework.
-
-### Writing Plugin
-
-Conversation-driven workflow for blog posts in Dhruv Baldawa's distinctive voice.
-
-#### Two-Document Workflow
-
-Every blog post uses two files:
-
-- **braindump.md**: Collaborative workspace for research, notes, outline iterations, examples, and questions
-- **draft.md**: Clean, polished blog post in Dhruv's voice
-
-#### Slash Commands
-
-- **`/new-post [topic]`**: Initializes new blog post with `posts/[topic]/` directory containing braindump.md and draft.md templates. Starts brainstorming conversation.
-
-- **`/polish [topic or path]`**: Hybrid refinement workflow (suggest → confirm → apply). Runs quality checklist, presents 3-5 concrete improvements, waits for confirmation, applies approved changes. Can be run multiple times during writing.
-
-#### Skills
-
-- **blog-writing**: Transforms ideas from braindump to polished prose in Dhruv's voice - conversational yet analytical, grounded in personal experience, with clear structure optimized for Substack. Includes voice/tone principles, structure template, and quality checklist.
-
-- **brainstorming**: Collaborative ideation through questions and exploration. Starts with questions, explores tensions, challenges assumptions, helps refine vague ideas into concrete topics. Updates braindump.md as ideas evolve.
-
-- **research-synthesis**: Prioritizes built-in tools (WebFetch for URLs, WebSearch for general queries), uses MCP servers as fallback (Parallel Search for advanced synthesis, Context7 for technical docs). Synthesizes findings into narrative, integrates naturally during conversation, maintains source attribution.
-
-**Design philosophy**: Conversation-first workflow. Skills guide natural conversation, commands are utilities. Most operations happen through chat. Research tools used proactively during conversation. Flow: Brainstorming → Research → Drafting → Polishing.
-
-### Experimental Plugin
-
-Sandbox for new commands, skills, and agents before they move to essentials. Currently empty; the earlier kanban workflow was retired in favor of the essentials **conveyor** skill.
-
-## Repository Structure
-
-```
-ccconfigs/
-├── .claude-plugin/marketplace.json  # Plugin marketplace definition
-├── config/                          # Global Claude Code configuration (symlinked to ~/.claude/)
-│   ├── CLAUDE.md                   # Global working rules
-│   ├── rules/code.md               # Coding rules, path-scoped to source files
-│   └── settings.json               # Global settings
-├── setup-symlinks.sh               # Idempotent setup script for global config
-├── opencode/                        # OpenCode plugin-pack registry
-│   └── packs.json                  # Plugin source mapping for OpenCode sync
-├── scripts/                        # Utility scripts
-│   ├── manage-permissions.ts       # Interactive permission management
-│   ├── manage-opencode.ts          # Interactive OpenCode plugin scope manager
-│   ├── opencode-sync.ts            # OpenCode sync engine (global/repo)
-│   └── opencode-adapter-core.ts    # Shared OpenCode adapter helpers
-├── .claude/                        # Project-specific configuration
-│   └── CLAUDE.md                  # Project instructions
-├── essentials/                     # The essentials plugin
-│   ├── .mcp.json                  # MCP server configuration
-│   ├── .claude-plugin/plugin.json # Plugin metadata
-│   ├── agents/                    # researcher, senior-engineer-reviewer, test-reviewer
-│   ├── commands/                  # Slash command definitions
-│   │   ├── optimize-doc.md
-│   │   └── research.md            # Research using specialized agents
-│   └── skills/                    # Development skills
-│       ├── brainstorming/         # Collaborative ideation
-│       │   ├── SKILL.md
-│       │   └── reference/
-│       ├── debugging/             # UNDERSTAND methodology
-│       │   ├── SKILL.md
-│       │   └── reference/
-│       ├── engineering-prompts/   # Prompt engineering methodology
-│       │   └── SKILL.md
-│       ├── research-synthesis/    # MCP tool integration
-│       │   ├── SKILL.md
-│       │   └── reference/
-│       │       └── multi-agent-invocation.md  # Multi-agent patterns
-│       ├── technical-planning/    # Risk-first planning
-│       │   └── SKILL.md
-│       └── writing-documentation/ # Documentation best practices
-│           └── SKILL.md
-├── writing/                        # The writing plugin
-│   ├── .claude-plugin/plugin.json # Plugin metadata
-│   ├── commands/                  # Slash command definitions
-│   │   ├── new-post.md            # Initialize blog post
-│   │   └── polish.md              # Hybrid refinement
-│   └── skills/                    # Writing skills
-│       └── blog-writing/          # Dhruv's voice and style
-│           └── SKILL.md
-└── experimental/                   # Sandbox plugin (currently empty)
-    ├── .claude-plugin/plugin.json # Plugin metadata
-    └── README.md
-```
+Design notes live in `.claude/reference/architecture.md`.

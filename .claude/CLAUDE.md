@@ -11,7 +11,6 @@ essentials/                      # Commands, skills, MCP servers
 writing/                         # Blog writing workflow
 experimental/                    # Sandbox for experiments (currently empty)
 todoist/ notifications/ mcp/    # Todoist link, notifications, MCP servers
-scripts/                        # Utilities
 .claude/reference/              # Plugin docs
 ```
 
@@ -20,7 +19,6 @@ scripts/                        # Utilities
 ```bash
 cat [file].json | jq .              # Validate JSON
 ./setup-symlinks.sh                 # Setup after clone
-bun scripts/manage-permissions.ts   # Manage permissions
 ```
 
 ## Git
@@ -43,4 +41,4 @@ Bump `.claude-plugin/plugin.json` version on every change: patch/minor/major.
 
 ## Reference Docs
 
-In `.claude/reference/`: essentials.md, writing.md, experimental.md, architecture.md, utility-scripts.md. Read before modifying a plugin.
+In `.claude/reference/`: essentials.md, writing.md, experimental.md, architecture.md. Read before modifying a plugin.
