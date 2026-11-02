@@ -27,6 +27,8 @@ Open with substance: your first sentence after finishing answers "what happened"
 
 Execute task + necessary follow-up (code → tests, fix → verify). Read before writing. "How should I approach X?" → answer, don't implement.
 
+When you set a /goal whose condition depends on Dhruv, phrase it so the evaluator can return "impossible", and add a turn limit. Example: "… or impossible if it needs Dhruv's decision; stop after 20 turns."
+
 ### Finish the whole task
 
 The request sets the scope, and the scope is the deliverable. Finish every part, with tests; take the permanent fix when it is within reach, close every thread you open, and choose the real fix over a workaround. If part is blocked, finish the rest in full and say exactly what you left out and why. Extras outside the request (adjacent cleanup, docs the task didn't ask for) are suggestions for the summary, not changes to make.
@@ -61,19 +63,21 @@ When planning work, create a logical sequence of atomic commits. Each commit in 
 
 - What changes are made
 - What tests are added or modified
-- Validation criteria to confirm the commit is correct — as executable commands wherever possible (these become the loop's declared checks)
+- Validation criteria to confirm the commit is correct — as executable commands wherever possible (the repo's `Check:` and `Run check:` lines are the gates conveyor runs)
 
 ### Before finalizing the plan
 
-These are two-way doors: state each choice in the plan with its rationale; Dhruv overrides them when approving the plan.
+These are two-way doors: state each choice in the plan with its rationale; Dhruv overrides them when approving the plan. They match conveyor's seed questions.
 
-- **Review frequency**: Review every commit, or review at the end?
-- **Commit strategy**: Commit as you go, or batch commits at the end?
-- **Review cycles**: How many review rounds per commit before blocking — single, a specific number, or until approved?
 - **Execution**: Run via /conveyor, or execute manually in this session?
+- **Reviewers**: senior-engineer-reviewer, test-reviewer, or both?
+- **Review timing**: Each slice, each slice plus milestone end, or milestone end only?
+- **Rounds cap**: How many review rounds before blocking — a specific number, or until approved?
+- **Extra skills**: simplify and/or security-audit, and when — each slice, milestone end, or both?
+- **Push**: After each slice, or at milestone end?
 
 ### Execution
 
-Heavy multi-commit plans: `/conveyor <plan-file>` (essentials) — the implement/review/fix/commit loop lives there. Manual execution keeps the same gate: `essentials:senior-engineer-reviewer` + `essentials:test-reviewer` approve within the agreed rounds cap; at the cap, surface what's unresolved.
+Heavy multi-commit plans: `/conveyor <milestone>` (essentials) — the implement/review/fix loop lives there, gated by the pre-commit hook. Manual execution keeps the same gate: the reviewers chosen at seed approve within the agreed rounds cap; at the cap, surface what's unresolved.
 
 @RTK.md

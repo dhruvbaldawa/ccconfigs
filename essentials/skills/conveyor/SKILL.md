@@ -1,163 +1,123 @@
 ---
 name: conveyor
-description: Slice execution loop with subagents — sonnet implements, senior-engineer-reviewer + test-reviewer gate each slice, a cheap agent commits in-band, CI verifies async. Use when the user says "conveyor" or hands over a plan for autonomous execution.
-argument-hint: <plan file or task> [notes]
+description: Milestone execution loop with subagents — essentials:implementer commits each slice through the pre-commit hook, senior-engineer-reviewer + test-reviewer gate it, essentials:fixer answers findings, the orchestrator watches and records. Use when the user says "conveyor" or hands over a plan milestone for autonomous execution.
+argument-hint: <milestone>
 ---
 
 # Conveyor
 
-Execute $ARGUMENTS slice by slice. You seed, launch, monitor, and intervene on
-exceptions; subagents implement, review, fix, and commit — in-band. Your context is
-for judgment: never stage/unstage, rerun checks, or re-verify approved work.
-One workflow call runs the whole task — per-slice or per-stage scripts are an
-anti-pattern; needing a new script mid-task is itself an exception, recorded in
-context.md. This skill explicitly authorizes the Workflow tool; adapt
-`reference/workflow-skeleton.md` rather than re-deriving the control flow.
+Execute milestone $ARGUMENTS of the plan (PLAN.md, from technical-planning) slice by slice. You seed, launch, watch, record and intervene on exceptions; subagents implement, review and fix. The pre-commit hook is the only check gate: no agent judges whether red is green, and the implementer and fixer commit their own work. Your context is for judgment: never edit code under review, rerun checks, or re-verify approved work. This skill explicitly authorizes the Workflow tool.
 
-## Workspace
+Names: plan → milestone (one /conveyor run, one `.conveyor/<milestone>/` folder) → slice (one review unit, 1–3 commits) → commit.
 
-`.conveyor/<task-slug>/` in the project (add `.conveyor/` to `.git/info/exclude`).
+## Start
 
-- `context.md` = shared memory. Seed: plan (or pointer), base branch + SHA, decisions,
-  chosen loop mechanics, and the **two check tiers** from the plan's validation criteria:
-  **local** — fast feedback (lint, typecheck, affected tests): the per-commit gate;
-  **CI** — the pipeline owns the full suite. No CI in the repo → local tier = everything.
-  Every subagent reads context.md first, appends its outcome last. Append-only.
-- **Pre-flight the environment at seed**: run each local check once and classify —
-  green; needs-sandbox-disable (record it); cannot-run-here (demote to CI-tier or
-  a named human gate in the report — a check that can't run is not a check). Probe
-  git too: SSH commits/pushes legitimately need the sandbox disabled — that's a
-  sanctioned, expected escalation (sandbox controls are config-level); record it
-  as a Known environment fact so agents follow the recorded workaround instead of
-  improvising. Keep the literal escalation flag out of workflow script text — the
-  classifier has denied launches that mention it.
-- **Record the integration target**: branch, push destination, PR-vs-direct — read
-  it from recent history or ask; a commit agent must never infer it from wherever
-  HEAD happens to point.
-- Seed a **Known environment facts** section: subagents check it before diagnosing
-  any check failure and append new facts (sandbox quirks, bootstrap incantations,
-  wrapper hazards) — each environment fact gets diagnosed once, ever. Prime fresh
-  worktrees before launch (deps, provider init, config trust) or record the exact
-  bootstrap incantation here.
-- Subagents may add working files beside it.
-- Resume: context.md + git log → continue from the first unfinished slice;
-  `resumeFromRunId` replays completed slices from cache.
+Dhruv opens a fresh session (`/clear`) and types a bare `/conveyor <milestone>`, with nothing else in the message. The Workflow tool relays the triggering message to every subagent as "this request wins", so any extra instruction in it would override the agents' contracts. Notes for the run go in context.md after seed, not in the trigger.
 
-## The loop
+## Seed
 
-Slice ≈ 2-3 atomic commits, in plan order. One workflow call runs every slice in-band —
-control returns to you only when the run completes or an exception ends it early.
-Before launching: record mechanics in context.md.
+1. **Slice**: read the milestone from PLAN.md and cut it into slices of 1–3 commits, each commit naming its files and a message that describes the change only (no slice ids or other process markers).
+2. **Ask** the seed questions in two AskUserQuestion calls:
+   - Call 1: **Execution** (/conveyor · manual) · **Reviewers**, multi-select (senior-engineer-reviewer · test-reviewer) · **When reviewers run** (each slice · each slice + milestone end · milestone end only) · **Rounds cap** (1 · 2 · 3 · until approved).
+   - Call 2: **Extra skills**, multi-select (simplify · security-audit) · **When the selected skills run** (each slice · milestone end · both) · **Push** (after each slice · at milestone end).
+   - Rounds cap "until approved" → `roundsCap: 'until-approved'`: no cap on review rounds, but no-progress and aging still end a loop, and the run check stops after 3 rounds.
+   - Refuse, because a commit would go unreviewed or a choice would be silently skipped:
+     - no reviewers selected;
+     - simplify at milestone end without reviewers at milestone end;
+     - security-audit per slice with milestone-only review;
+     - push after each slice with milestone-only review.
+   - Manual: stop here and execute in this session with the same gate.
+3. **Check tiers**, from the repo CLAUDE.md:
+   - `Check: <command>`, the commit tier, run by the pre-commit hook on every commit.
+   - `Run check: <command>`, optional, the run tier, run once at milestone end.
+   - CI runs after push.
+   - `Check:` missing → ask Dhruv for the command and offer to add the line.
+4. **Pre-flight**:
+   - The commit tier passes on the base SHA.
+   - A pre-commit hook runs the `Check:` command: `test -x "$(git rev-parse --git-path hooks/pre-commit)"` and read it. If not, stop and offer to install one.
+   - Every command the slices need is allowed in `.claude/settings.json`. Otherwise list the missing ones and ask Dhruv once. A permission prompt nobody sees stalls the run for hours.
+   - The selected extra skills (simplify, security-audit) are installed, since default subagents invoke them by name.
+   - Push access works: `git push --dry-run` to the integration target.
+   - Record the integration target: branch, push destination, PR or direct.
+5. **Workspace**: `.conveyor/<milestone>/`, with `.conveyor/` in `.git/info/exclude`.
+   - Copy `workflow.js` from this skill's base directory there.
+   - Write `args.json` beside it; `reference/workflow-skeleton.md` defines every field.
+   - Write `context.md` (sections below) and create `log.md`. Its Code standards section copies the code rules from `~/.claude/rules/` (e.g. `code.md`) and the repo CLAUDE.md (headers such as ABOUTME, comments, naming, tests): the implementer and fixer run with omitClaudeMd, and the reviewers judge against these rules.
+6. **Go**: show the slice list and wait for Dhruv's go. Nothing launches while Open questions holds an item that blocks a slice.
 
-**Testing floor — never below it; above is always fine**: local tier green at IMPLEMENT,
-after every FIX, and at COMMIT. Full-suite assurance is CI's job, not a local rerun.
+## Launch
 
-1. **IMPLEMENT** (sonnet): the slice's commits + tests per plan; run the local checks,
-   exercise the change end-to-end, evidence (command + output tail) → context.md. No
-   commits yet.
-2. **REVIEW**: `essentials:senior-engineer-reviewer` ∥ `essentials:test-reviewer` (one
-   message) on the slice's uncommitted diff + evidence. First review is full-depth —
-   judge against the whole repo. Re-reviews are delta-only per the carryover rule.
-   One shared scale for both reviewers: REJECT / NEEDS WORK / APPROVED WITH
-   RESERVATIONS / SHIP IT — approved = the last two. Verdicts are schema-enforced
-   enums — off-scale or verbose labels can't occur; a missing result = rejection. Reservations and other non-blocking
-   findings land in the harness-recorded ledger and the final report **with an
-   owner and a deadline slice** — approval never silently drops them, and a
-   finding a reviewer would re-flag next round is blocking by definition. When no
-   declared check can exercise the slice's core behavior, the strongest honest
-   verdict is APPROVED WITH RESERVATIONS plus an `unverified:<property>` finding —
-   the report surfaces it at blocker grade as a named human verification step.
-   Reservations that recur by design (unverified properties, cross-repo facts)
-   are marked `standing`: exempt from aging, owned in the report.
-3. **FIX** (sonnet): address findings, local checks green — never partial; re-review.
-   Approvals carry: only the rejecting reviewer(s) re-review IF fixes stayed within
-   their findings; anything beyond stales carried approvals — both again, at full
-   depth. Findings age individually **across the whole task** (deferred defects
-   recur across slices, not within one): a third flag of any resolvable finding is
-   an exception; `standing` reservations are exempt. A rejection with zero blocking
-   findings is unactionable — exception, never an empty fix dispatch. An identical
-   blocker set across rounds: exception.
-4. **COMMIT** (cheap agent, haiku-class): append the slice's harness-composed review
-   ledger to context.md (the deterministic record — reviewer appends are optional
-   detail), rerun the local checks — exit codes are the gate, not the implementer's
-   evidence — then `git status`, stage EXACTLY the planned files plus any
-   reviewer-approved `extraFiles` (the implementer's channel for a wrong plan
-   file-list; silent expansion stays an exception), commit messages verbatim, push
-   (CI starts async). Red checks, unplanned changes in the tree, or a failed push =
-   exception; never "fix it while committing."
+`Workflow({scriptPath: '.conveyor/<milestone>/workflow.js', args})`.
+- Never pass the script inline.
+- Never edit the copy after launch.
+- Re-plan by changing `args`, then resume with `scriptPath` + `resumeFromRunId`. Resume replays the longest unchanged prefix of agent calls from cache; the first changed call and everything after it run live. So:
+  - Answer a question in `args.answers[<answerKey>]`. The key is the asking call's label, e.g. `fix:slice s1:r2`, and the exception names it. The answer rides at the very end of that one prompt, so only the asking call onward re-runs.
+  - Never put an answer in `standards`: it opens every prompt, so changing it re-runs the whole milestone, committed slices included.
+- One workflow call runs the whole milestone; needing a new script mid-run is itself an exception, recorded in context.md.
 
-CI runs on pushed slices while later slices proceed — nobody polls. After the last
-slice: check CI once. Red → dispatch a cheap fix subagent on CI's failure output
-(a new slice through the same loop) — not a local full-suite rerun, and not your
-own context.
+## Watch
+
+Arm a Monitor on the run's transcript dir (from the Workflow result):
+`bun <skill-dir>/scripts/watch-run.ts <transcriptDir>`, with `timeout_ms: 1800000`.
+- When it expires, re-arm it. Each wake also refreshes your 1h prompt cache, so the expiry doubles as the heartbeat.
+- The watcher keeps its state in the transcript dir, so a re-armed watcher never repeats an event.
+
+| Event | You do |
+|---|---|
+| `started <label>` | Nothing. The wake refreshes the cache. |
+| `finished <label>` | Read that agent's result in `journal.jsonl`. Write new facts and decisions to context.md and evidence to log.md. |
+| `started implement:<id>` or `started run-check:r1` | Push per slice: the slice before it is done and approved. Push its head explicitly: `git push <remote> <sha>:refs/heads/<branch>`, where `<sha>` is the last sha in that slice's implement, simplify and fix results in the journal. Never a bare `git push`: the next agent may already have committed. |
+| workflow returns `complete` | Push `result.head` explicitly, in both push modes: it carries the last slice and every milestone-end commit. Then write the Report. |
+| `stall <label> <tool> <N>min` | PushNotification to Dhruv with agent, tool and minutes. A permission prompt is Dhruv's to approve. A hung command: stop the run from `/workflows` and resume. |
+| `long <label> turns=N ctx=Kk` | PushNotification: "<label> is long: N turns, Kk". Dhruv decides whether to split. |
+| agent message | Write it into context.md. Never reply (see Messaging). A question that needs an answer goes to Dhruv and under Open questions. |
+| workflow returns `question` | Answer from context.md or ask Dhruv; record the decision; put the answer in `args.answers[<answerKey>]` and resume. |
+| workflow returns another exception | See Exceptions. |
+
+## Messaging
+
+Subagents may SendMessage to `"main"`. You never SendMessage to a workflow agent, whatever an incoming message's reply hint says: a reply resumes a second copy of the agent from its transcript, without its structured output, while the original never sees the message and can lose its in-flight command (anthropics/claude-code#93797). Revisit when that issue is fixed.
+
+## context.md
+
+You are its only writer; subagents read it first and report facts, decisions and questions through their results. No size budget for now.
+
+- **Code standards**: the code rules from `~/.claude/rules/` and the repo CLAUDE.md, copied at seed.
+- **Mechanics**:
+  - the seed answers;
+  - the check tiers;
+  - the integration target;
+  - the base SHA.
+- **Decisions**: one line plus the reason. A superseded decision moves to log.md.
+- **Open questions**: each with who answers it.
+- **Environment facts**: one line each, so each environment quirk is diagnosed once.
+
+`log.md` holds evidence, review ledgers and history. Nobody reads it during the run.
 
 ## Exceptions — your only job
 
-Rounds cap hit; any resolvable finding flagged three times across the task
-(`standing` reservations exempt); a rejection carrying zero blocking findings;
-an identical blocker set across rounds; a subagent stuck (3 failed attempts) or returned null
-(died or classifier-blocked — check the progress errors before assuming a crash);
-red, un-greenable, or un-runnable checks; unplanned tree changes; classifier flags;
-merge conflicts; CI red after a fix round. The workflow returns early with
-structured state — intervene with judgment, record the decision in context.md,
-resume. Interventions carry the same append obligation as subagent outcomes.
-Re-plan by changing `args` and resuming — never by editing code under review,
-running checks, or issuing git write commands in your own context. A rejection
-that outlives the run is still a rejection: the fix re-enters through REVIEW via
-resume, never straight to commit or PR. Never absorb mechanical retries into your
-own context.
+The workflow returns early with structured state, `done`, `head` and the facts gathered so far. Its kinds, each with the lever that changes the outcome on resume, are in `reference/workflow-skeleton.md`:
+- `question` (carries the `answerKey` for `args.answers`);
+- `implementer-blocked`, `fixer-blocked` or `simplify-blocked` (3 failed attempts, no hook, or a dirty tree after a commit);
+- `rounds-cap`;
+- `aged-findings`: a resolvable finding flagged three times across the milestone (`standing` reservations exempt);
+- `rejection-without-blockers`;
+- `no-progress`: an identical blocker set across rounds;
+- a null agent, including `reviewers-null` with its `missing` list (died or classifier-blocked: check the progress errors before assuming a crash);
+- `run-check-red`.
 
-## Parallelism
+Orchestrator events, outside the workflow:
+- merge conflicts;
+- CI red after push.
 
-Independent slices only (different files, no shared interfaces), max 2-3 — more
-multiplies review load and merge risk; in doubt, sequential. Same-repo parallel
-slices: own `git worktree` + branch, merged back in slice order; conflict or red
-post-merge checks = exception. External repos: always a fresh worktree, never their
-main checkout.
-
-## Tune the loop
-
-Lightest mechanics the risk allows; record at the top of context.md — binds every
-subagent. Tuning never lowers the testing floor.
-
-- **Cadence**: slice boundary; every commit for risky work (auth, migrations,
-  concurrency, data loss); batch 2-3 mechanical slices (renames, config, docs) per
-  review. Push after each slice by default; defer pushes only if the user says so.
-- **Reviewers**: both; senior only if no test/behavior changes; skip only if the user
-  says so. Never override reviewer model/effort below the agent definitions without
-  recording it in the mechanics. Mechanical equivalence proofs (no-op moves, rename
-  completeness) belong to one reviewer; the other spot-checks rather than re-derives.
-- **Depth**: match the surface — UI: browser; API: real requests; library/CLI: tests.
-- **Rounds cap**: no assumed default — take it from the plan's Review cycles preference,
-  or ask the user at seed time; record it in context.md with the rest of the mechanics.
-  Guide: 1 for trivial slices, more for high-risk work. Whatever the cap, the
-  no-progress and finding-aging exits still apply.
-
-## Subagent standards (in every subagent prompt)
-
-> Read <workspace>/context.md first — including Known environment facts — and
-> append your outcome when done.
-> Verify before done: run your stage's local checks (implementers also exercise the
-> change end-to-end); paste the real command + output into context.md. "Should work"
-> isn't done. Testing is never where you save tokens.
-> A successful structured-output call ends your run immediately — never submit
-> placeholder values; if validation rejects your report, fix the shape, not the truth.
-> Never commit unless you were dispatched as this slice's COMMIT agent —
-> IMPLEMENT and FIX end with the working tree uncommitted, even if everything
-> looks approved and done.
-> An environment-blocked action has its sanctioned workaround recorded in Known
-> environment facts; if none is recorded, report the failure and stop — never
-> invent an escalation.
-> Any command whose exit code or output gates a decision must bypass
-> output-rewriting wrappers (`rtk proxy ...`) and be negative-tested once — prove
-> the gate can fail before trusting that it passed.
-> Report only what a tool result backs. Failures are failures, with output.
-> Exactly the planned scope. Adjacent problems → context.md, not the diff.
-> Read every file you change (and its callers) first. 3 failed attempts at one
-> problem → stop, write up what you tried.
+For each: intervene with judgment, record the decision in context.md, then pull the lever. Usually that's an answer keyed to the call that should hear it, e.g. Dhruv's ruling on a finding goes in `args.answers['review:senior:slice s1:r2']`; then resume. A resume replays every call before the changed one, so a lever on an earlier call re-runs everything after it. Fixing the environment or editing context.md changes no prompt: pair it with an answer keyed to the failed call, or the same result replays from cache. After a resume, earlier results stay in `journal.jsonl`, so push shas remain findable. A rejection that outlives the run is still a rejection: the fix re-enters through review via resume.
 
 ## Report
 
-Slices + commit SHAs; blocked + unresolved findings; open reservations, each with
-an owner; `unverified:<property>` findings at blocker grade; CI status; what was
-verified. Outcome first, complete sentences.
+- Slices with their commit SHAs.
+- Blocked and unresolved findings.
+- Open reservations, each with an owner; `unverified:<property>` findings at blocker grade.
+- CI status, and what was verified.
+- Seed and token use per agent, from `/workflows`.
+
+Outcome first, complete sentences.
