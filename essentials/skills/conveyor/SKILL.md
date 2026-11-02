@@ -12,7 +12,7 @@ Names: plan → milestone (one /conveyor run, one `.conveyor/<milestone>/` folde
 
 ## Start
 
-Dhruv opens a fresh session (`/clear`) and types a bare `/conveyor <milestone>`, with nothing else in the message. The Workflow tool relays the triggering message to every subagent as "this request wins", so any extra instruction in it would override the agents' contracts. Notes for the run go in context.md after seed, not in the trigger.
+Dhruv types a bare `/conveyor <milestone>`, with nothing else in the message. Start from the current session as it is; never ask Dhruv to clear it first. The Workflow tool relays the triggering message to every subagent as "this request wins", so any extra instruction in it would override the agents' contracts. Notes for the run go in context.md after seed, not in the trigger.
 
 ## Seed
 
