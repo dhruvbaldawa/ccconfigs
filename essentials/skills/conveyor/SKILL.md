@@ -10,10 +10,6 @@ Execute milestone $ARGUMENTS of the plan (PLAN.md, from technical-planning) slic
 
 Names: plan → milestone (one /conveyor run, one `.conveyor/<milestone>/` folder) → slice (one review unit, 1–3 commits) → commit.
 
-## Start
-
-The triggering message is a bare `/conveyor <milestone>`, with nothing else in it. The Workflow tool relays the triggering message to every subagent as "this request wins", so any extra instruction in it would override the agents' contracts. Notes for the run go in context.md after seed, not in the trigger.
-
 ## Seed
 
 1. **Slice**: read the milestone from PLAN.md and cut it into slices of 1–3 commits, each commit naming its files and a message that describes the change only (no slice ids or other process markers).
