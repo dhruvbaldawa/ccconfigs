@@ -301,7 +301,20 @@
   "effortLevel": "medium",
   "modelSettings": {
     "claude-fable-5-1": {
-      "effortLevel": "low"
+      "effortLevel": "medium",
+      "autoCompactWindow": 400000
+    },
+    "claude-opus-5-5": {
+      "effortLevel": "medium",
+      "autoCompactWindow": 400000
+    },
+    "claude-sonnet-5-5": {
+      "effortLevel": "medium",
+      "autoCompactWindow": 400000
+    },
+    "claude-haiku-5-5": {
+      "effortLevel": "medium",
+      "autoCompactWindow": 400000
     }
   },
   "showClearContextOnPlanAccept": true,
