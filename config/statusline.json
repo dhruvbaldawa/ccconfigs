@@ -10,8 +10,8 @@
       },
       {
         "id": "a73da94f-a319-49c5-8d3e-e0ca29f1e89b",
-        "backgroundColor": "bgRed",
         "type": "thinking-effort",
+        "backgroundColor": "bgRed",
         "rawValue": true
       },
       {
@@ -27,6 +27,15 @@
         "metadata": {
           "label": "Ctx: "
         }
+      },
+      {
+        "id": "11a48645-9621-462a-b451-01afd234cae1",
+        "backgroundColor": "bgBlue",
+        "type": "cache-timer",
+        "metadata": {
+          "ttlSeconds": "3600"
+        },
+        "rawValue": true
       }
     ],
     [
@@ -53,20 +62,20 @@
         "id": "849bf999-c6b1-4ebb-9e75-7e2e985ca4e6",
         "type": "session-usage",
         "backgroundColor": "bgBrightYellow",
+        "merge": true,
         "metadata": {
           "display": "time"
-        },
-        "merge": true
+        }
       },
       {
         "id": "2057d1aa-85ea-428c-bad0-f16a22f6d990",
         "type": "reset-timer",
         "backgroundColor": "bgYellow",
+        "rawValue": true,
         "metadata": {
           "display": "time",
           "compact": "true"
-        },
-        "rawValue": true
+        }
       },
       {
         "id": "5d005ac1-5d2f-4b01-9a3f-dfc6dc75b310",
@@ -76,13 +85,13 @@
       },
       {
         "id": "c4380a92-e37d-44fd-aa9c-a900d88f52a4",
-        "backgroundColor": "bgBrightBlack",
         "type": "weekly-reset-timer",
+        "backgroundColor": "bgBrightBlack",
+        "rawValue": true,
         "metadata": {
           "display": "time",
           "compact": "true"
-        },
-        "rawValue": true
+        }
       }
     ]
   ],
