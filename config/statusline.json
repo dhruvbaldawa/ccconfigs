@@ -30,12 +30,12 @@
       },
       {
         "id": "11a48645-9621-462a-b451-01afd234cae1",
-        "backgroundColor": "bgBlue",
         "type": "cache-timer",
+        "backgroundColor": "bgBlue",
+        "rawValue": true,
         "metadata": {
           "ttlSeconds": "3600"
-        },
-        "rawValue": true
+        }
       }
     ],
     [
@@ -102,9 +102,9 @@
   "defaultPaddingSide": "both",
   "inheritSeparatorColors": false,
   "globalBold": false,
-  "gitCacheTtlSeconds": 5,
-  "terminalWidthCacheTtlSeconds": 5,
-  "customCommandCacheTtlSeconds": 0,
+  "gitCacheTtlSeconds": 15,
+  "terminalWidthCacheTtlSeconds": 15,
+  "customCommandCacheTtlSeconds": 15,
   "minimalistMode": false,
   "powerline": {
     "enabled": true,
