@@ -237,7 +237,7 @@
     "type": "command",
     "command": "bunx -y ccstatusline@latest",
     "padding": 0,
-    "refreshInterval": 15
+    "refresh": 15
   },
   "enabledPlugins": {
     "essentials@ccconfigs": true,
