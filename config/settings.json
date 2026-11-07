@@ -60,8 +60,8 @@
       "mcp__plugin_mcp_essentials__brave-search__brave_summarizer",
       "mcp__plugin_mcp_essentials__brave-search__brave_llm_context",
       "mcp__plugin_mcp_essentials__brave-search__brave_place_search",
-      "mcp__plugin_mcp_essentials__parallel-search__web_fetch",
-      "mcp__plugin_mcp_essentials__parallel-search__web_search_preview",
+      "mcp__plugin_mcp_essentials__parallel__web_fetch",
+      "mcp__plugin_mcp_essentials__parallel__web_search",
       "mcp__qmd__query"
     ],
     "deny": [
