@@ -1,23 +1,13 @@
 # ccconfigs
 
-Dhruv's Claude Code setup: a plugin marketplace plus the global config that `~/.claude/` links to.
+Dhruv's Claude Code plugin marketplace.
+
+The global config (`CLAUDE.md`, `rules/code.md`, `settings.json`, the ccstatusline config) lives in the
+[dotfiles](https://github.com/dhruvbaldawa/dotfiles) repo and is installed with chezmoi.
 
 ## Setup
 
-```bash
-git clone https://github.com/dhruvbaldawa/ccconfigs.git
-cd ccconfigs
-./setup-symlinks.sh
-```
-
-`setup-symlinks.sh` is idempotent. It links:
-
-- `config/CLAUDE.md` → `~/.claude/CLAUDE.md` (global working rules)
-- `config/rules/code.md` → `~/.claude/rules/code.md` (coding rules, loaded only for source files)
-- `config/settings.json` → `~/.claude/settings.json`
-- `config/statusline.json` → `~/.config/ccstatusline/settings.json`
-
-Then add the marketplace and install plugins from it:
+Add the marketplace and install plugins from it:
 
 ```bash
 /plugin marketplace add dhruvbaldawa/ccconfigs

@@ -6,7 +6,6 @@ Plugin marketplace for Claude Code: essentials, writing, experimental, todoist, 
 
 ```
 .claude-plugin/marketplace.json   # Plugin registry
-config/                          # Global config → ~/.claude/
 essentials/                      # Commands, skills, MCP servers
 writing/                         # Blog writing workflow
 experimental/                    # Sandbox for experiments (currently empty)
@@ -18,14 +17,13 @@ todoist/ notifications/ mcp/    # Todoist link, notifications, MCP servers
 
 ```bash
 cat [file].json | jq .              # Validate JSON
-./setup-symlinks.sh                 # Setup after clone
 ```
 
 ## Git
 
 - Commit configs and global config
 - `.claude/settings.local.json` gitignored
-- `config/` symlinked to `~/.claude/`
+- Global config (`~/.claude/CLAUDE.md`, `settings.json`, rules) lives in the dotfiles repo (chezmoi), not here
 
 ## Adding Things
 
