@@ -1,6 +1,8 @@
 // ABOUTME: Canonical conveyor v2 Workflow script: per slice implement → [simplify] → review → fix, then milestone-end checks.
 // ABOUTME: Copied to .conveyor/<milestone>/workflow.js and launched only by scriptPath; everything task-specific comes from args.
 
+// Seed replaces the name below with '<milestone> · <milestone title>' in the copy;
+// it is the run's title in /workflows. The live status is the log() line.
 export const meta = {
   name: 'conveyor-run',
   description: 'Implement, review and fix every slice through the pre-commit hook; return early on exceptions',
@@ -121,9 +123,20 @@ const prompt = (body, label) => (STANDARDS ? STANDARDS + '\n' : '') +
   'Workspace: ' + WS + ' (read context.md there first). Commit tier: ' + CHECK + '\n' + body + carried() +
   (label ? answered(label) : '')
 
+// ---- live status: one narrator line per step, so the run reads as what it is doing ----
+const short = sha => (sha || '').slice(0, 7)
+// A slice's display name: its title, else its first commit subject without the conventional prefix.
+const sliceName = slice => slice.title ||
+  ((slice.commits && slice.commits[0] && slice.commits[0].message) || '').split('\n')[0].replace(/^\w+(\([^)]*\))?!?:\s*/, '')
+let where = 'starting'
+const say = what => log(where + ' · ' + what)
+
 const done = []
 let lastHookLog = null   // the most recent hook log any committing agent reported
-const exit = (kind, extra) => ({ status: 'exception', kind, ...extra, done, head, facts, decisions })
+const exit = (kind, extra) => {
+  say('stopped: ' + kind + (extra && extra.answerKey ? ' (answer key ' + extra.answerKey + ')' : ''))
+  return { status: 'exception', kind, ...extra, done, head, facts, decisions }
+}
 // Single-quotes a string for sh, so a compound Run check (a && b) runs whole under rtk proxy.
 const shellQuote = s => "'" + s.replace(/'/g, "'\\''") + "'"
 const lastSha = r => (r.shas && r.shas.length ? r.shas[r.shas.length - 1] : null)
@@ -176,6 +189,7 @@ async function reviewLoop(scope, base, set, P) {
     rounds++
     const range = base + '..' + head
     const asked = keys.filter(k => pending[k])
+    say((firstRound ? 'review' : 're-review') + ' r' + rounds + ' (' + asked.join(', ') + ')')
     const reviews = (await parallel(asked.map(k => () => {
       const who = set[k]
       const body = (who.skill
@@ -201,8 +215,10 @@ async function reviewLoop(scope, base, set, P) {
 
     const aged = found.filter(f => !f.standing && seen[f.id] >= 3)
     if (aged.length) return { exception: exit('aged-findings', { scope, findings: aged }) }
-    if (keys.every(k => !pending[k]))
+    if (keys.every(k => !pending[k])) {
+      say('approved in ' + rounds + ' round(s)')
       return { ok: true, rounds, verdicts, extraFiles, open: Object.values(prior).flat().filter(f => !f.blocking) }
+    }
     if (!blockers.length) return { exception: exit('rejection-without-blockers', { scope, findings: found }) }
     const ids = blockers.map(f => f.id).sort().join('|')
     if (ids === prevIds) return { exception: exit('no-progress', { scope, findings: blockers }) }
@@ -211,6 +227,7 @@ async function reviewLoop(scope, base, set, P) {
 
     const fixBase = head
     const fixLabel = 'fix:' + scope + ':r' + rounds
+    say('fixing ' + blockers.length + ' blocker(s) from r' + rounds + ': ' + blockers.map(f => f.id).join(', '))
     const fix = await agent(prompt(
       'Fix exactly these blocking findings on ' + scope + ' (commit range ' + range + '):\n' + JSON.stringify(blockers), fixLabel),
       { label: fixLabel, agentType: 'essentials:fixer', schema: IMPL, phase: P })
@@ -230,6 +247,7 @@ async function reviewLoop(scope, base, set, P) {
 }
 
 async function simplify(scope, base, P) {
+  say('simplifying')
   const r = await agent(prompt(
     'Invoke the simplify skill on commit range ' + base + '..' + head + ' (' + scope + '). Apply its edits, then commit them through the pre-commit hook as new commits whose messages describe the change only, with a conventional-commit subject such as `refactor(scope): what changed` (never --no-verify or --amend). No edits worth making → status committed with no shas. ' +
     'Report hookLog: the tail of the last hook run, then `git status --porcelain` after your last commit. A path you edited still showing there means the hook passed on code the commit lacks → status blocked with that output.', 'simplify:' + scope),
@@ -241,9 +259,12 @@ async function simplify(scope, base, P) {
 }
 
 // ---- per slice ----
-for (const slice of SLICES) {
-  const P = 'Slice ' + slice.id
+for (const [i, slice] of SLICES.entries()) {
+  const name = sliceName(slice)
+  const P = 'Slice ' + slice.id + (name ? ' · ' + name : '')
   const base = head
+  where = slice.id + ' (' + (i + 1) + '/' + SLICES.length + ')'
+  say('implementing' + (name ? ': ' + name : ''))
 
   const impl = await agent(prompt(
     'Implement slice ' + slice.id + ': ' + slice.planExcerpt +
@@ -267,12 +288,13 @@ for (const slice of SLICES) {
 
   done.push({ slice: slice.id, base, head, rounds: result.rounds,
     extraFiles: (impl.extraFiles || []).concat(result.extraFiles), open: result.open })
-  log('Slice ' + slice.id + ' done (' + result.rounds + ' review round(s)) at ' + head)
+  say('done in ' + result.rounds + ' review round(s), head ' + short(head))
 }
 
 // ---- milestone end ----
 const P = 'Milestone end'
 const milestoneBase = args.baseSha
+where = 'milestone end'
 
 const runCheck = { rounds: 0, reviewRounds: 0, open: [], extraFiles: [] }
 if (RUN_CHECK) {
@@ -281,6 +303,7 @@ if (RUN_CHECK) {
   for (;;) {
     checkRounds++
     const checkLabel = 'run-check:r' + checkRounds
+    say('run check r' + checkRounds)
     const check = await agent(
       'Run exactly this command from the repo root and report the result; change nothing: rtk proxy sh -c ' + shellQuote(RUN_CHECK) +
       '\n(rtk proxy bypasses output rewriting; if rtk is not installed, run sh -c with the same argument.)' +
@@ -290,6 +313,7 @@ if (RUN_CHECK) {
     if (check.pass) break
     if (checkRounds >= RUN_CAP || check.tail === prevTail) return exit('run-check-red', { tail: check.tail, rounds: checkRounds })
     prevTail = check.tail
+    say('run check red, fixing')
     const fixBase = head
     const fixLabel = 'fix:run-check:r' + checkRounds
     const fix = await agent(prompt(
@@ -327,4 +351,5 @@ const endSet = reviewMilestone ? reviewerSet('milestone')
 const end = await reviewLoop('milestone', milestoneBase, endSet, P)
 if (end.exception) return end.exception
 
+say('complete: ' + done.length + ' slice(s), head ' + short(head))
 return { status: 'complete', done, head, runCheck, milestone: { rounds: end.rounds, open: end.open || [], extraFiles: end.extraFiles || [] }, facts, decisions }

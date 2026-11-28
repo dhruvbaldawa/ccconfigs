@@ -54,8 +54,9 @@ async function run(args: Record<string, any>, responders: Record<string, Respond
   };
   const parallel = (thunks: Array<() => Promise<any>>) => Promise.all(thunks.map((t) => t().catch(() => null)));
   const fn = new AsyncFunction('agent', 'parallel', 'pipeline', 'phase', 'log', 'args', body());
-  const result = await fn(agent, parallel, undefined, () => {}, () => {}, args);
-  return { result, calls, labels: calls.map((c) => c.label) };
+  const logs: string[] = [];
+  const result = await fn(agent, parallel, undefined, () => {}, (m: string) => logs.push(m), args);
+  return { result, calls, logs, labels: calls.map((c) => c.label) };
 }
 
 const SLICE = (id: string) => ({ id, planExcerpt: `do ${id}`, commits: [{ files: [`${id}.ts`], message: `feat: ${id}` }] });
@@ -888,9 +889,43 @@ describe('milestone end', () => {
 
   test('agents run in their phase group', async () => {
     const { calls } = await run(ARGS({ slices: [SLICE('s1')], runCheck: 'rc' }), { ...ok, 'run-check:': () => ({ pass: true, tail: '' }) });
-    expect(calls.find((c) => c.label === 'implement:s1')!.opts.phase).toBe('Slice s1');
-    expect(calls.find((c) => c.label === 'review:senior:slice s1:r1')!.opts.phase).toBe('Slice s1');
+    expect(calls.find((c) => c.label === 'implement:s1')!.opts.phase).toBe('Slice s1 · s1');
+    expect(calls.find((c) => c.label === 'review:senior:slice s1:r1')!.opts.phase).toBe('Slice s1 · s1');
     expect(calls.find((c) => c.label === 'run-check:r1')!.opts.phase).toBe('Milestone end');
+  });
+});
+
+describe('live status', () => {
+  test('a phase is named by the slice title, else its first commit subject without the conventional prefix', async () => {
+    const titled = { ...SLICE('s1'), title: 'token check' };
+    const scoped = { ...SLICE('s2'), commits: [{ files: ['a.ts'], message: 'feat(auth)!: add refresh\n\nbody' }] };
+    const { calls } = await run(ARGS({ slices: [titled, scoped] }), ok);
+    expect(calls.find((c) => c.label === 'implement:s1')!.opts.phase).toBe('Slice s1 · token check');
+    expect(calls.find((c) => c.label === 'implement:s2')!.opts.phase).toBe('Slice s2 · add refresh');
+  });
+
+  test('the status line follows each step, through a fix round, to completion', async () => {
+    const { logs } = await run(ARGS({ slices: [SLICE('s1')] }), {
+      ...ok,
+      'review:senior:slice s1': (_c, n) => (n === 0 ? needsWork('x') : { verdict: 'SHIP IT', findings: [] }),
+    });
+    expect(logs[0]).toBe('s1 (1/1) · implementing: s1');
+    expect(logs).toContain('s1 (1/1) · review r1 (senior, test)');
+    expect(logs.some((l) => l.startsWith('s1 (1/1) · fixing 1 blocker(s) from r1: '))).toBe(true);
+    expect(logs).toContain('s1 (1/1) · re-review r2 (senior)');
+    expect(logs.at(-1)).toMatch(/^milestone end · complete: 1 slice\(s\), head /);
+  });
+
+  test('an exception says where it stopped and the answer key', async () => {
+    const { logs } = await run(ARGS(), { ...ok, 'implement:s2': () => ({ status: 'question', summary: 'q', questions: ['?'] }) });
+    expect(logs.at(-1)).toBe('s2 (2/2) · stopped: question (answer key implement:s2)');
+  });
+
+  test("seed's name stamp replaces exactly the meta name and leaves a parseable literal", () => {
+    const stamped = SOURCE.replace("name: 'conveyor-run',", "name: 'arch-m7 · auth middleware',");
+    expect(stamped).not.toBe(SOURCE);
+    const literal = stamped.match(META)![0].replace(/^export const meta = /, '').replace(/;$/, '');
+    expect(new Function(`return (${literal})`)().name).toBe('arch-m7 · auth middleware');
   });
 });
 

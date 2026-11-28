@@ -36,7 +36,7 @@ Names: plan → milestone (one /conveyor run, one `.conveyor/<milestone>/` folde
    - Push access works: `git push --dry-run` to the integration target.
    - Record the integration target: branch, push destination, PR or direct.
 5. **Workspace**: `.conveyor/<milestone>/`, with `.conveyor/` in `.git/info/exclude`.
-   - Copy `workflow.js` from this skill's base directory there.
+   - Copy `workflow.js` from this skill's base directory there, then stamp the run's name: replace `name: 'conveyor-run',` in the copy with `name: '<milestone> · <milestone title>',` (a few words from PLAN.md, single quotes escaped). That is the run's title in /workflows; the live status line comes from the script.
    - Write `args.json` beside it; `reference/workflow-skeleton.md` defines every field.
    - Write `context.md` (sections below) and create `log.md`. Its Code standards section copies the code rules from `~/.claude/rules/` (e.g. `code.md`) and the repo CLAUDE.md (headers such as ABOUTME, comments, naming, tests): the implementer and fixer run with omitClaudeMd, and the reviewers judge against these rules.
 6. **Go**: show the slice list and wait for Dhruv's go. Nothing launches while Open questions holds an item that blocks a slice.

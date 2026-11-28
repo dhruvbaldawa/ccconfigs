@@ -1,6 +1,6 @@
 # Conveyor workflow script
 
-The script is `../workflow.js`. At seed, copy it unchanged to `.conveyor/<milestone>/workflow.js` and write `args.json` beside it. Launch with `Workflow({scriptPath: '.conveyor/<milestone>/workflow.js', args})`. Never pass the script inline, and never edit the copy after launch. To change course, change `args` and resume with `scriptPath` + `resumeFromRunId`. Resume replays the longest unchanged prefix of agent calls from cache; the first call whose prompt changed, and every call after it, runs live. Put answers in `answers`, keyed by the label of the call that asked (appended at the end of that one prompt), never in `standards` (the start of every prompt).
+The script is `../workflow.js`. At seed, copy it to `.conveyor/<milestone>/workflow.js`, changing only `meta.name` to `'<milestone> · <milestone title>'`, and write `args.json` beside it. Launch with `Workflow({scriptPath: '.conveyor/<milestone>/workflow.js', args})`. Never pass the script inline, and never edit the copy after launch. To change course, change `args` and resume with `scriptPath` + `resumeFromRunId`. Resume replays the longest unchanged prefix of agent calls from cache; the first call whose prompt changed, and every call after it, runs live. Put answers in `answers`, keyed by the label of the call that asked (appended at the end of that one prompt), never in `standards` (the start of every prompt).
 
 ## args
 
@@ -8,7 +8,7 @@ The script is `../workflow.js`. At seed, copy it unchanged to `.conveyor/<milest
 |---|---|
 | `workspace` | Absolute path to `.conveyor/<milestone>`. Agents read `context.md` there first. |
 | `baseSha` | The commit the milestone starts from. The first slice's range starts here, and the milestone-end review covers `baseSha..head`. |
-| `slices` | `[{ id, planExcerpt, commits: [{ files, message }] }]`, in order. Each slice has 1–3 commits. Messages describe the change only: no slice ids or other process markers. |
+| `slices` | `[{ id, title?, planExcerpt, commits: [{ files, message }] }]`, in order. `title` (a few words) names the slice's phase group and status line; without it, the first commit subject minus its conventional prefix does. Each slice has 1–3 commits. Messages describe the change only: no slice ids or other process markers. |
 | `checkCommand` | The commit tier, the repo CLAUDE.md `Check:` line. The pre-commit hook runs it; the script never does. |
 | `runCheck` | Optional. The run tier, the `Run check:` line. Runs once at milestone end as `rtk proxy sh -c '<runCheck>'`, so a compound command runs whole. Red → fixer with the last 80 lines as a `run-check-red` finding → run again. Ends red at `roundsCap` (3 rounds with `'until-approved'`), when the same failure comes back, or when the fixer commits nothing. Without a milestone review, the slice reviewers (and a per-slice security-audit) review the fix commits. Fixes made by a review after the run check are not run through it again; CI after push covers them. |
 | `reviewers` | Non-empty subset of `['senior', 'test']`. |
@@ -25,6 +25,8 @@ Per slice, in order:
 2. **Simplify** (if `skills.simplify` includes `'slice'`): a default subagent runs the simplify skill on the slice's range and commits its edits through the hook.
 3. **Review** (if `reviewCover` includes slices): the reviewers, plus security-audit if `'slice'`, run in parallel on the slice's commit range plus the last hook log. Security-audit runs as a default subagent returning the same verdict schema. A reviewer that returns nothing is a `reviewers-null` exception.
 4. **Fix**: `essentials:fixer` gets exactly the blocking findings and makes new commits, then the rejecting reviewers re-review the fix commits, each with its own prior findings. Approvals carry unless the fixer's `extraFiles` go beyond the findings' files (workspace paths and absolute or relative spellings of a finding's file don't count; a different file with a similar name does), which brings every reviewer back at full depth.
+
+Each step also emits one status line through `log()`, prefixed with where the run is (`s2 (2/4) · review r1 (senior, test)`, `milestone end · run check r1`, `… · stopped: question (answer key implement:s2)`). Status lines are not agent calls, so they never affect the resume cache.
 
 At milestone end:
 1. The run check, with its fix loop, and a review of its fix commits when no milestone review follows.
